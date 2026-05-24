@@ -38,4 +38,4 @@ chat-application/
 
 ## Database Schema
 
-![Database Schema](docs/schema-diagram.png)
+![Database Schema](docs/DatabaseSchema.png)
