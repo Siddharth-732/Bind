@@ -119,3 +119,36 @@ export const loginUser = async (req, res) => {
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
+export const logoutUser = async (req, res) => {
+  try {
+    await User.findByIdAndUpdate(
+      req.user._id,
+      {
+        $unset: {
+          refreshToken: 1,
+        },
+      },
+      {
+        new: true,
+      },
+    );
+
+    const options = {
+      httpOnly: true,
+      secure: true,
+    };
+
+    return res
+      .status(200)
+      .clearCookie("accessToken", options)
+      .clearCookie("refreshToken", options)
+      .json({
+        success: true,
+        message: "User logged out successfully",
+      });
+  } catch (error) {
+    console.error("Error in logoutUser:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
