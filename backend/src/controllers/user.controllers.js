@@ -57,3 +57,65 @@ export const registerUser = async (req, res) => {
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
+export const loginUser = async (req, res) => {
+  try {
+    console.log(req.body);
+
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res
+        .status(400)
+        .json({ message: "Email and password are required" });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User does not exist" });
+    }
+
+    if (!user.password) {
+      return res.status(400).json({
+        message:
+          "This account was created using Google. Please sign in with Google.",
+      });
+    }
+
+    const isPasswordValid = await user.isPasswordCorrect(password);
+
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: "Invalid user credentials" });
+    }
+
+    const accessToken = user.generateAccessToken();
+    const refreshToken = user.generateRefreshToken();
+
+    user.refreshToken = refreshToken;
+    await user.save({ validateBeforeSave: false });
+
+    const loggedInUser = await User.findById(user._id).select(
+      "-password -refreshToken",
+    );
+
+    const cookieOptions = {
+      httpOnly: true, // Prevents frontend JavaScript from reading the cookie
+      secure: true, // Ensures cookies are only sent over HTTPS (or localhost)
+    };
+
+    return res
+      .status(200)
+      .cookie("accessToken", accessToken, cookieOptions)
+      .cookie("refreshToken", refreshToken, cookieOptions)
+      .json({
+        success: true,
+        message: "User logged in successfully",
+        user: loggedInUser,
+        accessToken,
+        refreshToken,
+      });
+  } catch (error) {
+    console.error("Error in loginUser:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
