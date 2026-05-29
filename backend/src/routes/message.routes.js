@@ -8,7 +8,7 @@ import { verifyJWT } from "../middleware/auth.middleware.js";
 
 const router = Router();
 
-router.route("/send/:id").post(verifyJWT, sendMessage);
+router.route("/conversations").get(verifyJWT, getConversations);
 router.route("/:id").get(verifyJWT, getMessages);
 router.route("/send/:id").post(verifyJWT, sendMessage);
 
