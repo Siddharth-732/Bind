@@ -1,5 +1,6 @@
 import { Conversation } from "../models/conservation.models.js";
 import { Message } from "../models/message.models.js";
+import { getReceiverSocketId, getIO } from "../socket/index.js";
 
 export const sendMessage = async (req, res) => {
   try {
@@ -42,8 +43,12 @@ export const sendMessage = async (req, res) => {
     // This is much faster than saving one, waiting, and then saving the other.
     await Promise.all([conversation.save(), newMessage.save()]);
 
-    // TODO: SOCKET.IO LOGIC GOES HERE LATER!
-    // This is where we will instantly beam the 'newMessage' to the receiver.
+    const receiverSocketId = getReceiverSocketId(receiverId);
+
+    if (receiverSocketId) {
+      const io = getIO();
+      io.to(receiverSocketId).emit("newMessage", newMessage);
+    }
 
     return res.status(201).json({
       success: true,
