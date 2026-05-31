@@ -1,28 +1,46 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react"; // 1. Import useEffect
+import { useRouter } from "next/navigation"; // 2. Import useRouter
+import { useAuthStore } from "../../store/useAuthStore";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = (e: React.FormEvent) => {
+  // 3. Grab authUser to know when they are officially logged in
+  const { login, authUser } = useAuthStore();
+  const router = useRouter();
+
+  // 4. Automatically redirect to the home page if authUser exists
+  useEffect(() => {
+    if (authUser) {
+      router.push("/");
+    }
+  }, [authUser, router]);
+
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Login clicked!", { email, password });
-    // We will wire this to Axios later!
+    await login({ email, password });
   };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-950 px-4 text-zinc-100">
       <div className="w-full max-w-md rounded-2xl bg-zinc-900 p-8 shadow-2xl ring-1 ring-white/10">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold tracking-tight text-white">Welcome back</h1>
-          <p className="mt-2 text-sm text-zinc-400">Sign in to your Talk8iv account</p>
+          <h1 className="text-3xl font-bold tracking-tight text-white">
+            Welcome back
+          </h1>
+          <p className="mt-2 text-sm text-zinc-400">
+            Sign in to your Talk8iv account
+          </p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-zinc-300">Email Address</label>
+            <label className="block text-sm font-medium text-zinc-300">
+              Email Address
+            </label>
             <input
               type="email"
               required
@@ -33,7 +51,9 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-zinc-300">Password</label>
+            <label className="block text-sm font-medium text-zinc-300">
+              Password
+            </label>
             <input
               type="password"
               required
@@ -53,7 +73,10 @@ export default function LoginPage() {
 
         <div className="mt-6 flex items-center justify-center gap-2 text-sm text-zinc-400">
           <span>Don't have an account?</span>
-          <Link href="/register" className="font-medium text-indigo-400 hover:text-indigo-300 hover:underline">
+          <Link
+            href="/register"
+            className="font-medium text-indigo-400 hover:text-indigo-300 hover:underline"
+          >
             Sign up
           </Link>
         </div>

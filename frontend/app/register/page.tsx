@@ -1,16 +1,17 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
+import { useAuthStore } from "../../store/useAuthStore";
 
 export default function RegisterPage() {
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleRegister = (e: React.FormEvent) => {
+  const { register } = useAuthStore();
+  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Register clicked!", { displayName, email, password });
-    // We will wire this to Axios later!
+    await register({ displayName, email, password });
   };
 
   return (
