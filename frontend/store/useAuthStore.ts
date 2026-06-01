@@ -9,6 +9,7 @@ interface AuthState {
   isRegistering: boolean;
   login: (data: any) => Promise<void>;
   register: (data: any) => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -54,6 +55,20 @@ login: async (data) => {
       toast.error(error.response?.data?.message || "Failed to create account");
     } finally {
       set({ isRegistering: false });
+    }
+  },
+  logout: async () => {
+    try {
+      // 1. Tell the Express backend to clear the HTTP-Only cookies
+      await axiosInstance.post("/users/logout");
+      
+      // 2. Clear the user from our frontend global memory
+      set({ authUser: null }); 
+      
+      // 3. Show a success notification
+      toast.success("Logged out successfully");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to log out");
     }
   },
 }));
