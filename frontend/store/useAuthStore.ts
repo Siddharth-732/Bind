@@ -1,45 +1,38 @@
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import toast from "react-hot-toast";
+import { io } from "socket.io-client";
 
 // Define the shape of our store for TypeScript
 interface AuthState {
   authUser: any;
   isLoggingIn: boolean;
   isRegistering: boolean;
+  socket: any;
   login: (data: any) => Promise<void>;
   register: (data: any) => Promise<void>;
   logout: () => Promise<void>;
+  connectSocket: () => void; 
+  disconnectSocket: () => void; 
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
+  
   authUser: null, // Holds the user's data when logged in
   isLoggingIn: false,
   isRegistering: false,
 
 login: async (data) => {
-    console.log("📍 TRACE 1: Login function triggered with:", data);
     set({ isLoggingIn: true });
     
     try {
-      console.log("📍 TRACE 2: Sending request to backend...");
       const response = await axiosInstance.post("/users/login", data);
-      
-      console.log("📍 TRACE 3: Backend responded perfectly!", response);
-      console.log("📍 TRACE 4: The exact user data is:", response.data.user);
-      
       set({ authUser: response.data.user }); 
-      console.log("📍 TRACE 5: Zustand store successfully updated!");
-      
       toast.success("Logged in successfully!");
-      
     } catch (error: any) {
-      console.log("❌ TRACE CRASH: Execution fell into the catch block!");
-      console.log("❌ EXACT ERROR:", error);
       toast.error(error.response?.data?.message || "Failed to log in");
       
     } finally {
-      console.log("📍 TRACE 6: Resetting loading state.");
       set({ isLoggingIn: false });
     }
   },
@@ -59,16 +52,44 @@ login: async (data) => {
   },
   logout: async () => {
     try {
-      // 1. Tell the Express backend to clear the HTTP-Only cookies
+      // tell the Express backend to clear the HTTP-Only cookies
       await axiosInstance.post("/users/logout");
       
-      // 2. Clear the user from our frontend global memory
+      // clear the user from our frontend global memory
       set({ authUser: null }); 
       
-      // 3. Show a success notification
       toast.success("Logged out successfully");
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to log out");
+    }
+  },
+
+  socket: null,
+  connectSocket: () => {
+
+    const { authUser, socket } = get();
+    
+    // if we aren't logged in, or the socket is already connected, do nothing!
+    if (!authUser || socket?.connected) return;
+
+    // dial the backend phone number and pass our User ID
+    const newSocket = io("http://localhost:5000", {
+      query: {
+        userId: authUser._id,
+      },
+    });
+
+    newSocket.connect();
+    set({ socket: newSocket });
+    console.log("🔌 Socket connected!");
+  },
+
+  disconnectSocket: () => {
+    const { socket } = get();
+    if (socket?.connected) {
+      socket.disconnect();
+      set({ socket: null });
+      console.log("🔌 Socket disconnected!");
     }
   },
 }));

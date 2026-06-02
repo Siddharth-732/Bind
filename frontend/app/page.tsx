@@ -4,15 +4,17 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function Home() {
-  const { authUser, logout } = useAuthStore();
+  const { authUser, logout, connectSocket, disconnectSocket } = useAuthStore();
   const router = useRouter();
 
-  // the Bouncer: Kick unauthenticated users back to login
   useEffect(() => {
     if (!authUser) {
       router.push("/login");
+    } else {
+      connectSocket();
     }
-  }, [authUser, router]);
+    return () => disconnectSocket();
+  }, [authUser, router, connectSocket, disconnectSocket]);
 
   // prevent the page from flashing while the redirect happens
   if (!authUser) return null;
