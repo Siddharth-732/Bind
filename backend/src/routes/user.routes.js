@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  getUsersForSidebar,
   registerUser,
   loginUser,
   logoutUser,
@@ -23,6 +24,7 @@ router.route("/register").post(
 );
 router.route("/login").post(loginUser);
 router.route("/logout").post(verifyJWT, logoutUser);
+router.route("/").get(verifyJWT, getUsersForSidebar);
 router.route("/refresh-token").post(refreshAccessToken);
 router.route("/update-account").patch(verifyJWT, updateAccountDetails);
 router.route("/change-password").post(verifyJWT, changeCurrentPassword);

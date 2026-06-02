@@ -1,10 +1,12 @@
 "use client";
 import { useAuthStore } from "../store/useAuthStore";
+import { useChatStore } from "../store/useChatStore";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function Home() {
   const { authUser, logout, connectSocket, disconnectSocket } = useAuthStore();
+  const { users, getUsers, selectedUser, setSelectedUser } = useChatStore();
   const router = useRouter();
 
   useEffect(() => {
@@ -12,6 +14,7 @@ export default function Home() {
       router.push("/login");
     } else {
       connectSocket();
+      getUsers();
     }
     return () => disconnectSocket();
   }, [authUser, router, connectSocket, disconnectSocket]);
@@ -21,39 +24,35 @@ export default function Home() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-zinc-950 text-white">
-      {/* the Sidebar (Users List) */}
-      <div className="w-80 flex flex-col border-r border-zinc-800 bg-zinc-900">
-        <div className="border-b border-zinc-800 p-5">
-          <h2 className="text-2xl font-bold tracking-tight text-white">
-            Talk8iv
-          </h2>
-          <p className="mt-1 text-sm text-zinc-400">
-            Welcome back,{" "}
-            <span className="text-indigo-400">{authUser.displayName}</span>
-          </p>
-        </div>
-
-        <div className="flex-1 overflow-y-auto p-4">
+      {/* The Sidebar (Users List) */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-2">
+        {users.length === 0 ? (
           <p className="text-center text-sm text-zinc-500 mt-10">
-            Online users will appear here...
+            No users found.
           </p>
-        </div>
-
-        <div className="border-t border-zinc-800 p-4 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            {/*swap this with a real image later! */}
-            <div className="h-10 w-10 rounded-full bg-indigo-600 flex items-center justify-center font-bold">
-              {authUser.displayName.charAt(0).toUpperCase()}
-            </div>
-            <span className="text-sm font-medium">{authUser.displayName}</span>
-          </div>
-          <button
-            onClick={logout}
-            className="text-sm text-zinc-400 hover:text-red-400 transition-colors"
-          >
-            Logout
-          </button>
-        </div>
+        ) : (
+          users.map((user) => (
+            <button
+              key={user._id}
+              onClick={() => setSelectedUser(user)}
+              className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors ${
+                selectedUser?._id === user._id
+                  ? "bg-zinc-800 ring-1 ring-indigo-500"
+                  : "hover:bg-zinc-800/50"
+              }`}
+            >
+              <div className="h-10 w-10 rounded-full bg-indigo-600/20 flex items-center justify-center font-bold text-indigo-400">
+                {user.displayName.charAt(0).toUpperCase()}
+              </div>
+              <div className="text-left flex-1">
+                <p className="text-sm font-medium text-zinc-200">
+                  {user.displayName}
+                </p>
+                <p className="text-xs text-zinc-500 truncate">{user.email}</p>
+              </div>
+            </button>
+          ))
+        )}
       </div>
 
       {/* the Main Chat Area */}

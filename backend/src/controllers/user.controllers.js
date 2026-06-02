@@ -301,3 +301,23 @@ export const updateUserAvatar = async (req, res) => {
     user: updatedUser,
   });
 };
+
+export const getUsersForSidebar = async (req, res) => {
+  try {
+    // req.user comes from your authentication middleware
+    const loggedInUserId = req.user._id;
+
+    // find all users EXCEPT the currently logged in user, and hide passwords
+    const filteredUsers = await User.find({
+      _id: { $ne: loggedInUserId },
+    }).select("-password");
+
+    return res.status(200).json({
+      success: true,
+      data: filteredUsers,
+    });
+  } catch (error) {
+    console.error("Error in getUsersForSidebar: ", error.message);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
