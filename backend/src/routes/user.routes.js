@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   getUsersForSidebar,
   registerUser,
+  checkUsername,
   loginUser,
   logoutUser,
   refreshAccessToken,
@@ -12,7 +13,7 @@ import {
 import { upload } from "../middleware/multer.middleware.js";
 import { verifyJWT } from "../middleware/auth.middleware.js";
 const router = Router();
-
+router.route("/check-username").get(checkUsername);
 router.route("/register").post(
   upload.fields([
     {

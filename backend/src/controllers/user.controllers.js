@@ -7,18 +7,27 @@ import jwt from "jsonwebtoken";
 
 export const registerUser = async (req, res) => {
   try {
-    const { displayName, email, password } = req.body;
+    const { email, password, displayName, username, bio, avatar } = req.body;
 
-    if (!displayName || !email || !password) {
-      return res.status(400).json({ message: "All fields are required." });
+    if (!email || !password || !displayName || !username) {
+      return res
+        .status(400)
+        .json({ message: "Please fill in all required fields." });
     }
 
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({
+      $or: [{ email }, { username: username.toLowerCase() }],
+    });
 
     if (existingUser) {
+      if (existingUser.email === email) {
+        return res
+          .status(400)
+          .json({ message: "An account with this email already exists." });
+      }
       return res
-        .status(409)
-        .json({ message: "User with this email already exists." });
+        .status(400)
+        .json({ message: "This username is already taken." });
     }
 
     let avatarUrl = "";
@@ -319,5 +328,35 @@ export const getUsersForSidebar = async (req, res) => {
   } catch (error) {
     console.error("Error in getUsersForSidebar: ", error.message);
     return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const checkUsername = async (req, res) => {
+  try {
+    const { username } = req.query;
+
+    if (!username) {
+      return res
+        .status(400)
+        .json({ message: "Username query parameter is required" });
+    }
+    const existingUser = await User.findOne({
+      username: username.toLowerCase(),
+    });
+
+    if (existingUser) {
+      return res
+        .status(200)
+        .json({ available: false, message: "Username is already taken" });
+    }
+
+    return res
+      .status(200)
+      .json({ available: true, message: "Username is available" });
+  } catch (error) {
+    console.error("Error in checkUsername: ", error.message);
+    return res
+      .status(500)
+      .json({ message: "Internal server error from username check" });
   }
 };
