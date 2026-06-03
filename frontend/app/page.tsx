@@ -1,293 +1,244 @@
 "use client";
 import { useAuthStore } from "../store/useAuthStore";
+import { useChatStore } from "../store/useChatStore";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import {
-  Home as HomeIcon,
-  PenSquare,
+  MessageCircle,
   Search,
+  Building2,
   Compass,
   Heart,
   User,
   Settings,
-  Image as ImageIcon,
-  FileText,
-  BarChart2,
-  MoreHorizontal,
-  Share2,
+  Phone,
+  Video,
+  Info,
+  Paperclip,
+  Smile,
+  Mic,
+  Send,
+  Plus,
   MessageSquare,
-  ThumbsUp,
 } from "lucide-react";
 
-export default function Home() {
-  const { authUser, logout } = useAuthStore();
+export default function ChatPage() {
+  const { authUser, logout, connectSocket, disconnectSocket } = useAuthStore();
+  const { users, getUsers, selectedUser, setSelectedUser } = useChatStore();
   const router = useRouter();
 
-  // Bouncer: Kick unauthenticated users back to login
+  // Bouncer & Initializer
   useEffect(() => {
     if (!authUser) {
       router.push("/login");
+    } else {
+      connectSocket();
+      getUsers();
     }
-  }, [authUser, router]);
+    return () => disconnectSocket();
+  }, [authUser, router, connectSocket, disconnectSocket, getUsers]);
 
   if (!authUser) return null;
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] flex justify-center text-slate-800 font-sans">
-      <div className="max-w-[1500px] w-full flex gap-8 py-8 px-4 relative">
-        {/* ================= COLUMN 1: LEFT NAVIGATION (HOVER-EXPAND) ================= */}
-        {/* The ghost wrapper maintains a fixed 72px space in the flex layout */}
-        <div className="w-[72px] shrink-0 relative z-50">
-          {/* The actual sidebar that expands from 72px to 256px (w-64) on hover */}
-          <div className="absolute top-0 left-0 w-[72px] hover:w-64 bg-[#F8F9FA] transition-all duration-300 ease-in-out flex flex-col overflow-hidden group rounded-2xl hover:shadow-2xl hover:shadow-slate-200/50 pb-8 border border-transparent hover:border-slate-200">
-            {/* Header */}
-            <div className="mb-8 pl-6 pr-4 pt-6 flex items-center gap-4 whitespace-nowrap overflow-hidden">
-              <div className="shrink-0 w-6 flex items-center justify-center font-bold text-blue-900 text-xl">
-                T8
-              </div>
-              <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-75">
-                <h1 className="text-xl font-bold text-blue-900 leading-none">
-                  Talk8iv
-                </h1>
-                <p className="text-[10px] text-slate-500 mt-1 uppercase tracking-wider">
-                  Dev Network
-                </p>
-              </div>
+    <div className="flex h-screen bg-[#F4F7F9] text-slate-800 font-sans overflow-hidden">
+      {/* ================= PANE 1: GLOBAL NAVIGATION ================= */}
+      <div className="w-64 bg-white border-r border-slate-200 flex flex-col justify-between py-6 shrink-0 z-20 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
+        <div>
+          <div className="px-8 mb-10 flex items-center gap-3">
+            <div className="h-10 w-10 bg-cyan-500 text-white rounded-xl flex items-center justify-center font-bold text-xl shadow-md">
+              B
             </div>
-
-            {/* Navigation */}
-            <nav className="flex flex-col gap-2 flex-1">
-              <button className="flex items-center gap-4 pl-6 pr-4 py-3 bg-slate-100 text-blue-700 font-medium transition-colors w-full overflow-hidden whitespace-nowrap border-l-4 border-blue-600 rounded-r-lg">
-                <div className="shrink-0 w-6 flex justify-center">
-                  <HomeIcon size={22} />
-                </div>
-                <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  Home
-                </span>
-              </button>
-              <button className="flex items-center gap-4 pl-6 pr-4 py-3 text-slate-600 hover:bg-slate-100 font-medium transition-colors w-full overflow-hidden whitespace-nowrap rounded-r-lg border-l-4 border-transparent">
-                <div className="shrink-0 w-6 flex justify-center">
-                  <PenSquare size={22} />
-                </div>
-                <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  Post
-                </span>
-              </button>
-              <button className="flex items-center gap-4 pl-6 pr-4 py-3 text-slate-600 hover:bg-slate-100 font-medium transition-colors w-full overflow-hidden whitespace-nowrap rounded-r-lg border-l-4 border-transparent">
-                <div className="shrink-0 w-6 flex justify-center">
-                  <Search size={22} />
-                </div>
-                <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  Search
-                </span>
-              </button>
-              <button className="flex items-center gap-4 pl-6 pr-4 py-3 text-slate-600 hover:bg-slate-100 font-medium transition-colors w-full overflow-hidden whitespace-nowrap rounded-r-lg border-l-4 border-transparent">
-                <div className="shrink-0 w-6 flex justify-center">
-                  <Compass size={22} />
-                </div>
-                <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  Explore
-                </span>
-              </button>
-              <button className="flex items-center gap-4 pl-6 pr-4 py-3 text-slate-600 hover:bg-slate-100 font-medium transition-colors w-full overflow-hidden whitespace-nowrap rounded-r-lg border-l-4 border-transparent relative">
-                <div className="shrink-0 w-6 flex justify-center">
-                  <Heart size={22} />
-                </div>
-                <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  Likes
-                </span>
-                {/* Notification dot mimic */}
-                <span className="absolute left-[34px] top-3 w-2 h-2 bg-red-500 rounded-full border border-[#F8F9FA]"></span>
-              </button>
-              <button className="flex items-center gap-4 pl-6 pr-4 py-3 text-slate-600 hover:bg-slate-100 font-medium transition-colors w-full overflow-hidden whitespace-nowrap rounded-r-lg border-l-4 border-transparent">
-                <div className="shrink-0 w-6 flex justify-center">
-                  <User size={22} />
-                </div>
-                <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  Profile
-                </span>
-              </button>
-            </nav>
-
-            {/* Footer Actions */}
-            <div className="mt-8 flex flex-col gap-2">
-              <button className="flex items-center gap-4 pl-6 pr-4 py-3 bg-blue-500 hover:bg-blue-600 text-white font-medium transition-colors shadow-sm overflow-hidden whitespace-nowrap w-[90%] rounded-r-full">
-                <div className="shrink-0 w-6 flex justify-center text-xl leading-none font-bold">
-                  +
-                </div>
-                <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  New Project
-                </span>
-              </button>
-              <button
-                onClick={logout}
-                className="flex items-center gap-4 pl-6 pr-4 py-3 text-slate-600 hover:bg-red-50 hover:text-red-600 font-medium transition-colors overflow-hidden whitespace-nowrap w-[90%] rounded-r-full"
-              >
-                <div className="shrink-0 w-6 flex justify-center">
-                  <Settings size={22} />
-                </div>
-                <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  Logout
-                </span>
-              </button>
+            <div>
+              <h1 className="text-xl font-bold text-slate-900 leading-tight">
+                Bind
+              </h1>
+              <p className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">
+                Connect to Build
+              </p>
             </div>
+          </div>
+
+          <nav className="flex flex-col gap-2 px-4">
+            {/* Active Navigation Item */}
+            <button className="flex items-center gap-4 px-4 py-3 bg-teal-400/20 text-teal-700 rounded-xl font-bold transition-all border border-teal-400/30 shadow-sm">
+              <MessageCircle size={22} /> Chat
+            </button>
+            <button className="flex items-center gap-4 px-4 py-3 text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-xl font-medium transition-all">
+              <Search size={22} /> Search
+            </button>
+            <button className="flex items-center gap-4 px-4 py-3 text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-xl font-medium transition-all">
+              <Building2 size={22} /> Lodge
+            </button>
+            <button className="flex items-center gap-4 px-4 py-3 text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-xl font-medium transition-all">
+              <Compass size={22} /> Explore
+            </button>
+            <button className="flex items-center gap-4 px-4 py-3 text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-xl font-medium transition-all">
+              <Heart size={22} /> Likes
+            </button>
+            <button className="flex items-center gap-4 px-4 py-3 text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-xl font-medium transition-all">
+              <User size={22} /> Profile
+            </button>
+          </nav>
+        </div>
+
+        <div className="px-6 flex flex-col gap-4">
+          <button className="w-full py-3.5 bg-[#007A99] hover:bg-[#00627A] text-white rounded-xl font-semibold transition-colors shadow-md flex items-center justify-center gap-2">
+            <Plus size={20} /> New Study
+          </button>
+          <button
+            onClick={logout}
+            className="flex items-center gap-4 px-4 py-3 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl font-medium transition-all"
+          >
+            <Settings size={22} /> Settings
+          </button>
+        </div>
+      </div>
+
+      {/* ================= PANE 2: CHAT LIST ================= */}
+      <div className="w-80 bg-[#F9FBFC] border-r border-slate-200 flex flex-col shrink-0 z-10">
+        <div className="p-6">
+          <h2 className="text-2xl font-bold text-slate-900 mb-6">Chat</h2>
+          <div className="relative">
+            <Search
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+              size={18}
+            />
+            <input
+              type="text"
+              placeholder="Search Peers"
+              className="w-full bg-white border border-slate-200 rounded-full py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent shadow-sm placeholder:text-slate-400"
+            />
           </div>
         </div>
 
-        {/* ================= COLUMN 2: PROFILE & TRENDS ================= */}
-        <div className="w-72 flex flex-col gap-6 shrink-0">
-          {/* Profile Card */}
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col items-center text-center">
-            <div className="h-20 w-20 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-2xl font-bold mb-4 shadow-inner">
-              {authUser.displayName.charAt(0).toUpperCase()}
-            </div>
-            <h2 className="text-xl font-bold text-slate-900">
-              {authUser.displayName}
-            </h2>
-            <p className="text-sm font-medium text-blue-600 mt-1">
-              Full-Stack Developer
+        <div className="flex-1 overflow-y-auto px-3 space-y-1 pb-4">
+          {users.length === 0 ? (
+            <p className="text-center text-sm text-slate-400 mt-10">
+              No peers found.
             </p>
-
-            <div className="w-full border-t border-slate-100 mt-6 pt-4 flex flex-col gap-3">
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-500">Profile Views</span>
-                <span className="font-bold text-slate-700">1,240</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-500">Contributions</span>
-                <span className="font-bold text-blue-600">42</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Pulse Discovery (Trends) */}
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-            <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2">
-              <BarChart2 size={18} className="text-blue-500" /> Pulse Discovery
-            </h3>
-
-            <div className="flex flex-col gap-5">
-              <div>
-                <span className="text-[10px] font-bold tracking-wider text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md uppercase">
-                  Technology
-                </span>
-                <p className="text-sm font-bold mt-2 leading-snug">
-                  React 19 compiler features officially announced.
-                </p>
-                <p className="text-xs text-slate-500 mt-1">
-                  2h ago • 450 readers
-                </p>
-              </div>
-
-              <div className="border-t border-slate-100 pt-4">
-                <span className="text-[10px] font-bold tracking-wider text-blue-600 bg-blue-50 px-2 py-1 rounded-md uppercase">
-                  Trending
-                </span>
-                <p className="text-sm font-bold mt-2 leading-snug">
-                  How AI is reshaping modern developer workflows.
-                </p>
-                <p className="text-xs text-slate-500 mt-1">
-                  5h ago • 890 comments
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* ================= COLUMN 3: THE FEED ================= */}
-        <div className="flex-1 flex flex-col gap-6">
-          {/* Create Post Input */}
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4">
-            <div className="flex gap-4">
-              <div className="h-10 w-10 rounded-full bg-blue-100 flex shrink-0 items-center justify-center text-blue-600 font-bold">
-                {authUser.displayName.charAt(0).toUpperCase()}
-              </div>
-              <input
-                type="text"
-                placeholder="Share your latest project, insight, or question..."
-                className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              />
-            </div>
-            <div className="flex items-center justify-between mt-4 ml-14">
-              <div className="flex gap-4 text-slate-400">
-                <button className="hover:text-blue-500 transition-colors">
-                  <ImageIcon size={20} />
-                </button>
-                <button className="hover:text-blue-500 transition-colors">
-                  <FileText size={20} />
-                </button>
-                <button className="hover:text-blue-500 transition-colors">
-                  <BarChart2 size={20} />
-                </button>
-              </div>
-              <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-1.5 rounded-full font-medium text-sm transition-colors shadow-sm">
-                Post
-              </button>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-center gap-4 text-xs font-bold text-slate-400 uppercase tracking-widest my-2">
-            <div className="h-px bg-slate-200 flex-1"></div>
-            Recent Updates
-            <div className="h-px bg-slate-200 flex-1"></div>
-          </div>
-
-          {/* Sample Feed Post */}
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
-            <div className="flex justify-between items-start mb-4">
-              <div className="flex gap-3 items-center">
-                <div className="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 font-bold">
-                  JS
+          ) : (
+            users.map((user) => (
+              <button
+                key={user._id}
+                onClick={() => setSelectedUser(user)}
+                className={`w-full flex items-center gap-3 p-3 rounded-2xl transition-all ${
+                  selectedUser?._id === user._id
+                    ? "bg-white shadow-sm ring-1 ring-slate-100"
+                    : "hover:bg-white/50"
+                }`}
+              >
+                <div className="relative shrink-0">
+                  <div className="h-12 w-12 rounded-full bg-gradient-to-br from-teal-400 to-cyan-600 flex items-center justify-center font-bold text-white shadow-inner text-lg">
+                    {user.displayName.charAt(0).toUpperCase()}
+                  </div>
+                  {/* Fake online indicator for UI logic */}
+                  <div className="absolute bottom-0 right-0 h-3.5 w-3.5 bg-green-500 rounded-full border-2 border-white"></div>
                 </div>
-                <div>
-                  <h4 className="font-bold text-slate-900 text-sm">
-                    Jayanth S.
-                  </h4>
-                  <p className="text-xs text-slate-500">
-                    Open Source Maintainer • 1h
+                <div className="text-left flex-1 min-w-0">
+                  <div className="flex justify-between items-baseline mb-0.5">
+                    <p className="text-sm font-bold text-slate-900 truncate pr-2">
+                      {user.displayName}
+                    </p>
+                    <span className="text-[10px] text-slate-400 shrink-0">
+                      10:42 AM
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 truncate">
+                    Tap to view conversation...
                   </p>
                 </div>
+              </button>
+            ))
+          )}
+        </div>
+      </div>
+
+      {/* ================= PANE 3: CHAT WINDOW ================= */}
+      {selectedUser ? (
+        <div className="flex-1 flex flex-col relative bg-gradient-to-br from-teal-50/40 via-white to-cyan-50/40">
+          {/* Chat Header */}
+          <div className="h-20 bg-white/60 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-8 z-10 shrink-0">
+            <div className="flex items-center gap-4">
+              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-teal-400 to-cyan-600 flex items-center justify-center font-bold text-white shadow-sm">
+                {selectedUser.displayName.charAt(0).toUpperCase()}
               </div>
-              <button className="text-slate-400 hover:text-slate-600">
-                <MoreHorizontal size={20} />
+              <div>
+                <h3 className="font-bold text-slate-900">
+                  {selectedUser.displayName}
+                </h3>
+                <p className="text-xs font-medium text-slate-500">Active Now</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-5 text-slate-400">
+              <button className="hover:text-teal-600 transition-colors">
+                <Phone size={22} />
+              </button>
+              <button className="hover:text-teal-600 transition-colors">
+                <Video size={24} />
+              </button>
+              <button className="hover:text-teal-600 transition-colors">
+                <Info size={22} />
               </button>
             </div>
+          </div>
 
-            <p className="text-sm text-slate-700 leading-relaxed mb-4">
-              Thrilled to finally push the new background-driven pipeline to
-              production. By utilizing a new worker thread architecture, we have
-              reduced load times by 15% while maintaining structural integrity.
-              Full documentation dropping next month! 🚀💻
-            </p>
-
-            {/* Placeholder for an image */}
-            <div className="w-full h-64 bg-slate-900 rounded-xl mb-4 flex items-center justify-center border border-slate-200 overflow-hidden">
-              <span className="text-slate-600 font-medium">
-                Image Attachment Placeholder
+          {/* Messages Area (Placeholder for phase 2) */}
+          <div className="flex-1 overflow-y-auto p-8 pb-32">
+            <div className="flex justify-center mb-8">
+              <span className="px-4 py-1 bg-white/60 backdrop-blur-sm rounded-full text-xs font-bold text-slate-400 shadow-sm border border-slate-100">
+                OCTOBER 24, 2024
               </span>
             </div>
 
-            <div className="flex items-center justify-between text-slate-500 text-sm pt-2 border-t border-slate-100">
-              <button className="flex items-center gap-2 hover:text-blue-600 font-medium transition-colors">
-                <ThumbsUp size={18} /> 124
-              </button>
-              <button className="flex items-center gap-2 hover:text-blue-600 font-medium transition-colors">
-                <MessageSquare size={18} /> 18
-              </button>
-              <button className="flex items-center gap-2 hover:text-blue-600 font-medium transition-colors">
-                <Share2 size={18} /> Share
-              </button>
+            {/* We will map real messages here in the next step! */}
+            <div className="text-center text-sm text-slate-400 mt-10">
+              This is the beginning of your conversation with{" "}
+              {selectedUser.displayName}.
             </div>
           </div>
 
-          {/* Load More */}
-          <div className="flex justify-center mt-4 pb-10">
-            <button className="px-6 py-2 border border-slate-300 text-slate-600 font-medium rounded-full hover:bg-slate-50 transition-colors text-sm">
-              Load More Updates
-            </button>
+          {/* Floating Input Pill */}
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-full max-w-3xl px-6 z-20">
+            <div className="bg-white rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.06)] border border-slate-100 flex items-center p-2">
+              <button className="p-3 text-slate-400 hover:text-teal-500 transition-colors bg-slate-50 rounded-full shrink-0">
+                <Paperclip size={20} />
+              </button>
+
+              <input
+                type="text"
+                placeholder="Contribute to the conversation..."
+                className="flex-1 bg-transparent px-4 focus:outline-none text-slate-700 placeholder:text-slate-400"
+              />
+
+              <div className="flex items-center gap-2 pr-2 shrink-0">
+                <button className="p-2 text-slate-400 hover:text-teal-500 transition-colors">
+                  <Smile size={22} />
+                </button>
+                <button className="p-2 text-slate-400 hover:text-teal-500 transition-colors">
+                  <Mic size={22} />
+                </button>
+                <button className="h-11 w-11 bg-[#00C2A8] hover:bg-[#00A891] rounded-full flex items-center justify-center text-white shadow-md transition-colors ml-1">
+                  <Send size={18} className="ml-1" />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <div className="flex-1 flex flex-col items-center justify-center bg-gradient-to-br from-teal-50/40 via-white to-cyan-50/40 text-center px-4">
+          <div className="h-24 w-24 bg-white rounded-full shadow-sm border border-slate-100 flex items-center justify-center text-teal-200 mb-6">
+            <MessageSquare size={40} />
+          </div>
+          <h3 className="text-2xl font-bold text-slate-800">
+            Your Academic Nexus
+          </h3>
+          <p className="text-slate-500 mt-2 max-w-md">
+            Select a peer from the sidebar to continue the conversation, share
+            resources, or collaborate on your latest study.
+          </p>
+        </div>
+      )}
     </div>
   );
 }
