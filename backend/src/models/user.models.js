@@ -25,8 +25,29 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
+    username: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+      index: true, // this will makes searching fast
+    },
+    peers: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User", // links to other users in the db
+      },
+    ],
+    pendingRequests: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
     avatar: {
       type: String, //cloudinary
+      default: "",
     },
     bio: {
       type: String,
