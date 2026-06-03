@@ -9,10 +9,8 @@ export const registerUser = async (req, res) => {
   try {
     const { email, password, displayName, username, bio, avatar } = req.body;
 
-    if (!email || !password || !displayName || !username) {
-      return res
-        .status(400)
-        .json({ message: "Please fill in all required fields." });
+    if (!displayName || !email || !password || !username) {
+      return res.status(400).json({ message: "All fields are required." });
     }
 
     const existingUser = await User.findOne({
@@ -22,11 +20,11 @@ export const registerUser = async (req, res) => {
     if (existingUser) {
       if (existingUser.email === email) {
         return res
-          .status(400)
-          .json({ message: "An account with this email already exists." });
+          .status(409)
+          .json({ message: "User with this email already exists." });
       }
       return res
-        .status(400)
+        .status(409)
         .json({ message: "This username is already taken." });
     }
 
@@ -41,35 +39,50 @@ export const registerUser = async (req, res) => {
       }
     }
 
-    // Create the new user in the database
     const user = await User.create({
       displayName,
       email,
       password,
-      avatar: avatarUrl || "https://default-avatar-url.com/avatar.png", // Fallback if no avatar uploaded
+      avatar: avatarUrl || "https://default-avatar-url.com/avatar.png",
+      username: username.toLowerCase(),
+      bio: bio || "",
     });
 
     // We never want to send the password hash back to the frontend
     const createdUser = await User.findById(user._id).select("-password");
-
     if (!createdUser) {
       return res
         .status(500)
         .json({ message: "Something went wrong while registering the user." });
     }
+    const accessToken = createdUser.generateAccessToken();
+    const refreshToken = createdUser.generateRefreshToken();
+
+    createdUser.refreshToken = refreshToken;
+    await createdUser.save({ validateBeforeSave: false });
+
+    const options = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict", // security!
+    };
 
     // Send the success response
-    return res.status(201).json({
-      success: true,
-      message: "User registered successfully",
-      user: createdUser,
-      content: req.body,
-    });
+    return res
+      .status(201)
+      .cookie("accessToken", accessToken, options)
+      .cookie("refreshToken", refreshToken, options)
+      .json({
+        success: true,
+        message: "User registered successfully",
+        user: createdUser,
+      });
   } catch (error) {
     console.error("Error in registerUser:", error);
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
 export const loginUser = async (req, res) => {
   try {
     console.log(req.body);
