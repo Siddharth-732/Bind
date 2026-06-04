@@ -7,18 +7,25 @@ import jwt from "jsonwebtoken";
 
 export const registerUser = async (req, res) => {
   try {
-    const { displayName, email, password } = req.body;
+    const { email, password, displayName, username, bio, avatar } = req.body;
 
-    if (!displayName || !email || !password) {
+    if (!displayName || !email || !password || !username) {
       return res.status(400).json({ message: "All fields are required." });
     }
 
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({
+      $or: [{ email }, { username: username.toLowerCase() }],
+    });
 
     if (existingUser) {
+      if (existingUser.email === email) {
+        return res
+          .status(409)
+          .json({ message: "User with this email already exists." });
+      }
       return res
         .status(409)
-        .json({ message: "User with this email already exists." });
+        .json({ message: "This username is already taken." });
     }
 
     let avatarUrl = "";
@@ -32,35 +39,50 @@ export const registerUser = async (req, res) => {
       }
     }
 
-    // Create the new user in the database
     const user = await User.create({
       displayName,
       email,
       password,
-      avatar: avatarUrl || "https://default-avatar-url.com/avatar.png", // Fallback if no avatar uploaded
+      avatar: avatarUrl || "https://default-avatar-url.com/avatar.png",
+      username: username.toLowerCase(),
+      bio: bio || "",
     });
 
     // We never want to send the password hash back to the frontend
     const createdUser = await User.findById(user._id).select("-password");
-
     if (!createdUser) {
       return res
         .status(500)
         .json({ message: "Something went wrong while registering the user." });
     }
+    const accessToken = createdUser.generateAccessToken();
+    const refreshToken = createdUser.generateRefreshToken();
+
+    createdUser.refreshToken = refreshToken;
+    await createdUser.save({ validateBeforeSave: false });
+
+    const options = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict", // security!
+    };
 
     // Send the success response
-    return res.status(201).json({
-      success: true,
-      message: "User registered successfully",
-      user: createdUser,
-      content: req.body,
-    });
+    return res
+      .status(201)
+      .cookie("accessToken", accessToken, options)
+      .cookie("refreshToken", refreshToken, options)
+      .json({
+        success: true,
+        message: "User registered successfully",
+        user: createdUser,
+      });
   } catch (error) {
     console.error("Error in registerUser:", error);
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
 export const loginUser = async (req, res) => {
   try {
     console.log(req.body);
@@ -319,5 +341,35 @@ export const getUsersForSidebar = async (req, res) => {
   } catch (error) {
     console.error("Error in getUsersForSidebar: ", error.message);
     return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const checkUsername = async (req, res) => {
+  try {
+    const { username } = req.query;
+
+    if (!username) {
+      return res
+        .status(400)
+        .json({ message: "Username query parameter is required" });
+    }
+    const existingUser = await User.findOne({
+      username: username.toLowerCase(),
+    });
+
+    if (existingUser) {
+      return res
+        .status(200)
+        .json({ available: false, message: "Username is already taken" });
+    }
+
+    return res
+      .status(200)
+      .json({ available: true, message: "Username is available" });
+  } catch (error) {
+    console.error("Error in checkUsername: ", error.message);
+    return res
+      .status(500)
+      .json({ message: "Internal server error from username check" });
   }
 };
