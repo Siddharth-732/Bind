@@ -4,6 +4,7 @@ import healthcheckRouter from "./routes/healthcheck.routes.js";
 import userRouter from "./routes/user.routes.js";
 import messageRouter from "./routes/message.routes.js";
 import lodgeRouter from "./routes/lodge.routes.js";
+import statusRouter from "./routes/status.routes.js";
 import cookieParser from "cookie-parser";
 const app = express();
 
@@ -22,5 +23,6 @@ app.use("/api/v1/healthcheck", healthcheckRouter);
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/messages", messageRouter);
 app.use("/api/v1/lodges", lodgeRouter);
+app.use("/api/v1/statuses", statusRouter);
 
 export default app;
