@@ -41,8 +41,8 @@ login: async (data) => {
     set({ isRegistering: true });
     try {
       const response = await axiosInstance.post("/users/register", data);
-      // Our backend returns the registered user in the 'createdUser' field
-      set({ authUser: response.data.data }); 
+      // Our backend returns the registered user in the 'user' field
+      set({ authUser: response.data.user }); 
       toast.success("Account created successfully!");
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to create account");
