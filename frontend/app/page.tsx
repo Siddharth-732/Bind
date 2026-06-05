@@ -2,8 +2,9 @@
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
 import { useLodgeStore } from "../store/useLodgeStore";
+import { useStatusStore } from "../store/useStatusStore";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   MessageCircle,
   Search,
@@ -22,7 +23,9 @@ import {
   Plus,
   MessageSquare,
   Hash,
-  Users
+  Users,
+  Loader2,
+  X
 } from "lucide-react";
 
 export default function ChatPage() {
@@ -35,10 +38,23 @@ export default function ChatPage() {
     getPublicLodges, getMyLodges, joinLodge, setSelectedLodge, setSelectedChannel, isJoining
   } = useLodgeStore();
 
+  // STATUS STORE
+  const { statuses, getStatuses, createStatus, isCreatingStatus } = useStatusStore();
+
   const router = useRouter();
 
   // Navigation State
   const [activeTab, setActiveTab] = useState<"chat" | "lodge">("chat");
+
+  // Story Creation State
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [storyText, setStoryText] = useState("");
+  const [isStoryModalOpen, setIsStoryModalOpen] = useState(false);
+  const [storyFile, setStoryFile] = useState<File | null>(null);
+  const [storyPreview, setStoryPreview] = useState<string | null>(null);
+
+  // Active Story Viewing
+  const [viewingStatus, setViewingStatus] = useState<any | null>(null);
 
   // Bouncer & Initializer
   useEffect(() => {
@@ -47,12 +63,45 @@ export default function ChatPage() {
     } else {
       connectSocket();
       getUsers();
-      // Load lodge data
       getPublicLodges();
       getMyLodges();
+      getStatuses();
     }
     return () => disconnectSocket();
-  }, [authUser, router, connectSocket, disconnectSocket, getUsers, getPublicLodges, getMyLodges]);
+  }, [authUser, router, connectSocket, disconnectSocket, getUsers, getPublicLodges, getMyLodges, getStatuses]);
+
+  const handleAddStoryClick = () => {
+    setIsStoryModalOpen(true);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setStoryFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => setStoryPreview(reader.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handlePostStory = async () => {
+    const formData = new FormData();
+    if (storyText) formData.append("textContent", storyText);
+    if (storyFile) {
+      formData.append("media", storyFile);
+      // Basic type check
+      const type = storyFile.type.startsWith("video/") ? "video" : "image";
+      formData.append("mediaType", type);
+    } else {
+      formData.append("mediaType", "none");
+    }
+
+    await createStatus(formData);
+    setIsStoryModalOpen(false);
+    setStoryFile(null);
+    setStoryPreview(null);
+    setStoryText("");
+  };
 
   if (!authUser) return null;
 
@@ -235,126 +284,269 @@ export default function ChatPage() {
       </div>
 
       {/* ================= PANE 3: MAIN WINDOW ================= */}
-      
-      {/* State 1: CHAT is active but no user selected */}
-      {activeTab === "chat" && !selectedUser && (
-        <div className="flex-1 flex flex-col items-center justify-center bg-gradient-to-br from-teal-50/40 via-white to-cyan-50/40 text-center px-4">
-          <div className="h-24 w-24 bg-white rounded-full shadow-sm border border-slate-100 flex items-center justify-center text-teal-200 mb-6">
-            <MessageSquare size={40} />
-          </div>
-          <h3 className="text-2xl font-bold text-slate-800">Your Academic Nexus</h3>
-          <p className="text-slate-500 mt-2 max-w-md">Select a peer from the sidebar to continue the conversation, share resources, or collaborate on your latest study.</p>
-        </div>
-      )}
-
-      {/* State 2: CHAT is active and user selected */}
-      {activeTab === "chat" && selectedUser && (
-        <div className="flex-1 flex flex-col relative bg-gradient-to-br from-teal-50/40 via-white to-cyan-50/40">
-          <div className="h-20 bg-white/60 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-8 z-10 shrink-0">
-            <div className="flex items-center gap-4">
-              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-teal-400 to-cyan-600 flex items-center justify-center font-bold text-white shadow-sm">
-                {selectedUser.displayName.charAt(0).toUpperCase()}
+      <div className="flex-1 flex flex-col relative bg-gradient-to-br from-teal-50/40 via-white to-cyan-50/40">
+        
+        {/* STORIES STRIP (Only visible in Chat Tab) */}
+        {activeTab === "chat" && (
+          <div className="h-28 border-b border-slate-100/60 flex items-center px-8 gap-6 overflow-x-auto shrink-0 bg-white/60 backdrop-blur-md shadow-sm z-10">
+            {/* Add Story Button */}
+            <button onClick={handleAddStoryClick} className="flex flex-col items-center gap-2 shrink-0 group">
+              <div className="h-16 w-16 rounded-full border-2 border-dashed border-teal-300 flex items-center justify-center text-teal-500 group-hover:bg-teal-50 group-hover:border-teal-400 transition-colors bg-white relative">
+                <Plus size={24} />
               </div>
-              <div>
-                <h3 className="font-bold text-slate-900">{selectedUser.displayName}</h3>
-                <p className="text-xs font-medium text-slate-500">Active Now</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-5 text-slate-400">
-              <button className="hover:text-teal-600 transition-colors"><Phone size={22} /></button>
-              <button className="hover:text-teal-600 transition-colors"><Video size={24} /></button>
-              <button className="hover:text-teal-600 transition-colors"><Info size={22} /></button>
-            </div>
-          </div>
-          <div className="flex-1 overflow-y-auto p-8 pb-32">
-            <div className="text-center text-sm text-slate-400 mt-10">This is the beginning of your conversation with {selectedUser.displayName}.</div>
-          </div>
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-full max-w-3xl px-6 z-20">
-            <div className="bg-white rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.06)] border border-slate-100 flex items-center p-2">
-              <button className="p-3 text-slate-400 hover:text-teal-500 transition-colors bg-slate-50 rounded-full shrink-0"><Paperclip size={20} /></button>
-              <input type="text" placeholder="Contribute to the conversation..." className="flex-1 bg-transparent px-4 focus:outline-none text-slate-700 placeholder:text-slate-400" />
-              <div className="flex items-center gap-2 pr-2 shrink-0">
-                <button className="p-2 text-slate-400 hover:text-teal-500 transition-colors"><Smile size={22} /></button>
-                <button className="h-11 w-11 bg-[#00C2A8] hover:bg-[#00A891] rounded-full flex items-center justify-center text-white shadow-md transition-colors ml-1"><Send size={18} className="ml-1" /></button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+              <span className="text-[11px] font-bold text-slate-500 group-hover:text-teal-600 transition-colors">Add Story</span>
+            </button>
 
-      {/* State 3: LODGE is active but no lodge selected */}
-      {activeTab === "lodge" && !selectedLodge && (
-        <div className="flex-1 flex flex-col items-center justify-center bg-gradient-to-br from-indigo-50/40 via-white to-purple-50/40 text-center px-4">
-          <div className="h-24 w-24 bg-white rounded-full shadow-sm border border-slate-100 flex items-center justify-center text-indigo-200 mb-6">
-            <Building2 size={40} />
-          </div>
-          <h3 className="text-2xl font-bold text-slate-800">Lodge Headquarters</h3>
-          <p className="text-slate-500 mt-2 max-w-md">Join a public lodge from the sidebar to start collaborating on projects, or create your own study group.</p>
-        </div>
-      )}
-
-      {/* State 4: LODGE is active and lodge selected */}
-      {activeTab === "lodge" && selectedLodge && (
-        <div className="flex-1 flex bg-white">
-          {/* Lodge Channels Sidebar */}
-          <div className="w-60 bg-slate-50 border-r border-slate-200 flex flex-col">
-            <div className="p-6 border-b border-slate-200/50">
-              <h3 className="font-bold text-slate-900 truncate">{selectedLodge.name}</h3>
-              <p className="text-xs text-slate-500 truncate">{selectedLodge.description || "A student lodge"}</p>
-            </div>
-            <div className="flex-1 overflow-y-auto p-3 space-y-1">
-              <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 px-2 pt-2">Channels</div>
-              {currentLodgeChannels.map(channel => (
-                <button 
-                  key={channel._id}
-                  onClick={() => setSelectedChannel(channel)}
-                  className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${selectedChannel?._id === channel._id ? "bg-slate-200 text-slate-900" : "text-slate-600 hover:bg-slate-200/50"}`}
-                >
-                  <Hash size={16} className="text-slate-400" />
-                  {channel.name}
-                </button>
-              ))}
-              {selectedLodge.myRole === 'captain' && (
-                <button className="w-full flex items-center gap-2 px-3 py-2 mt-2 rounded-lg text-sm font-medium text-teal-600 hover:bg-teal-50 transition-colors">
-                  <Plus size={16} /> Add Channel
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Lodge Chat Window */}
-          <div className="flex-1 flex flex-col relative bg-white">
-            <div className="h-16 border-b border-slate-100 flex items-center px-6 shrink-0 shadow-sm">
-              <h3 className="font-bold text-slate-800 flex items-center gap-2">
-                <Hash size={20} className="text-slate-400" />
-                {selectedChannel ? selectedChannel.name : "Select a channel"}
-              </h3>
-            </div>
-            <div className="flex-1 overflow-y-auto p-8 pb-28">
-              {selectedChannel ? (
-                <div className="text-center mt-10">
-                  <div className="h-16 w-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Hash size={32} className="text-slate-400" />
+            {/* Render Statuses */}
+            {statuses.map(status => (
+              <button 
+                key={status._id} 
+                onClick={() => setViewingStatus(status)}
+                className="flex flex-col items-center gap-2 shrink-0 group"
+              >
+                <div className="h-16 w-16 rounded-full p-[2.5px] bg-gradient-to-tr from-yellow-400 via-red-500 to-fuchsia-600 shadow-sm group-hover:scale-105 transition-transform">
+                  <div className="h-full w-full rounded-full border-2 border-white bg-slate-200 overflow-hidden">
+                    <img 
+                      src={status.user?.avatar || `https://ui-avatars.com/api/?name=${status.user?.displayName || "U"}&background=random`} 
+                      alt="story" 
+                      className="h-full w-full object-cover" 
+                    />
                   </div>
-                  <h2 className="text-xl font-bold text-slate-900">Welcome to #{selectedChannel.name}!</h2>
-                  <p className="text-sm text-slate-500 mt-2">This is the start of the #{selectedChannel.name} channel.</p>
                 </div>
-              ) : (
-                <div className="text-center text-sm text-slate-400 mt-10">Select a channel to start chatting.</div>
+                <span className="text-[11px] font-bold text-slate-700 w-16 truncate text-center">{status.user?.displayName || "Unknown"}</span>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* State 1: CHAT is active but no user selected */}
+        {activeTab === "chat" && !selectedUser && (
+          <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
+            <div className="h-24 w-24 bg-white rounded-full shadow-sm border border-slate-100 flex items-center justify-center text-teal-200 mb-6">
+              <MessageSquare size={40} />
+            </div>
+            <h3 className="text-2xl font-bold text-slate-800">Your Academic Nexus</h3>
+            <p className="text-slate-500 mt-2 max-w-md">Select a peer from the sidebar to continue the conversation, share resources, or collaborate on your latest study.</p>
+          </div>
+        )}
+
+        {/* State 2: CHAT is active and user selected */}
+        {activeTab === "chat" && selectedUser && (
+          <div className="flex-1 flex flex-col relative">
+            <div className="h-20 bg-white/60 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-8 z-10 shrink-0">
+              <div className="flex items-center gap-4">
+                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-teal-400 to-cyan-600 flex items-center justify-center font-bold text-white shadow-sm">
+                  {selectedUser.displayName.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-900">{selectedUser.displayName}</h3>
+                  <p className="text-xs font-medium text-slate-500">Active Now</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-5 text-slate-400">
+                <button className="hover:text-teal-600 transition-colors"><Phone size={22} /></button>
+                <button className="hover:text-teal-600 transition-colors"><Video size={24} /></button>
+                <button className="hover:text-teal-600 transition-colors"><Info size={22} /></button>
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto p-8 pb-32">
+              <div className="text-center text-sm text-slate-400 mt-10">This is the beginning of your conversation with {selectedUser.displayName}.</div>
+            </div>
+            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-full max-w-3xl px-6 z-20">
+              <div className="bg-white rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.06)] border border-slate-100 flex items-center p-2">
+                <button className="p-3 text-slate-400 hover:text-teal-500 transition-colors bg-slate-50 rounded-full shrink-0"><Paperclip size={20} /></button>
+                <input type="text" placeholder="Contribute to the conversation..." className="flex-1 bg-transparent px-4 focus:outline-none text-slate-700 placeholder:text-slate-400" />
+                <div className="flex items-center gap-2 pr-2 shrink-0">
+                  <button className="p-2 text-slate-400 hover:text-teal-500 transition-colors"><Smile size={22} /></button>
+                  <button className="h-11 w-11 bg-[#00C2A8] hover:bg-[#00A891] rounded-full flex items-center justify-center text-white shadow-md transition-colors ml-1"><Send size={18} className="ml-1" /></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* State 3: LODGE is active but no lodge selected */}
+        {activeTab === "lodge" && !selectedLodge && (
+          <div className="flex-1 flex flex-col items-center justify-center bg-gradient-to-br from-indigo-50/40 via-white to-purple-50/40 text-center px-4">
+            <div className="h-24 w-24 bg-white rounded-full shadow-sm border border-slate-100 flex items-center justify-center text-indigo-200 mb-6">
+              <Building2 size={40} />
+            </div>
+            <h3 className="text-2xl font-bold text-slate-800">Lodge Headquarters</h3>
+            <p className="text-slate-500 mt-2 max-w-md">Join a public lodge from the sidebar to start collaborating on projects, or create your own study group.</p>
+          </div>
+        )}
+
+        {/* State 4: LODGE is active and lodge selected */}
+        {activeTab === "lodge" && selectedLodge && (
+          <div className="flex-1 flex bg-white">
+            {/* Lodge Channels Sidebar */}
+            <div className="w-60 bg-slate-50 border-r border-slate-200 flex flex-col">
+              <div className="p-6 border-b border-slate-200/50">
+                <h3 className="font-bold text-slate-900 truncate">{selectedLodge.name}</h3>
+                <p className="text-xs text-slate-500 truncate">{selectedLodge.description || "A student lodge"}</p>
+              </div>
+              <div className="flex-1 overflow-y-auto p-3 space-y-1">
+                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 px-2 pt-2">Channels</div>
+                {currentLodgeChannels.map(channel => (
+                  <button 
+                    key={channel._id}
+                    onClick={() => setSelectedChannel(channel)}
+                    className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${selectedChannel?._id === channel._id ? "bg-slate-200 text-slate-900" : "text-slate-600 hover:bg-slate-200/50"}`}
+                  >
+                    <Hash size={16} className="text-slate-400" />
+                    {channel.name}
+                  </button>
+                ))}
+                {selectedLodge.myRole === 'captain' && (
+                  <button className="w-full flex items-center gap-2 px-3 py-2 mt-2 rounded-lg text-sm font-medium text-teal-600 hover:bg-teal-50 transition-colors">
+                    <Plus size={16} /> Add Channel
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Lodge Chat Window */}
+            <div className="flex-1 flex flex-col relative bg-white">
+              <div className="h-16 border-b border-slate-100 flex items-center px-6 shrink-0 shadow-sm">
+                <h3 className="font-bold text-slate-800 flex items-center gap-2">
+                  <Hash size={20} className="text-slate-400" />
+                  {selectedChannel ? selectedChannel.name : "Select a channel"}
+                </h3>
+              </div>
+              <div className="flex-1 overflow-y-auto p-8 pb-28">
+                {selectedChannel ? (
+                  <div className="text-center mt-10">
+                    <div className="h-16 w-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Hash size={32} className="text-slate-400" />
+                    </div>
+                    <h2 className="text-xl font-bold text-slate-900">Welcome to #{selectedChannel.name}!</h2>
+                    <p className="text-sm text-slate-500 mt-2">This is the start of the #{selectedChannel.name} channel.</p>
+                  </div>
+                ) : (
+                  <div className="text-center text-sm text-slate-400 mt-10">Select a channel to start chatting.</div>
+                )}
+              </div>
+              {selectedChannel && (
+                 <div className="absolute bottom-6 left-6 right-6">
+                   <div className="bg-slate-50 rounded-xl border border-slate-200 flex items-center p-2 focus-within:ring-2 focus-within:ring-teal-400 focus-within:border-transparent transition-all">
+                     <button className="p-2 text-slate-400 hover:text-teal-500 transition-colors rounded-lg"><Plus size={20} /></button>
+                     <input type="text" placeholder={`Message #${selectedChannel.name}`} className="flex-1 bg-transparent px-2 py-1 focus:outline-none text-slate-700 text-sm placeholder:text-slate-400" />
+                     <button className="p-2 text-teal-500 hover:bg-teal-50 transition-colors rounded-lg"><Send size={18} /></button>
+                   </div>
+                 </div>
               )}
             </div>
-            {selectedChannel && (
-               <div className="absolute bottom-6 left-6 right-6">
-                 <div className="bg-slate-50 rounded-xl border border-slate-200 flex items-center p-2 focus-within:ring-2 focus-within:ring-teal-400 focus-within:border-transparent transition-all">
-                   <button className="p-2 text-slate-400 hover:text-teal-500 transition-colors rounded-lg"><Plus size={20} /></button>
-                   <input type="text" placeholder={`Message #${selectedChannel.name}`} className="flex-1 bg-transparent px-2 py-1 focus:outline-none text-slate-700 text-sm placeholder:text-slate-400" />
-                   <button className="p-2 text-teal-500 hover:bg-teal-50 transition-colors rounded-lg"><Send size={18} /></button>
-                 </div>
-               </div>
+          </div>
+        )}
+      </div>
+
+      {/* ================= MODALS ================= */}
+
+      {/* Story Creation Modal */}
+      {isStoryModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
+            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+              <h2 className="text-lg font-bold text-slate-800">Create Status</h2>
+              <button onClick={() => setIsStoryModalOpen(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
+                <X size={24} />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-5">
+              {/* Media Preview / Upload Area */}
+              <div 
+                className="h-48 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 flex flex-col items-center justify-center overflow-hidden cursor-pointer hover:bg-slate-100 transition-colors relative"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {storyPreview ? (
+                  <img src={storyPreview} alt="Preview" className="w-full h-full object-cover" />
+                ) : (
+                  <>
+                    <Plus size={32} className="text-teal-400 mb-2" />
+                    <p className="text-sm font-bold text-slate-600">Add Image or Video</p>
+                    <p className="text-xs text-slate-400">Optional</p>
+                  </>
+                )}
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  className="hidden" 
+                  accept="image/*,video/*" 
+                  onChange={handleFileChange}
+                />
+              </div>
+
+              {/* Text Content */}
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Caption / Status</label>
+                <textarea 
+                  value={storyText}
+                  onChange={(e) => setStoryText(e.target.value)}
+                  placeholder="What's on your mind? Share an update or thought..."
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 h-24 resize-none focus:outline-none focus:ring-2 focus:ring-teal-400 text-sm"
+                />
+              </div>
+            </div>
+
+            <div className="p-4 bg-slate-50 border-t border-slate-100 flex justify-end">
+              <button 
+                onClick={handlePostStory}
+                disabled={isCreatingStatus || (!storyText && !storyFile)}
+                className="px-6 py-2.5 bg-teal-500 hover:bg-teal-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-bold transition-all shadow-md flex items-center gap-2"
+              >
+                {isCreatingStatus ? <Loader2 size={18} className="animate-spin" /> : "Post Status"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Story Viewing Modal */}
+      {viewingStatus && (
+        <div className="fixed inset-0 bg-black/95 z-50 flex flex-col items-center justify-center">
+          {/* Header */}
+          <div className="absolute top-0 left-0 w-full p-6 flex items-center justify-between z-10">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-slate-800 overflow-hidden border border-white/20">
+                <img 
+                  src={viewingStatus.user?.avatar || `https://ui-avatars.com/api/?name=${viewingStatus.user?.displayName || "U"}`} 
+                  alt="Avatar" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="text-white">
+                <p className="font-bold text-sm">{viewingStatus.user?.displayName}</p>
+                <p className="text-[10px] text-white/60">
+                  {new Date(viewingStatus.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </p>
+              </div>
+            </div>
+            <button onClick={() => setViewingStatus(null)} className="text-white/70 hover:text-white p-2 bg-white/10 rounded-full backdrop-blur-md">
+              <X size={24} />
+            </button>
+          </div>
+
+          {/* Content Area */}
+          <div className="relative w-full max-w-md aspect-[9/16] bg-slate-900 rounded-2xl overflow-hidden flex flex-col items-center justify-center">
+            {viewingStatus.mediaType === "image" && (
+              <img src={viewingStatus.mediaUrl} alt="Status" className="w-full h-full object-contain" />
+            )}
+            {viewingStatus.mediaType === "video" && (
+              <video src={viewingStatus.mediaUrl} controls autoPlay className="w-full h-full object-contain" />
+            )}
+            
+            {viewingStatus.textContent && (
+              <div className={`absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black/80 to-transparent ${viewingStatus.mediaType === 'none' ? 'h-full flex items-center justify-center text-center from-transparent' : ''}`}>
+                <p className={`text-white font-medium ${viewingStatus.mediaType === 'none' ? 'text-2xl px-6' : 'text-sm'}`}>
+                  {viewingStatus.textContent}
+                </p>
+              </div>
             )}
           </div>
         </div>
       )}
+
     </div>
   );
 }
