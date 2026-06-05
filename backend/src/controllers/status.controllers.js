@@ -1,5 +1,6 @@
 import { Status } from "../models/status.models.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { getIO } from "../socket/index.js";
 
 export const createStatus = async (req, res) => {
   try {
@@ -34,10 +35,20 @@ export const createStatus = async (req, res) => {
       mediaType,
     });
 
+    // Populate user before sending to sockets
+    const populatedStatus = await Status.findById(status._id).populate(
+      "user",
+      "displayName username avatar"
+    );
+
+    // Emit to all connected clients
+    const io = getIO();
+    io.emit("newStatus", populatedStatus);
+
     return res.status(201).json({
       success: true,
       message: "Status created successfully",
-      status,
+      status: populatedStatus,
     });
   } catch (error) {
     console.error("Error in createStatus:", error);

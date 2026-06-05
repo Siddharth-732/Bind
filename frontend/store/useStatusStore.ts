@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import toast from "react-hot-toast";
+import { useAuthStore } from "./useAuthStore";
 
 interface StatusState {
   statuses: any[];
@@ -10,6 +11,8 @@ interface StatusState {
   getStatuses: () => Promise<void>;
   createStatus: (data: FormData) => Promise<void>;
   deleteStatus: (statusId: string) => Promise<void>;
+  subscribeToStatuses: () => void;
+  unsubscribeFromStatuses: () => void;
 }
 
 export const useStatusStore = create<StatusState>((set, get) => ({
@@ -34,7 +37,8 @@ export const useStatusStore = create<StatusState>((set, get) => ({
     try {
       const response = await axiosInstance.post("/statuses", data);
       toast.success("Story posted successfully!");
-      // Automatically refresh the stories
+      // We don't need to manually refresh here if we are subscribed to socket events
+      // But it's good as a fallback.
       get().getStatuses();
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to post story");
@@ -51,5 +55,24 @@ export const useStatusStore = create<StatusState>((set, get) => ({
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to delete story");
     }
+  },
+
+  subscribeToStatuses: () => {
+    const socket = useAuthStore.getState().socket;
+    if (!socket) return;
+
+    socket.on("newStatus", (newStatus: any) => {
+      set((state) => ({
+        // Add new status to the beginning of the array
+        statuses: [newStatus, ...state.statuses],
+      }));
+    });
+  },
+
+  unsubscribeFromStatuses: () => {
+    const socket = useAuthStore.getState().socket;
+    if (!socket) return;
+
+    socket.off("newStatus");
   }
 }));

@@ -39,7 +39,7 @@ export default function ChatPage() {
   } = useLodgeStore();
 
   // STATUS STORE
-  const { statuses, getStatuses, createStatus, isCreatingStatus } = useStatusStore();
+  const { statuses, getStatuses, createStatus, isCreatingStatus, subscribeToStatuses, unsubscribeFromStatuses } = useStatusStore();
 
   const router = useRouter();
 
@@ -66,9 +66,13 @@ export default function ChatPage() {
       getPublicLodges();
       getMyLodges();
       getStatuses();
+      subscribeToStatuses();
     }
-    return () => disconnectSocket();
-  }, [authUser, router, connectSocket, disconnectSocket, getUsers, getPublicLodges, getMyLodges, getStatuses]);
+    return () => {
+      disconnectSocket();
+      unsubscribeFromStatuses();
+    };
+  }, [authUser, router, connectSocket, disconnectSocket, getUsers, getPublicLodges, getMyLodges, getStatuses, subscribeToStatuses, unsubscribeFromStatuses]);
 
   const handleAddStoryClick = () => {
     setIsStoryModalOpen(true);
