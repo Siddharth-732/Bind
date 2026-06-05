@@ -35,7 +35,7 @@ export default function ChatPage() {
   // LODGE STORE
   const { 
     publicLodges, myLodges, currentLodgeChannels, selectedLodge, selectedChannel,
-    getPublicLodges, getMyLodges, joinLodge, setSelectedLodge, setSelectedChannel, isJoining
+    getPublicLodges, getMyLodges, joinLodge, setSelectedLodge, setSelectedChannel, isJoining, createLodge, isCreating
   } = useLodgeStore();
 
   // STATUS STORE
@@ -45,6 +45,13 @@ export default function ChatPage() {
 
   // Navigation State
   const [activeTab, setActiveTab] = useState<"chat" | "lodge">("chat");
+
+  // Lodge Creation State
+  const [isLodgeModalOpen, setIsLodgeModalOpen] = useState(false);
+  const [lodgeName, setLodgeName] = useState("");
+  const [lodgeDescription, setLodgeDescription] = useState("");
+  const [lodgeAvatar, setLodgeAvatar] = useState<File | null>(null);
+  const lodgeFileInputRef = useRef<HTMLInputElement>(null);
 
   // Story Creation State
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -107,6 +114,24 @@ export default function ChatPage() {
     setStoryText("");
   };
 
+  const handleCreateLodge = async () => {
+    if (!lodgeName) return;
+    const formData = new FormData();
+    formData.append("name", lodgeName);
+    formData.append("description", lodgeDescription);
+    if (lodgeAvatar) formData.append("avatar", lodgeAvatar);
+
+    const success = await createLodge(formData);
+    if (success) {
+      setIsLodgeModalOpen(false);
+      setLodgeName("");
+      setLodgeDescription("");
+      setLodgeAvatar(null);
+      // Optionally switch to lodge tab
+      setActiveTab("lodge");
+    }
+  };
+
   if (!authUser) return null;
 
   return (
@@ -157,7 +182,7 @@ export default function ChatPage() {
         </div>
 
         <div className="px-6 flex flex-col gap-4">
-          <button className="w-full py-3.5 bg-[#007A99] hover:bg-[#00627A] text-white rounded-xl font-semibold transition-colors shadow-md flex items-center justify-center gap-2">
+          <button onClick={() => setIsLodgeModalOpen(true)} className="w-full py-3.5 bg-[#007A99] hover:bg-[#00627A] text-white rounded-xl font-semibold transition-colors shadow-md flex items-center justify-center gap-2">
             <Plus size={20} /> New Study
           </button>
           <button
@@ -445,6 +470,78 @@ export default function ChatPage() {
       </div>
 
       {/* ================= MODALS ================= */}
+
+      {/* Lodge Creation Modal */}
+      {isLodgeModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
+            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+              <h2 className="text-lg font-bold text-slate-800">Create a Lodge</h2>
+              <button onClick={() => setIsLodgeModalOpen(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
+                <X size={24} />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-5">
+              {/* Avatar Upload */}
+              <div className="flex justify-center">
+                <div 
+                  className="h-24 w-24 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 flex flex-col items-center justify-center overflow-hidden cursor-pointer hover:bg-slate-100 transition-colors relative"
+                  onClick={() => lodgeFileInputRef.current?.click()}
+                >
+                  {lodgeAvatar ? (
+                    <img src={URL.createObjectURL(lodgeAvatar)} alt="Preview" className="w-full h-full object-cover" />
+                  ) : (
+                    <Building2 size={32} className="text-teal-400" />
+                  )}
+                  <input 
+                    type="file" 
+                    ref={lodgeFileInputRef} 
+                    className="hidden" 
+                    accept="image/*" 
+                    onChange={(e) => {
+                      if (e.target.files?.[0]) setLodgeAvatar(e.target.files[0]);
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Name */}
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Lodge Name</label>
+                <input 
+                  type="text"
+                  value={lodgeName}
+                  onChange={(e) => setLodgeName(e.target.value)}
+                  placeholder="e.g. CS101 Study Group"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-teal-400 text-sm"
+                />
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Description (Optional)</label>
+                <textarea 
+                  value={lodgeDescription}
+                  onChange={(e) => setLodgeDescription(e.target.value)}
+                  placeholder="What is this lodge about?"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 h-20 resize-none focus:outline-none focus:ring-2 focus:ring-teal-400 text-sm"
+                />
+              </div>
+            </div>
+
+            <div className="p-4 bg-slate-50 border-t border-slate-100 flex justify-end">
+              <button 
+                onClick={handleCreateLodge}
+                disabled={isCreating || !lodgeName}
+                className="px-6 py-2.5 bg-teal-500 hover:bg-teal-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-bold transition-all shadow-md flex items-center gap-2"
+              >
+                {isCreating ? <Loader2 size={18} className="animate-spin" /> : "Create Lodge"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Story Creation Modal */}
       {isStoryModalOpen && (

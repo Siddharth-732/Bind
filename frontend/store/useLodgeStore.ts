@@ -10,11 +10,13 @@ interface LodgeState {
   selectedChannel: any | null;
   isLoadingLodges: boolean;
   isJoining: boolean;
+  isCreating: boolean;
   
   getPublicLodges: () => Promise<void>;
   getMyLodges: () => Promise<void>;
   joinLodge: (lodgeId: string) => Promise<boolean>;
   getLodgeChannels: (lodgeId: string) => Promise<void>;
+  createLodge: (data: FormData) => Promise<boolean>;
   setSelectedLodge: (lodge: any | null) => void;
   setSelectedChannel: (channel: any | null) => void;
 }
@@ -27,6 +29,7 @@ export const useLodgeStore = create<LodgeState>((set, get) => ({
   selectedChannel: null,
   isLoadingLodges: false,
   isJoining: false,
+  isCreating: false,
 
   getPublicLodges: async () => {
     set({ isLoadingLodges: true });
@@ -76,6 +79,22 @@ export const useLodgeStore = create<LodgeState>((set, get) => ({
       }
     } catch (error: any) {
       console.error("Failed to load channels", error);
+    }
+  },
+
+  createLodge: async (data: FormData) => {
+    set({ isCreating: true });
+    try {
+      await axiosInstance.post("/lodges/create", data);
+      toast.success("Lodge created successfully!");
+      get().getMyLodges();
+      get().getPublicLodges();
+      return true;
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to create lodge");
+      return false;
+    } finally {
+      set({ isCreating: false });
     }
   },
 
