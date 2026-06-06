@@ -324,6 +324,40 @@ export const updateUserAvatar = async (req, res) => {
   });
 };
 
+export const updateUserBanner = async (req, res) => {
+  const bannerLocalPath = req.file?.path;
+
+  if (!bannerLocalPath) {
+    return res.status(400).json({ message: "Banner file is missing" });
+  }
+  const banner = await uploadOnCloudinary(bannerLocalPath);
+
+  if (!banner.url) {
+    return res.status(400).json({ message: "Error uploading banner to cloud" });
+  }
+
+  // get the user's OLD banner URL from the database
+  const user = await User.findById(req.user?._id);
+  const oldBannerUrl = user.banner;
+
+  // update the database with the NEW URL
+  const updatedUser = await User.findByIdAndUpdate(
+    req.user?._id,
+    { $set: { banner: banner.url } },
+    { returnDocument: "after" },
+  ).select("-password -refreshToken");
+
+  if (oldBannerUrl) {
+    await deleteFromCloudinary(oldBannerUrl);
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: "Banner updated successfully",
+    user: updatedUser,
+  });
+};
+
 export const getUsersForSidebar = async (req, res) => {
   try {
     // req.user comes from your authentication middleware

@@ -49,6 +49,10 @@ const userSchema = new Schema(
       type: String, //cloudinary
       default: "",
     },
+    banner: {
+      type: String, //cloudinary
+      default: "",
+    },
     bio: {
       type: String,
       default: "Available",
