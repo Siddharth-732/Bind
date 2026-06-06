@@ -24,21 +24,48 @@ import {
   Hash,
   Users,
   Loader2,
-  X
+  X,
 } from "lucide-react";
 
 export default function ChatPage() {
-  const { authUser, logout, connectSocket, disconnectSocket } = useAuthStore();
+  const {
+    authUser,
+    logout,
+    connectSocket,
+    disconnectSocket,
+    updateAccountDetails,
+    updateUserAvatar,
+    updateUserBanner,
+    isUpdatingProfile,
+  } = useAuthStore();
   const { users, getUsers, selectedUser, setSelectedUser } = useChatStore();
-  
+
   // LODGE STORE
-  const { 
-    publicLodges, myLodges, currentLodgeChannels, selectedLodge, selectedChannel,
-    getPublicLodges, getMyLodges, joinLodge, setSelectedLodge, setSelectedChannel, isJoining, createLodge, isCreating
+  const {
+    publicLodges,
+    myLodges,
+    currentLodgeChannels,
+    selectedLodge,
+    selectedChannel,
+    getPublicLodges,
+    getMyLodges,
+    joinLodge,
+    setSelectedLodge,
+    setSelectedChannel,
+    isJoining,
+    createLodge,
+    isCreating,
   } = useLodgeStore();
 
   // STATUS STORE
-  const { statuses, getStatuses, createStatus, isCreatingStatus, subscribeToStatuses, unsubscribeFromStatuses } = useStatusStore();
+  const {
+    statuses,
+    getStatuses,
+    createStatus,
+    isCreatingStatus,
+    subscribeToStatuses,
+    unsubscribeFromStatuses,
+  } = useStatusStore();
 
   const router = useRouter();
 
@@ -62,6 +89,21 @@ export default function ChatPage() {
   // Active Story Viewing
   const [viewingStatus, setViewingStatus] = useState<any | null>(null);
 
+  // Settings Profile State
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [settingsDisplayName, setSettingsDisplayName] = useState("");
+  const [settingsBio, setSettingsBio] = useState("");
+  const [settingsAvatarFile, setSettingsAvatarFile] = useState<File | null>(
+    null,
+  );
+  const [settingsBannerFile, setSettingsBannerFile] = useState<File | null>(
+    null,
+  );
+  const [settingsAvatarPreview, setSettingsAvatarPreview] = useState("");
+  const [settingsBannerPreview, setSettingsBannerPreview] = useState("");
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+  const bannerInputRef = useRef<HTMLInputElement>(null);
+
   // Bouncer & Initializer
   useEffect(() => {
     if (!authUser) {
@@ -78,7 +120,18 @@ export default function ChatPage() {
       disconnectSocket();
       unsubscribeFromStatuses();
     };
-  }, [authUser, router, connectSocket, disconnectSocket, getUsers, getPublicLodges, getMyLodges, getStatuses, subscribeToStatuses, unsubscribeFromStatuses]);
+  }, [
+    authUser,
+    router,
+    connectSocket,
+    disconnectSocket,
+    getUsers,
+    getPublicLodges,
+    getMyLodges,
+    getStatuses,
+    subscribeToStatuses,
+    unsubscribeFromStatuses,
+  ]);
 
   const handleAddStoryClick = () => {
     setIsStoryModalOpen(true);
@@ -131,6 +184,30 @@ export default function ChatPage() {
     }
   };
 
+  const handleSaveProfile = async () => {
+    // update text fields if changed
+    if (
+      settingsDisplayName !== authUser.displayName ||
+      settingsBio !== authUser.bio
+    ) {
+      await updateAccountDetails({
+        displayName: settingsDisplayName,
+        bio: settingsBio,
+      });
+    }
+    // update avatar if changed
+    if (settingsAvatarFile) {
+      await updateUserAvatar(settingsAvatarFile);
+    }
+    // update banner if changed
+    if (settingsBannerFile) {
+      await updateUserBanner(settingsBannerFile);
+    }
+    setIsSettingsModalOpen(false);
+    setSettingsAvatarFile(null);
+    setSettingsBannerFile(null);
+  };
+
   if (!authUser) return null;
 
   return (
@@ -153,18 +230,22 @@ export default function ChatPage() {
           </div>
 
           <nav className="flex flex-col pr-4 gap-1">
-            <button 
+            <button
               onClick={() => setActiveTab("chat")}
               className={`flex items-center gap-4 py-3 px-6 rounded-r-xl font-bold transition-all relative ${activeTab === "chat" ? "bg-[#E5FFF5] text-teal-700" : "text-slate-600 hover:bg-slate-50"}`}
             >
-              {activeTab === "chat" && <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-teal-600 rounded-r-full"></div>}
+              {activeTab === "chat" && (
+                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-teal-600 rounded-r-full"></div>
+              )}
               <MessageCircle size={20} strokeWidth={2} /> Chat
             </button>
-            <button 
+            <button
               onClick={() => setActiveTab("lodge")}
               className={`flex items-center gap-4 py-3 px-6 rounded-r-xl font-bold transition-all relative ${activeTab === "lodge" ? "bg-[#E5FFF5] text-teal-700" : "text-slate-600 hover:bg-slate-50"}`}
             >
-              {activeTab === "lodge" && <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-teal-600 rounded-r-full"></div>}
+              {activeTab === "lodge" && (
+                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-teal-600 rounded-r-full"></div>
+              )}
               <Building2 size={20} strokeWidth={2} /> Lodge
             </button>
             <button className="flex items-center gap-4 py-3 px-6 text-slate-600 hover:bg-slate-50 rounded-r-xl font-bold transition-all">
@@ -182,15 +263,30 @@ export default function ChatPage() {
           </nav>
         </div>
 
-        <div className="px-6 flex flex-col gap-3">
-          <button onClick={() => setIsLodgeModalOpen(true)} className="w-full py-3 bg-[#007A99] hover:bg-[#00627A] text-white rounded-xl font-bold transition-colors flex items-center justify-center gap-2">
+        <div className="px-6 flex flex-col gap-1 mb-2">
+          <button
+            onClick={() => setIsLodgeModalOpen(true)}
+            className="w-full py-3 mb-2 bg-[#007A99] hover:bg-[#00627A] text-white rounded-xl font-bold transition-colors flex items-center justify-center gap-2"
+          >
             <Plus size={20} /> New Study
+          </button>
+          <button
+            onClick={() => {
+              setSettingsDisplayName(authUser?.displayName || "");
+              setSettingsBio(authUser?.bio || "");
+              setSettingsAvatarPreview(authUser?.avatar || "");
+              setSettingsBannerPreview(authUser?.banner || "");
+              setIsSettingsModalOpen(true);
+            }}
+            className="flex items-center gap-4 py-3 px-2 text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-xl font-bold transition-all"
+          >
+            <Settings size={20} strokeWidth={2} /> Settings
           </button>
           <button
             onClick={logout}
             className="flex items-center gap-4 py-3 px-2 text-slate-500 hover:text-red-500 hover:bg-red-50 rounded-xl font-bold transition-all"
           >
-            <Settings size={20} strokeWidth={2} /> Settings
+            <X size={20} strokeWidth={2} /> Logout
           </button>
         </div>
       </div>
@@ -202,10 +298,15 @@ export default function ChatPage() {
             {activeTab === "chat" ? "Chat" : "Lodges"}
           </h2>
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+            <Search
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+              size={18}
+            />
             <input
               type="text"
-              placeholder={activeTab === "chat" ? "Search Peers" : "Find a Lodge"}
+              placeholder={
+                activeTab === "chat" ? "Search Peers" : "Find a Lodge"
+              }
               className="w-full bg-white border border-slate-200 rounded-full py-3 pl-12 pr-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent shadow-sm placeholder:text-slate-400"
             />
           </div>
@@ -216,7 +317,9 @@ export default function ChatPage() {
           {activeTab === "chat" && (
             <div className="space-y-3">
               {users.length === 0 ? (
-                <p className="text-center text-sm text-slate-400 mt-10">No peers found.</p>
+                <p className="text-center text-sm text-slate-400 mt-10">
+                  No peers found.
+                </p>
               ) : (
                 users.map((user) => {
                   const isSelected = selectedUser?._id === user._id;
@@ -225,8 +328,8 @@ export default function ChatPage() {
                       key={user._id}
                       onClick={() => setSelectedUser(user)}
                       className={`w-full flex items-center gap-3 p-4 rounded-[20px] transition-all text-left ${
-                        isSelected 
-                          ? "bg-[#E5FFF5] shadow-sm border border-teal-200/60" 
+                        isSelected
+                          ? "bg-[#E5FFF5] shadow-sm border border-teal-200/60"
                           : "bg-white border border-slate-100 hover:bg-slate-50 shadow-sm"
                       }`}
                     >
@@ -238,10 +341,18 @@ export default function ChatPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex justify-between items-center mb-0.5">
-                          <p className="text-sm font-bold text-slate-900 truncate pr-2">{user.displayName}</p>
-                          <span className="text-[10px] font-bold text-slate-500 shrink-0">10:42 AM</span>
+                          <p className="text-sm font-bold text-slate-900 truncate pr-2">
+                            {user.displayName}
+                          </p>
+                          <span className="text-[10px] font-bold text-slate-500 shrink-0">
+                            10:42 AM
+                          </span>
                         </div>
-                        <p className={`text-xs truncate ${isSelected ? 'text-teal-700/80 font-medium' : 'text-slate-500'}`}>Tap to view conversation...</p>
+                        <p
+                          className={`text-xs truncate ${isSelected ? "text-teal-700/80 font-medium" : "text-slate-500"}`}
+                        >
+                          Tap to view conversation...
+                        </p>
                       </div>
                     </button>
                   );
@@ -255,10 +366,14 @@ export default function ChatPage() {
             <>
               {/* My Lodges */}
               <div>
-                <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider mb-3 px-2">My Lodges</h3>
+                <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider mb-3 px-2">
+                  My Lodges
+                </h3>
                 <div className="space-y-3">
                   {myLodges.length === 0 ? (
-                    <p className="text-center text-xs text-slate-400 py-2">You haven't joined any lodges yet.</p>
+                    <p className="text-center text-xs text-slate-400 py-2">
+                      You haven't joined any lodges yet.
+                    </p>
                   ) : (
                     myLodges.map((lodge) => {
                       const isSelected = selectedLodge?._id === lodge._id;
@@ -267,8 +382,8 @@ export default function ChatPage() {
                           key={lodge._id}
                           onClick={() => setSelectedLodge(lodge)}
                           className={`w-full flex items-center gap-3 p-4 rounded-[20px] transition-all text-left ${
-                            isSelected 
-                              ? "bg-[#E5FFF5] shadow-sm border border-teal-200/60" 
+                            isSelected
+                              ? "bg-[#E5FFF5] shadow-sm border border-teal-200/60"
                               : "bg-white border border-slate-100 hover:bg-slate-50 shadow-sm"
                           }`}
                         >
@@ -276,8 +391,14 @@ export default function ChatPage() {
                             {lodge.name.charAt(0).toUpperCase()}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-bold text-slate-900 truncate">{lodge.name}</p>
-                            <p className={`text-[10px] font-extrabold uppercase mt-0.5 ${isSelected ? 'text-teal-600' : 'text-slate-400'}`}>{lodge.myRole}</p>
+                            <p className="text-sm font-bold text-slate-900 truncate">
+                              {lodge.name}
+                            </p>
+                            <p
+                              className={`text-[10px] font-extrabold uppercase mt-0.5 ${isSelected ? "text-teal-600" : "text-slate-400"}`}
+                            >
+                              {lodge.myRole}
+                            </p>
                           </div>
                         </button>
                       );
@@ -288,33 +409,46 @@ export default function ChatPage() {
 
               {/* Public Lodges (Discovery) */}
               <div className="pt-6 border-t border-slate-200/60 mt-4">
-                <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider mb-3 px-2">Discover</h3>
+                <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider mb-3 px-2">
+                  Discover
+                </h3>
                 <div className="space-y-3">
-                  {publicLodges.filter(pl => !myLodges.find(ml => ml._id === pl._id)).length === 0 ? (
-                    <p className="text-center text-xs text-slate-400 py-2">No new lodges to discover.</p>
+                  {publicLodges.filter(
+                    (pl) => !myLodges.find((ml) => ml._id === pl._id),
+                  ).length === 0 ? (
+                    <p className="text-center text-xs text-slate-400 py-2">
+                      No new lodges to discover.
+                    </p>
                   ) : (
                     publicLodges
-                      .filter(pl => !myLodges.find(ml => ml._id === pl._id))
+                      .filter((pl) => !myLodges.find((ml) => ml._id === pl._id))
                       .map((lodge) => (
-                      <div key={lodge._id} className="bg-white p-4 rounded-[20px] border border-slate-100 shadow-sm flex flex-col gap-3">
-                        <div className="flex items-center gap-3">
-                          <div className="h-12 w-12 rounded-[14px] bg-slate-100 text-slate-400 flex items-center justify-center font-bold text-lg">
-                            {lodge.name.charAt(0).toUpperCase()}
-                          </div>
-                          <div>
-                            <p className="text-sm font-bold text-slate-900">{lodge.name}</p>
-                            <p className="text-xs font-medium text-slate-500 flex items-center gap-1 mt-0.5"><Users size={12}/> Public</p>
-                          </div>
-                        </div>
-                        <button 
-                          onClick={() => joinLodge(lodge._id)}
-                          disabled={isJoining}
-                          className="w-full py-2 bg-slate-50 hover:bg-[#E5FFF5] text-teal-700 rounded-xl text-xs font-bold transition-colors border border-slate-100 hover:border-teal-200"
+                        <div
+                          key={lodge._id}
+                          className="bg-white p-4 rounded-[20px] border border-slate-100 shadow-sm flex flex-col gap-3"
                         >
-                          Join Lodge
-                        </button>
-                      </div>
-                    ))
+                          <div className="flex items-center gap-3">
+                            <div className="h-12 w-12 rounded-[14px] bg-slate-100 text-slate-400 flex items-center justify-center font-bold text-lg">
+                              {lodge.name.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                              <p className="text-sm font-bold text-slate-900">
+                                {lodge.name}
+                              </p>
+                              <p className="text-xs font-medium text-slate-500 flex items-center gap-1 mt-0.5">
+                                <Users size={12} /> Public
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => joinLodge(lodge._id)}
+                            disabled={isJoining}
+                            className="w-full py-2 bg-slate-50 hover:bg-[#E5FFF5] text-teal-700 rounded-xl text-xs font-bold transition-colors border border-slate-100 hover:border-teal-200"
+                          >
+                            Join Lodge
+                          </button>
+                        </div>
+                      ))
                   )}
                 </div>
               </div>
@@ -324,37 +458,47 @@ export default function ChatPage() {
       </div>
 
       {/* ================= PANE 3: MAIN WINDOW ================= */}
-      
+
       {/* State 1: CHAT is active but no user selected */}
       {activeTab === "chat" && !selectedUser && (
         <div className="flex-1 flex flex-col bg-white">
           {/* STORIES STRIP (Only visible in Chat Tab) */}
           <div className="h-28 border-b border-slate-200 flex items-center px-8 gap-6 overflow-x-auto shrink-0 bg-white shadow-sm z-10">
             {/* Add Story Button */}
-            <button onClick={handleAddStoryClick} className="flex flex-col items-center gap-2 shrink-0 group">
+            <button
+              onClick={handleAddStoryClick}
+              className="flex flex-col items-center gap-2 shrink-0 group"
+            >
               <div className="h-14 w-14 rounded-full border-2 border-dashed border-[#0099B3] flex items-center justify-center text-[#0099B3] group-hover:bg-[#E5FFF5] transition-colors bg-white relative">
                 <Plus size={24} />
               </div>
-              <span className="text-[10px] font-bold text-slate-700">Add Story</span>
+              <span className="text-[10px] font-bold text-slate-700">
+                Add Story
+              </span>
             </button>
 
             {/* Render Statuses */}
-            {statuses.map(status => (
-              <button 
-                key={status._id} 
+            {statuses.map((status) => (
+              <button
+                key={status._id}
                 onClick={() => setViewingStatus(status)}
                 className="flex flex-col items-center gap-2 shrink-0 group"
               >
                 <div className="h-14 w-14 rounded-full p-[2px] bg-gradient-to-tr from-orange-400 to-[#0099B3]">
                   <div className="h-full w-full rounded-full border-2 border-white bg-slate-200 overflow-hidden">
-                    <img 
-                      src={status.user?.avatar || `https://ui-avatars.com/api/?name=${status.user?.displayName || "U"}&background=random`} 
-                      alt="story" 
-                      className="h-full w-full object-cover" 
+                    <img
+                      src={
+                        status.user?.avatar ||
+                        `https://ui-avatars.com/api/?name=${status.user?.displayName || "U"}&background=random`
+                      }
+                      alt="story"
+                      className="h-full w-full object-cover"
                     />
                   </div>
                 </div>
-                <span className="text-[10px] font-bold text-slate-700 w-16 truncate text-center">{status.user?.displayName || "Unknown"}</span>
+                <span className="text-[10px] font-bold text-slate-700 w-16 truncate text-center">
+                  {status.user?.displayName || "Unknown"}
+                </span>
               </button>
             ))}
           </div>
@@ -363,8 +507,13 @@ export default function ChatPage() {
             <div className="h-24 w-24 bg-slate-100 rounded-full flex items-center justify-center text-slate-300 mb-6">
               <MessageSquare size={40} />
             </div>
-            <h3 className="text-2xl font-bold text-slate-800">Your Academic Nexus</h3>
-            <p className="text-slate-500 mt-2 max-w-md font-medium">Select a peer from the sidebar to continue the conversation, share resources, or collaborate on your latest study.</p>
+            <h3 className="text-2xl font-bold text-slate-800">
+              Your Academic Nexus
+            </h3>
+            <p className="text-slate-500 mt-2 max-w-md font-medium">
+              Select a peer from the sidebar to continue the conversation, share
+              resources, or collaborate on your latest study.
+            </p>
           </div>
         </div>
       )}
@@ -375,30 +524,40 @@ export default function ChatPage() {
           {/* STORIES STRIP (Only visible in Chat Tab) */}
           <div className="h-28 border-b border-slate-200 flex items-center px-8 gap-6 overflow-x-auto shrink-0 bg-white z-10">
             {/* Add Story Button */}
-            <button onClick={handleAddStoryClick} className="flex flex-col items-center gap-2 shrink-0 group">
+            <button
+              onClick={handleAddStoryClick}
+              className="flex flex-col items-center gap-2 shrink-0 group"
+            >
               <div className="h-14 w-14 rounded-full border-2 border-dashed border-[#0099B3] flex items-center justify-center text-[#0099B3] group-hover:bg-[#E5FFF5] transition-colors bg-white relative">
                 <Plus size={24} />
               </div>
-              <span className="text-[10px] font-bold text-slate-800">Add Story</span>
+              <span className="text-[10px] font-bold text-slate-800">
+                Add Story
+              </span>
             </button>
 
             {/* Render Statuses */}
-            {statuses.map(status => (
-              <button 
-                key={status._id} 
+            {statuses.map((status) => (
+              <button
+                key={status._id}
                 onClick={() => setViewingStatus(status)}
                 className="flex flex-col items-center gap-2 shrink-0 group"
               >
                 <div className="h-14 w-14 rounded-full p-[2px] bg-gradient-to-tr from-[#0099B3] to-orange-500 shadow-sm group-hover:scale-105 transition-transform">
                   <div className="h-full w-full rounded-full border-2 border-white bg-slate-200 overflow-hidden">
-                    <img 
-                      src={status.user?.avatar || `https://ui-avatars.com/api/?name=${status.user?.displayName || "U"}&background=random`} 
-                      alt="story" 
-                      className="h-full w-full object-cover" 
+                    <img
+                      src={
+                        status.user?.avatar ||
+                        `https://ui-avatars.com/api/?name=${status.user?.displayName || "U"}&background=random`
+                      }
+                      alt="story"
+                      className="h-full w-full object-cover"
                     />
                   </div>
                 </div>
-                <span className="text-[10px] font-bold text-slate-800 w-16 truncate text-center">{status.user?.displayName || "Unknown"}</span>
+                <span className="text-[10px] font-bold text-slate-800 w-16 truncate text-center">
+                  {status.user?.displayName || "Unknown"}
+                </span>
               </button>
             ))}
           </div>
@@ -410,21 +569,42 @@ export default function ChatPage() {
                 {selectedUser.displayName.charAt(0).toUpperCase()}
               </div>
               <div>
-                <h3 className="font-extrabold text-lg text-slate-900">{selectedUser.displayName}</h3>
-                <p className="text-[11px] font-bold text-slate-500">Active Now</p>
+                <h3 className="font-extrabold text-lg text-slate-900">
+                  {selectedUser.displayName}
+                </h3>
+                <p className="text-[11px] font-bold text-slate-500">
+                  Active Now
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-4 text-slate-600">
-              <button className="h-10 w-10 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center transition-colors"><Phone size={18} fill="currentColor" className="text-slate-500" /></button>
-              <button className="h-10 w-10 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center transition-colors"><Video size={20} fill="currentColor" className="text-slate-500" /></button>
-              <button className="h-10 w-10 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center transition-colors"><Info size={20} className="text-slate-500" /></button>
+              <button className="h-10 w-10 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center transition-colors">
+                <Phone
+                  size={18}
+                  fill="currentColor"
+                  className="text-slate-500"
+                />
+              </button>
+              <button className="h-10 w-10 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center transition-colors">
+                <Video
+                  size={20}
+                  fill="currentColor"
+                  className="text-slate-500"
+                />
+              </button>
+              <button className="h-10 w-10 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center transition-colors">
+                <Info size={20} className="text-slate-500" />
+              </button>
             </div>
           </div>
-          
+
           {/* CHAT AREA (Mockup) */}
           <div className="flex-1 overflow-y-auto p-8 pb-32 flex flex-col bg-white">
-            <div className="text-center text-[13px] font-bold text-slate-600 mb-10">This is the beginning of your conversation with {selectedUser.displayName}.</div>
-            
+            <div className="text-center text-[13px] font-bold text-slate-600 mb-10">
+              This is the beginning of your conversation with{" "}
+              {selectedUser.displayName}.
+            </div>
+
             <div className="flex justify-center mb-8">
               <div className="bg-[#EAEFF4] text-slate-600 text-[10px] font-bold uppercase tracking-wider px-4 py-1.5 rounded-full">
                 OCTOBER 24, 2024
@@ -434,15 +614,20 @@ export default function ChatPage() {
             {/* Incoming Message Mockup */}
             <div className="flex flex-col items-start mb-6 max-w-[80%]">
               <div className="flex items-center gap-2 mb-2 ml-14">
-                <span className="font-bold text-sm text-slate-900">Elena Thorne</span>
-                <span className="text-[10px] font-bold text-slate-500">10:42 AM</span>
+                <span className="font-bold text-sm text-slate-900">
+                  Elena Thorne
+                </span>
+                <span className="text-[10px] font-bold text-slate-500">
+                  10:42 AM
+                </span>
               </div>
               <div className="flex gap-4">
                 <div className="h-10 w-10 rounded-full bg-[#007A99] flex items-center justify-center text-white shrink-0">
                   <User size={20} />
                 </div>
                 <div className="bg-white border border-slate-200 text-slate-700 px-5 py-4 rounded-[20px] rounded-tl-sm text-[15px] leading-relaxed shadow-sm">
-                  Does anyone have the link to the shared bibliography for the Neural Networks seminar?
+                  Does anyone have the link to the shared bibliography for the
+                  Neural Networks seminar?
                 </div>
               </div>
             </div>
@@ -450,7 +635,9 @@ export default function ChatPage() {
             {/* Outgoing Message Mockup */}
             <div className="flex flex-col items-end mb-6 w-full">
               <div className="flex items-center gap-2 mb-2 mr-14">
-                <span className="text-[10px] font-bold text-slate-500">10:45 AM</span>
+                <span className="text-[10px] font-bold text-slate-500">
+                  10:45 AM
+                </span>
                 <span className="font-bold text-sm text-[#007A99]">You</span>
               </div>
               <div className="flex gap-4 justify-end max-w-[80%]">
@@ -458,7 +645,10 @@ export default function ChatPage() {
                   Found it! I'll drop it here as well for quick access.
                 </div>
                 <div className="h-10 w-10 rounded-full bg-slate-800 flex items-center justify-center text-white shrink-0 overflow-hidden">
-                  <img src="https://ui-avatars.com/api/?name=Me&background=random" alt="Me" />
+                  <img
+                    src="https://ui-avatars.com/api/?name=Me&background=random"
+                    alt="Me"
+                  />
                 </div>
               </div>
             </div>
@@ -467,11 +657,21 @@ export default function ChatPage() {
           {/* CHAT INPUT */}
           <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-full max-w-3xl px-8 z-20">
             <div className="bg-white rounded-full shadow-lg border border-slate-200 flex items-center p-2 pl-4">
-              <button className="p-2 text-slate-400 hover:text-slate-600 transition-colors shrink-0"><Paperclip size={20} /></button>
-              <input type="text" placeholder="Contribute to the conversation..." className="flex-1 bg-transparent px-4 py-2 focus:outline-none text-slate-700 font-medium placeholder:text-slate-500 text-[15px]" />
+              <button className="p-2 text-slate-400 hover:text-slate-600 transition-colors shrink-0">
+                <Paperclip size={20} />
+              </button>
+              <input
+                type="text"
+                placeholder="Contribute to the conversation..."
+                className="flex-1 bg-transparent px-4 py-2 focus:outline-none text-slate-700 font-medium placeholder:text-slate-500 text-[15px]"
+              />
               <div className="flex items-center gap-2 pr-1 shrink-0">
-                <button className="p-2 text-slate-400 hover:text-slate-600 transition-colors"><Smile size={22} /></button>
-                <button className="h-10 w-10 bg-[#0099B3] hover:bg-[#007A99] rounded-full flex items-center justify-center text-white shadow-md transition-colors"><Send size={18} className="ml-0.5" /></button>
+                <button className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
+                  <Smile size={22} />
+                </button>
+                <button className="h-10 w-10 bg-[#0099B3] hover:bg-[#007A99] rounded-full flex items-center justify-center text-white shadow-md transition-colors">
+                  <Send size={18} className="ml-0.5" />
+                </button>
               </div>
             </div>
           </div>
@@ -484,8 +684,13 @@ export default function ChatPage() {
           <div className="h-24 w-24 bg-white rounded-[24px] shadow-sm border border-slate-100 flex items-center justify-center text-slate-300 mb-6">
             <Building2 size={40} />
           </div>
-          <h3 className="text-2xl font-bold text-slate-800">Lodge Headquarters</h3>
-          <p className="text-slate-500 mt-2 max-w-md font-medium">Join a public lodge from the sidebar to start collaborating on projects, or create your own study group.</p>
+          <h3 className="text-2xl font-bold text-slate-800">
+            Lodge Headquarters
+          </h3>
+          <p className="text-slate-500 mt-2 max-w-md font-medium">
+            Join a public lodge from the sidebar to start collaborating on
+            projects, or create your own study group.
+          </p>
         </div>
       )}
 
@@ -495,22 +700,35 @@ export default function ChatPage() {
           {/* Lodge Channels Sidebar */}
           <div className="w-64 bg-[#F9FAFB] border-r border-slate-200 flex flex-col">
             <div className="p-6 border-b border-slate-200">
-              <h3 className="font-extrabold text-lg text-slate-900 truncate">{selectedLodge.name}</h3>
-              <p className="text-xs font-medium text-slate-500 mt-1 truncate">{selectedLodge.description || "A student lodge"}</p>
+              <h3 className="font-extrabold text-lg text-slate-900 truncate">
+                {selectedLodge.name}
+              </h3>
+              <p className="text-xs font-medium text-slate-500 mt-1 truncate">
+                {selectedLodge.description || "A student lodge"}
+              </p>
             </div>
             <div className="flex-1 overflow-y-auto p-4 space-y-1">
-              <div className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-3 px-2 pt-2">Channels</div>
-              {currentLodgeChannels.map(channel => (
-                <button 
+              <div className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-3 px-2 pt-2">
+                Channels
+              </div>
+              {currentLodgeChannels.map((channel) => (
+                <button
                   key={channel._id}
                   onClick={() => setSelectedChannel(channel)}
                   className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-[12px] text-sm font-bold transition-colors ${selectedChannel?._id === channel._id ? "bg-[#E5FFF5] text-teal-700" : "text-slate-600 hover:bg-slate-200/50"}`}
                 >
-                  <Hash size={18} className={selectedChannel?._id === channel._id ? "text-teal-600" : "text-slate-400"} />
+                  <Hash
+                    size={18}
+                    className={
+                      selectedChannel?._id === channel._id
+                        ? "text-teal-600"
+                        : "text-slate-400"
+                    }
+                  />
                   {channel.name}
                 </button>
               ))}
-              {selectedLodge.myRole === 'captain' && (
+              {selectedLodge.myRole === "captain" && (
                 <button className="w-full flex items-center gap-3 px-4 py-2.5 mt-2 rounded-[12px] text-sm font-bold text-teal-600 hover:bg-[#E5FFF5] transition-colors">
                   <Plus size={18} /> Add Channel
                 </button>
@@ -532,21 +750,35 @@ export default function ChatPage() {
                   <div className="h-20 w-20 bg-[#F4F7F9] rounded-full flex items-center justify-center mx-auto mb-6">
                     <Hash size={36} className="text-slate-400" />
                   </div>
-                  <h2 className="text-2xl font-extrabold text-slate-900">Welcome to #{selectedChannel.name}!</h2>
-                  <p className="text-[15px] font-medium text-slate-500 mt-2">This is the start of the #{selectedChannel.name} channel.</p>
+                  <h2 className="text-2xl font-extrabold text-slate-900">
+                    Welcome to #{selectedChannel.name}!
+                  </h2>
+                  <p className="text-[15px] font-medium text-slate-500 mt-2">
+                    This is the start of the #{selectedChannel.name} channel.
+                  </p>
                 </div>
               ) : (
-                <div className="text-center text-[15px] font-medium text-slate-400 mt-10">Select a channel to start chatting.</div>
+                <div className="text-center text-[15px] font-medium text-slate-400 mt-10">
+                  Select a channel to start chatting.
+                </div>
               )}
             </div>
             {selectedChannel && (
-               <div className="absolute bottom-8 left-8 right-8">
-                 <div className="bg-white rounded-full shadow-lg border border-slate-200 flex items-center p-2 focus-within:ring-2 focus-within:ring-teal-400 focus-within:border-transparent transition-all">
-                   <button className="p-3 text-slate-400 hover:text-slate-600 transition-colors rounded-full shrink-0"><Plus size={20} /></button>
-                   <input type="text" placeholder={`Message #${selectedChannel.name}`} className="flex-1 bg-transparent px-4 py-2 focus:outline-none text-slate-700 font-medium text-[15px] placeholder:text-slate-400" />
-                   <button className="h-10 w-10 bg-[#0099B3] hover:bg-[#007A99] transition-colors rounded-full flex items-center justify-center text-white shrink-0 mr-1"><Send size={18} className="ml-0.5" /></button>
-                 </div>
-               </div>
+              <div className="absolute bottom-8 left-8 right-8">
+                <div className="bg-white rounded-full shadow-lg border border-slate-200 flex items-center p-2 focus-within:ring-2 focus-within:ring-teal-400 focus-within:border-transparent transition-all">
+                  <button className="p-3 text-slate-400 hover:text-slate-600 transition-colors rounded-full shrink-0">
+                    <Plus size={20} />
+                  </button>
+                  <input
+                    type="text"
+                    placeholder={`Message #${selectedChannel.name}`}
+                    className="flex-1 bg-transparent px-4 py-2 focus:outline-none text-slate-700 font-medium text-[15px] placeholder:text-slate-400"
+                  />
+                  <button className="h-10 w-10 bg-[#0099B3] hover:bg-[#007A99] transition-colors rounded-full flex items-center justify-center text-white shrink-0 mr-1">
+                    <Send size={18} className="ml-0.5" />
+                  </button>
+                </div>
+              </div>
             )}
           </div>
         </div>
@@ -554,36 +786,181 @@ export default function ChatPage() {
 
       {/* ================= MODALS ================= */}
 
+      {/* Settings Modal */}
+      {isSettingsModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-[24px] w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
+            <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
+              <h2 className="text-lg font-extrabold text-slate-900">
+                Profile Settings
+              </h2>
+              <button
+                onClick={() => setIsSettingsModalOpen(false)}
+                className="text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="w-full bg-white relative">
+              {/* Banner Area */}
+              <div
+                className="h-32 w-full bg-slate-200 relative group cursor-pointer overflow-hidden"
+                onClick={() => bannerInputRef.current?.click()}
+              >
+                {settingsBannerPreview ? (
+                  <img
+                    src={settingsBannerPreview}
+                    alt="Banner"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-r from-teal-400 to-blue-500"></div>
+                )}
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">
+                    Change Banner
+                  </span>
+                </div>
+                <input
+                  type="file"
+                  ref={bannerInputRef}
+                  className="hidden"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setSettingsBannerFile(file);
+                      const reader = new FileReader();
+                      reader.onload = () =>
+                        setSettingsBannerPreview(reader.result as string);
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                />
+              </div>
+
+              {/* Avatar Area (Overlapping) */}
+              <div className="absolute left-6 top-20 flex items-end">
+                <div
+                  className="h-20 w-20 rounded-full bg-white border-4 border-white shadow-md relative group cursor-pointer overflow-hidden"
+                  onClick={() => avatarInputRef.current?.click()}
+                >
+                  <img
+                    src={
+                      settingsAvatarPreview ||
+                      `https://ui-avatars.com/api/?name=${authUser?.displayName}&background=random`
+                    }
+                    alt="Avatar"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <Plus size={20} className="text-white" />
+                  </div>
+                  <input
+                    type="file"
+                    ref={avatarInputRef}
+                    className="hidden"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setSettingsAvatarFile(file);
+                        const reader = new FileReader();
+                        reader.onload = () =>
+                          setSettingsAvatarPreview(reader.result as string);
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 pt-12 space-y-5">
+              {/* Name */}
+              <div>
+                <label className="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">
+                  Display Name
+                </label>
+                <input
+                  type="text"
+                  value={settingsDisplayName}
+                  onChange={(e) => setSettingsDisplayName(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 focus:outline-none focus:ring-2 focus:ring-[#0099B3] text-sm font-medium"
+                />
+              </div>
+
+              {/* Bio */}
+              <div>
+                <label className="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">
+                  Bio
+                </label>
+                <textarea
+                  value={settingsBio}
+                  onChange={(e) => setSettingsBio(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 h-20 resize-none focus:outline-none focus:ring-2 focus:ring-[#0099B3] text-sm font-medium"
+                />
+              </div>
+            </div>
+
+            <div className="p-5 bg-slate-50 border-t border-slate-100 flex justify-end">
+              <button
+                onClick={handleSaveProfile}
+                disabled={isUpdatingProfile || !settingsDisplayName}
+                className="px-6 py-3 bg-[#007A99] hover:bg-[#00627A] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-bold transition-all shadow-md flex items-center gap-2"
+              >
+                {isUpdatingProfile ? (
+                  <Loader2 size={18} className="animate-spin" />
+                ) : (
+                  "Save Changes"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Lodge Creation Modal */}
       {isLodgeModalOpen && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-[24px] w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
             <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
-              <h2 className="text-lg font-extrabold text-slate-900">Create a Lodge</h2>
-              <button onClick={() => setIsLodgeModalOpen(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
+              <h2 className="text-lg font-extrabold text-slate-900">
+                Create a Lodge
+              </h2>
+              <button
+                onClick={() => setIsLodgeModalOpen(false)}
+                className="text-slate-400 hover:text-slate-600 transition-colors"
+              >
                 <X size={24} />
               </button>
             </div>
-            
+
             <div className="p-6 space-y-6">
               {/* Avatar Upload */}
               <div className="flex justify-center">
-                <div 
+                <div
                   className="h-24 w-24 rounded-[20px] border-2 border-dashed border-slate-200 bg-slate-50 flex flex-col items-center justify-center overflow-hidden cursor-pointer hover:bg-slate-100 transition-colors relative"
                   onClick={() => lodgeFileInputRef.current?.click()}
                 >
                   {lodgeAvatar ? (
-                    <img src={URL.createObjectURL(lodgeAvatar)} alt="Preview" className="w-full h-full object-cover" />
+                    <img
+                      src={URL.createObjectURL(lodgeAvatar)}
+                      alt="Preview"
+                      className="w-full h-full object-cover"
+                    />
                   ) : (
                     <Building2 size={32} className="text-[#0099B3]" />
                   )}
-                  <input 
-                    type="file" 
-                    ref={lodgeFileInputRef} 
-                    className="hidden" 
-                    accept="image/*" 
+                  <input
+                    type="file"
+                    ref={lodgeFileInputRef}
+                    className="hidden"
+                    accept="image/*"
                     onChange={(e) => {
-                      if (e.target.files?.[0]) setLodgeAvatar(e.target.files[0]);
+                      if (e.target.files?.[0])
+                        setLodgeAvatar(e.target.files[0]);
                     }}
                   />
                 </div>
@@ -591,8 +968,10 @@ export default function ChatPage() {
 
               {/* Name */}
               <div>
-                <label className="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">Lodge Name</label>
-                <input 
+                <label className="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">
+                  Lodge Name
+                </label>
+                <input
                   type="text"
                   value={lodgeName}
                   onChange={(e) => setLodgeName(e.target.value)}
@@ -603,8 +982,10 @@ export default function ChatPage() {
 
               {/* Description */}
               <div>
-                <label className="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">Description (Optional)</label>
-                <textarea 
+                <label className="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">
+                  Description (Optional)
+                </label>
+                <textarea
                   value={lodgeDescription}
                   onChange={(e) => setLodgeDescription(e.target.value)}
                   placeholder="What is this lodge about?"
@@ -614,12 +995,16 @@ export default function ChatPage() {
             </div>
 
             <div className="p-5 bg-slate-50 border-t border-slate-100 flex justify-end">
-              <button 
+              <button
                 onClick={handleCreateLodge}
                 disabled={isCreating || !lodgeName}
                 className="px-6 py-3 bg-[#007A99] hover:bg-[#00627A] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-bold transition-all shadow-md flex items-center gap-2"
               >
-                {isCreating ? <Loader2 size={18} className="animate-spin" /> : "Create Lodge"}
+                {isCreating ? (
+                  <Loader2 size={18} className="animate-spin" />
+                ) : (
+                  "Create Lodge"
+                )}
               </button>
             </div>
           </div>
@@ -631,40 +1016,55 @@ export default function ChatPage() {
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-[24px] w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
             <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
-              <h2 className="text-lg font-extrabold text-slate-900">Create Status</h2>
-              <button onClick={() => setIsStoryModalOpen(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
+              <h2 className="text-lg font-extrabold text-slate-900">
+                Create Status
+              </h2>
+              <button
+                onClick={() => setIsStoryModalOpen(false)}
+                className="text-slate-400 hover:text-slate-600 transition-colors"
+              >
                 <X size={24} />
               </button>
             </div>
-            
+
             <div className="p-6 space-y-6">
               {/* Media Preview / Upload Area */}
-              <div 
+              <div
                 className="h-48 rounded-[20px] border-2 border-dashed border-slate-200 bg-slate-50 flex flex-col items-center justify-center overflow-hidden cursor-pointer hover:bg-slate-100 transition-colors relative"
                 onClick={() => fileInputRef.current?.click()}
               >
                 {storyPreview ? (
-                  <img src={storyPreview} alt="Preview" className="w-full h-full object-cover" />
+                  <img
+                    src={storyPreview}
+                    alt="Preview"
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
                   <>
                     <Plus size={36} className="text-[#0099B3] mb-3" />
-                    <p className="text-sm font-bold text-slate-700">Add Image or Video</p>
-                    <p className="text-[11px] font-bold text-slate-400 mt-1 uppercase tracking-wider">Optional</p>
+                    <p className="text-sm font-bold text-slate-700">
+                      Add Image or Video
+                    </p>
+                    <p className="text-[11px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
+                      Optional
+                    </p>
                   </>
                 )}
-                <input 
-                  type="file" 
-                  ref={fileInputRef} 
-                  className="hidden" 
-                  accept="image/*,video/*" 
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  accept="image/*,video/*"
                   onChange={handleFileChange}
                 />
               </div>
 
               {/* Text Content */}
               <div>
-                <label className="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">Caption / Status</label>
-                <textarea 
+                <label className="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">
+                  Caption / Status
+                </label>
+                <textarea
                   value={storyText}
                   onChange={(e) => setStoryText(e.target.value)}
                   placeholder="What's on your mind? Share an update or thought..."
@@ -674,12 +1074,16 @@ export default function ChatPage() {
             </div>
 
             <div className="p-5 bg-slate-50 border-t border-slate-100 flex justify-end">
-              <button 
+              <button
                 onClick={handlePostStory}
                 disabled={isCreatingStatus || (!storyText && !storyFile)}
                 className="px-6 py-3 bg-[#007A99] hover:bg-[#00627A] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-bold transition-all shadow-md flex items-center gap-2"
               >
-                {isCreatingStatus ? <Loader2 size={18} className="animate-spin" /> : "Post Status"}
+                {isCreatingStatus ? (
+                  <Loader2 size={18} className="animate-spin" />
+                ) : (
+                  "Post Status"
+                )}
               </button>
             </div>
           </div>
@@ -693,20 +1097,31 @@ export default function ChatPage() {
           <div className="absolute top-0 left-0 w-full p-6 flex items-center justify-between z-10">
             <div className="flex items-center gap-3">
               <div className="h-12 w-12 rounded-full bg-slate-800 overflow-hidden border border-white/20">
-                <img 
-                  src={viewingStatus.user?.avatar || `https://ui-avatars.com/api/?name=${viewingStatus.user?.displayName || "U"}`} 
-                  alt="Avatar" 
+                <img
+                  src={
+                    viewingStatus.user?.avatar ||
+                    `https://ui-avatars.com/api/?name=${viewingStatus.user?.displayName || "U"}`
+                  }
+                  alt="Avatar"
                   className="w-full h-full object-cover"
                 />
               </div>
               <div className="text-white">
-                <p className="font-extrabold text-[15px]">{viewingStatus.user?.displayName}</p>
+                <p className="font-extrabold text-[15px]">
+                  {viewingStatus.user?.displayName}
+                </p>
                 <p className="text-[11px] font-bold text-white/60">
-                  {new Date(viewingStatus.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  {new Date(viewingStatus.createdAt).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </p>
               </div>
             </div>
-            <button onClick={() => setViewingStatus(null)} className="text-white/70 hover:text-white p-2.5 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-md transition-colors">
+            <button
+              onClick={() => setViewingStatus(null)}
+              className="text-white/70 hover:text-white p-2.5 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-md transition-colors"
+            >
               <X size={24} />
             </button>
           </div>
@@ -714,15 +1129,28 @@ export default function ChatPage() {
           {/* Content Area */}
           <div className="relative w-full max-w-md aspect-[9/16] bg-slate-900 rounded-[32px] overflow-hidden flex flex-col items-center justify-center shadow-2xl">
             {viewingStatus.mediaType === "image" && (
-              <img src={viewingStatus.mediaUrl} alt="Status" className="w-full h-full object-contain" />
+              <img
+                src={viewingStatus.mediaUrl}
+                alt="Status"
+                className="w-full h-full object-contain"
+              />
             )}
             {viewingStatus.mediaType === "video" && (
-              <video src={viewingStatus.mediaUrl} controls autoPlay className="w-full h-full object-contain" />
+              <video
+                src={viewingStatus.mediaUrl}
+                controls
+                autoPlay
+                className="w-full h-full object-contain"
+              />
             )}
-            
+
             {viewingStatus.textContent && (
-              <div className={`absolute bottom-0 left-0 w-full p-8 bg-gradient-to-t from-black/90 via-black/50 to-transparent ${viewingStatus.mediaType === 'none' ? 'h-full flex items-center justify-center text-center from-transparent via-transparent bg-slate-800' : ''}`}>
-                <p className={`text-white font-medium ${viewingStatus.mediaType === 'none' ? 'text-2xl px-6' : 'text-[15px] leading-relaxed'}`}>
+              <div
+                className={`absolute bottom-0 left-0 w-full p-8 bg-gradient-to-t from-black/90 via-black/50 to-transparent ${viewingStatus.mediaType === "none" ? "h-full flex items-center justify-center text-center from-transparent via-transparent bg-slate-800" : ""}`}
+              >
+                <p
+                  className={`text-white font-medium ${viewingStatus.mediaType === "none" ? "text-2xl px-6" : "text-[15px] leading-relaxed"}`}
+                >
                   {viewingStatus.textContent}
                 </p>
               </div>
@@ -730,7 +1158,6 @@ export default function ChatPage() {
           </div>
         </div>
       )}
-
     </div>
   );
 }

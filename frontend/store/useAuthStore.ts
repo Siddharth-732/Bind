@@ -8,12 +8,16 @@ interface AuthState {
   authUser: any;
   isLoggingIn: boolean;
   isRegistering: boolean;
+  isUpdatingProfile: boolean;
   socket: any;
   login: (data: any) => Promise<void>;
   register: (data: any) => Promise<void>;
   logout: () => Promise<void>;
   connectSocket: () => void; 
   disconnectSocket: () => void; 
+  updateAccountDetails: (data: { displayName?: string; bio?: string }) => Promise<boolean>;
+  updateUserAvatar: (file: File) => Promise<boolean>;
+  updateUserBanner: (file: File) => Promise<boolean>;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -21,8 +25,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   authUser: null, // Holds the user's data when logged in
   isLoggingIn: false,
   isRegistering: false,
+  isUpdatingProfile: false,
 
-login: async (data) => {
+  login: async (data) => {
     set({ isLoggingIn: true });
     
     try {
@@ -50,6 +55,7 @@ login: async (data) => {
       set({ isRegistering: false });
     }
   },
+
   logout: async () => {
     try {
       // tell the Express backend to clear the HTTP-Only cookies
@@ -61,6 +67,55 @@ login: async (data) => {
       toast.success("Logged out successfully");
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to log out");
+    }
+  },
+
+  updateAccountDetails: async (data) => {
+    set({ isUpdatingProfile: true });
+    try {
+      const response = await axiosInstance.patch("/users/update-account", data);
+      set({ authUser: response.data.user });
+      toast.success("Profile updated successfully");
+      return true;
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to update profile");
+      return false;
+    } finally {
+      set({ isUpdatingProfile: false });
+    }
+  },
+
+  updateUserAvatar: async (file) => {
+    set({ isUpdatingProfile: true });
+    try {
+      const formData = new FormData();
+      formData.append("avatar", file);
+      const response = await axiosInstance.patch("/users/update-avatar", formData);
+      set({ authUser: response.data.user });
+      toast.success("Avatar updated successfully");
+      return true;
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to update avatar");
+      return false;
+    } finally {
+      set({ isUpdatingProfile: false });
+    }
+  },
+
+  updateUserBanner: async (file) => {
+    set({ isUpdatingProfile: true });
+    try {
+      const formData = new FormData();
+      formData.append("banner", file);
+      const response = await axiosInstance.patch("/users/update-banner", formData);
+      set({ authUser: response.data.user });
+      toast.success("Banner updated successfully");
+      return true;
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to update banner");
+      return false;
+    } finally {
+      set({ isUpdatingProfile: false });
     }
   },
 
