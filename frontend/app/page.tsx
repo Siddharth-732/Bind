@@ -265,12 +265,6 @@ export default function ChatPage() {
 
         <div className="px-6 flex flex-col gap-1 mb-2">
           <button
-            onClick={() => setIsLodgeModalOpen(true)}
-            className="w-full py-3 mb-2 bg-[#007A99] hover:bg-[#00627A] text-white rounded-xl font-bold transition-colors flex items-center justify-center gap-2"
-          >
-            <Plus size={20} /> New Study
-          </button>
-          <button
             onClick={() => {
               setSettingsDisplayName(authUser?.displayName || "");
               setSettingsBio(authUser?.bio || "");
@@ -405,6 +399,12 @@ export default function ChatPage() {
                     })
                   )}
                 </div>
+                <button
+                  onClick={() => setIsLodgeModalOpen(true)}
+                  className="w-full mt-4 py-3 bg-[#007A99] hover:bg-[#00627A] text-white rounded-[16px] font-bold transition-colors flex items-center justify-center gap-2 shadow-sm"
+                >
+                  <Plus size={20} /> New Lodge
+                </button>
               </div>
 
               {/* Public Lodges (Discovery) */}
