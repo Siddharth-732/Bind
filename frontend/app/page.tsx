@@ -213,13 +213,13 @@ export default function ChatPage() {
   return (
     <div className="flex h-screen bg-white text-slate-800 font-sans overflow-hidden">
       {/* ================= PANE 1: GLOBAL NAVIGATION ================= */}
-      <div className="w-[260px] bg-white flex flex-col justify-between py-6 shrink-0 z-20">
+      <div className="w-[88px] hover:w-[260px] group transition-all duration-300 overflow-hidden bg-white flex flex-col justify-between py-6 shrink-0 z-20 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
         <div>
           <div className="px-6 mb-10 flex items-center gap-3">
-            <div className="h-10 w-10 bg-[#007A99] text-white rounded-[10px] flex items-center justify-center font-bold text-xl">
+            <div className="h-10 w-10 shrink-0 bg-[#007A99] text-white rounded-[10px] flex items-center justify-center font-bold text-xl">
               B
             </div>
-            <div>
+            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
               <h1 className="text-xl font-extrabold text-slate-900 leading-tight">
                 Bind
               </h1>
@@ -234,31 +234,33 @@ export default function ChatPage() {
               onClick={() => setActiveTab("chat")}
               className={`flex items-center gap-4 py-3 px-6 rounded-r-xl font-bold transition-all relative ${activeTab === "chat" ? "bg-[#E5FFF5] text-teal-700" : "text-slate-600 hover:bg-slate-50"}`}
             >
-              {activeTab === "chat" && (
-                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-teal-600 rounded-r-full"></div>
-              )}
-              <MessageCircle size={20} strokeWidth={2} /> Chat
+              {activeTab === "chat" && <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-teal-600 rounded-r-full"></div>}
+              <div className="shrink-0"><MessageCircle size={20} strokeWidth={2} /></div>
+              <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Chat</span>
             </button>
             <button
               onClick={() => setActiveTab("lodge")}
               className={`flex items-center gap-4 py-3 px-6 rounded-r-xl font-bold transition-all relative ${activeTab === "lodge" ? "bg-[#E5FFF5] text-teal-700" : "text-slate-600 hover:bg-slate-50"}`}
             >
-              {activeTab === "lodge" && (
-                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-teal-600 rounded-r-full"></div>
-              )}
-              <Building2 size={20} strokeWidth={2} /> Lodge
+              {activeTab === "lodge" && <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-teal-600 rounded-r-full"></div>}
+              <div className="shrink-0"><Building2 size={20} strokeWidth={2} /></div>
+              <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Lodge</span>
             </button>
             <button className="flex items-center gap-4 py-3 px-6 text-slate-600 hover:bg-slate-50 rounded-r-xl font-bold transition-all">
-              <Search size={20} strokeWidth={2} /> Search
+              <div className="shrink-0"><Search size={20} strokeWidth={2} /></div>
+              <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Search</span>
             </button>
             <button className="flex items-center gap-4 py-3 px-6 text-slate-600 hover:bg-slate-50 rounded-r-xl font-bold transition-all">
-              <Compass size={20} strokeWidth={2} /> Explore
+              <div className="shrink-0"><Compass size={20} strokeWidth={2} /></div>
+              <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Explore</span>
             </button>
             <button className="flex items-center gap-4 py-3 px-6 text-slate-600 hover:bg-slate-50 rounded-r-xl font-bold transition-all">
-              <Heart size={20} strokeWidth={2} /> Likes
+              <div className="shrink-0"><Heart size={20} strokeWidth={2} /></div>
+              <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Likes</span>
             </button>
             <button className="flex items-center gap-4 py-3 px-6 text-slate-600 hover:bg-slate-50 rounded-r-xl font-bold transition-all">
-              <User size={20} strokeWidth={2} /> Profile
+              <div className="shrink-0"><User size={20} strokeWidth={2} /></div>
+              <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Profile</span>
             </button>
           </nav>
         </div>
