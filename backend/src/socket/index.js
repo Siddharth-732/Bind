@@ -28,6 +28,17 @@ export const initializeSocket = (server) => {
     // list of ALL online users to everyone
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
+    // Channel Room Management
+    socket.on("join-channel", (channelId) => {
+      socket.join(channelId);
+      console.log(`🔌 Socket ${socket.id} joined channel ${channelId}`);
+    });
+
+    socket.on("leave-channel", (channelId) => {
+      socket.leave(channelId);
+      console.log(`🔌 Socket ${socket.id} left channel ${channelId}`);
+    });
+
     socket.on("disconnect", () => {
       console.log(`❌ Disconnected: ${socket.id}`);
       // Remove them from the phonebook

@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import toast from "react-hot-toast";
+import { useAuthStore } from "./useAuthStore";
 
 interface LodgeState {
   publicLodges: any[];
@@ -19,6 +20,14 @@ interface LodgeState {
   createLodge: (data: FormData) => Promise<boolean>;
   setSelectedLodge: (lodge: any | null) => void;
   setSelectedChannel: (channel: any | null) => void;
+
+  // Messaging
+  channelMessages: any[];
+  isChannelMessagesLoading: boolean;
+  getChannelMessages: (channelId: string) => Promise<void>;
+  sendChannelMessage: (channelId: string, content: string) => Promise<boolean>;
+  subscribeToChannelMessages: (channelId: string) => void;
+  unsubscribeFromChannelMessages: (channelId: string) => void;
 }
 
 export const useLodgeStore = create<LodgeState>((set, get) => ({
@@ -30,6 +39,8 @@ export const useLodgeStore = create<LodgeState>((set, get) => ({
   isLoadingLodges: false,
   isJoining: false,
   isCreating: false,
+  channelMessages: [],
+  isChannelMessagesLoading: false,
 
   getPublicLodges: async () => {
     set({ isLoadingLodges: true });
@@ -85,7 +96,7 @@ export const useLodgeStore = create<LodgeState>((set, get) => ({
   createLodge: async (data: FormData) => {
     set({ isCreating: true });
     try {
-      await axiosInstance.post("/lodges/create", data);
+      await axiosInstance.post("/lodges", data);
       toast.success("Lodge created successfully!");
       get().getMyLodges();
       get().getPublicLodges();
@@ -108,5 +119,63 @@ export const useLodgeStore = create<LodgeState>((set, get) => ({
     }
   },
   
-  setSelectedChannel: (channel) => set({ selectedChannel: channel }),
+  setSelectedChannel: (channel) => {
+    const previousChannel = get().selectedChannel;
+    if (previousChannel) {
+      get().unsubscribeFromChannelMessages(previousChannel._id);
+    }
+    
+    set({ selectedChannel: channel });
+    
+    if (channel) {
+      get().getChannelMessages(channel._id);
+      get().subscribeToChannelMessages(channel._id);
+    } else {
+      set({ channelMessages: [] });
+    }
+  },
+
+  getChannelMessages: async (channelId: string) => {
+    set({ isChannelMessagesLoading: true });
+    try {
+      const response = await axiosInstance.get(`/lodges/channels/${channelId}/messages`);
+      set({ channelMessages: response.data.data });
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to load channel messages");
+    } finally {
+      set({ isChannelMessagesLoading: false });
+    }
+  },
+
+  sendChannelMessage: async (channelId: string, content: string) => {
+    try {
+      await axiosInstance.post(`/lodges/channels/${channelId}/messages`, { content });
+      return true;
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to send message");
+      return false;
+    }
+  },
+
+  subscribeToChannelMessages: (channelId: string) => {
+    const socket = useAuthStore.getState().socket;
+    if (!socket) return;
+
+    socket.emit("join-channel", channelId);
+
+    socket.on("newChannelMessage", (newMessage: any) => {
+      if (newMessage.channelId !== get().selectedChannel?._id) return;
+      set((state) => ({
+        channelMessages: [...state.channelMessages, newMessage],
+      }));
+    });
+  },
+
+  unsubscribeFromChannelMessages: (channelId: string) => {
+    const socket = useAuthStore.getState().socket;
+    if (!socket) return;
+
+    socket.emit("leave-channel", channelId);
+    socket.off("newChannelMessage");
+  },
 }));

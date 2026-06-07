@@ -9,6 +9,10 @@ import {
   createChannel,
   getLodgeChannels,
 } from "../controllers/lodge.controllers.js";
+import {
+  getChannelMessages,
+  sendChannelMessage,
+} from "../controllers/lodgeMessage.controllers.js";
 
 const router = Router();
 router.use(verifyJWT);
@@ -18,5 +22,9 @@ router.route("/my-lodges").get(getMyLodges);
 router.route("/:lodgeId/join").post(joinLodge);
 router.route("/:lodgeId/channels").post(createChannel);
 router.route("/:lodgeId/channels").get(getLodgeChannels);
+
+// Channel Messaging Routes
+router.route("/channels/:channelId/messages").get(getChannelMessages);
+router.route("/channels/:channelId/messages").post(sendChannelMessage);
 
 export default router;
