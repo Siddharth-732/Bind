@@ -56,6 +56,9 @@ export default function ChatPage() {
     isJoining,
     createLodge,
     isCreating,
+    channelMessages,
+    isChannelMessagesLoading,
+    sendChannelMessage,
   } = useLodgeStore();
 
   // STATUS STORE
@@ -72,6 +75,17 @@ export default function ChatPage() {
 
   // Navigation State
   const [activeTab, setActiveTab] = useState<"chat" | "lodge">("chat");
+
+  // Channel Messaging State
+  const [channelMessageText, setChannelMessageText] = useState("");
+
+  const handleSendChannelMessage = async () => {
+    if (!channelMessageText.trim() || !selectedChannel) return;
+    const success = await sendChannelMessage(selectedChannel._id, channelMessageText);
+    if (success) {
+      setChannelMessageText("");
+    }
+  };
 
   // Lodge Creation State
   const [isLodgeModalOpen, setIsLodgeModalOpen] = useState(false);
@@ -779,17 +793,72 @@ export default function ChatPage() {
             </div>
             <div className="flex-1 overflow-y-auto p-8 pb-32 flex flex-col">
               {selectedChannel ? (
-                <div className="text-center mt-10">
-                  <div className="h-20 w-20 bg-[#F4F7F9] rounded-full flex items-center justify-center mx-auto mb-6">
-                    <Hash size={36} className="text-slate-400" />
+                <>
+                  <div className="text-center mt-10 mb-8">
+                    <div className="h-20 w-20 bg-[#F4F7F9] rounded-full flex items-center justify-center mx-auto mb-6">
+                      <Hash size={36} className="text-slate-400" />
+                    </div>
+                    <h2 className="text-2xl font-extrabold text-slate-900">
+                      Welcome to #{selectedChannel.name}!
+                    </h2>
+                    <p className="text-[15px] font-medium text-slate-500 mt-2">
+                      This is the start of the #{selectedChannel.name} channel.
+                    </p>
                   </div>
-                  <h2 className="text-2xl font-extrabold text-slate-900">
-                    Welcome to #{selectedChannel.name}!
-                  </h2>
-                  <p className="text-[15px] font-medium text-slate-500 mt-2">
-                    This is the start of the #{selectedChannel.name} channel.
-                  </p>
-                </div>
+                  
+                  {isChannelMessagesLoading ? (
+                    <div className="flex-1 flex justify-center items-center">
+                      <Loader2 className="animate-spin text-teal-500" size={32} />
+                    </div>
+                  ) : (
+                    channelMessages.map((msg, index) => {
+                      const isMe = msg.senderId?._id === authUser?._id;
+                      return (
+                        <div key={msg._id || index} className={`flex flex-col mb-6 w-full ${isMe ? 'items-end' : 'items-start'}`}>
+                          <div className={`flex items-center gap-2 mb-2 ${isMe ? 'mr-14' : 'ml-14'}`}>
+                            {!isMe && (
+                              <span className="font-bold text-sm text-slate-900">
+                                {msg.senderId?.displayName}
+                              </span>
+                            )}
+                            <span className="text-[10px] font-bold text-slate-500">
+                              {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                            {isMe && (
+                              <span className="font-bold text-sm text-[#007A99]">You</span>
+                            )}
+                          </div>
+                          
+                          <div className={`flex gap-4 max-w-[80%] ${isMe ? 'justify-end' : ''}`}>
+                            {!isMe && (
+                              <div className="h-10 w-10 rounded-[14px] bg-[#007A99] flex items-center justify-center text-white shrink-0 overflow-hidden font-bold">
+                                {msg.senderId?.avatar ? (
+                                  <img src={msg.senderId.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                                ) : (
+                                  msg.senderId?.displayName?.charAt(0).toUpperCase() || <User size={20} />
+                                )}
+                              </div>
+                            )}
+                            
+                            <div className={`px-5 py-4 text-[15px] leading-relaxed ${isMe ? 'bg-[#E6EAFC] text-slate-800 rounded-[20px] rounded-tr-sm' : 'bg-white border border-slate-200 text-slate-700 rounded-[20px] rounded-tl-sm shadow-sm'}`}>
+                              {msg.content}
+                            </div>
+                            
+                            {isMe && (
+                              <div className="h-10 w-10 rounded-[14px] bg-slate-800 flex items-center justify-center text-white shrink-0 overflow-hidden font-bold">
+                                {authUser?.avatar ? (
+                                  <img src={authUser.avatar} alt="Me" className="w-full h-full object-cover" />
+                                ) : (
+                                  authUser?.displayName?.charAt(0).toUpperCase() || <User size={20} />
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </>
               ) : (
                 <div className="text-center text-[15px] font-medium text-slate-400 mt-10">
                   Select a channel to start chatting.
@@ -804,10 +873,18 @@ export default function ChatPage() {
                   </button>
                   <input
                     type="text"
+                    value={channelMessageText}
+                    onChange={(e) => setChannelMessageText(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleSendChannelMessage();
+                    }}
                     placeholder={`Message #${selectedChannel.name}`}
                     className="flex-1 bg-transparent px-4 py-2 focus:outline-none text-slate-700 font-medium text-[15px] placeholder:text-slate-400"
                   />
-                  <button className="h-10 w-10 bg-[#0099B3] hover:bg-[#007A99] transition-colors rounded-full flex items-center justify-center text-white shrink-0 mr-1">
+                  <button 
+                    onClick={handleSendChannelMessage}
+                    className="h-10 w-10 bg-[#0099B3] hover:bg-[#007A99] transition-colors rounded-full flex items-center justify-center text-white shrink-0 mr-1"
+                  >
                     <Send size={18} className="ml-0.5" />
                   </button>
                 </div>
