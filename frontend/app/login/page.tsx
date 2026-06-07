@@ -32,14 +32,6 @@ export default function LoginPage() {
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-200/40 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-emerald-200/40 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '10s' }} />
       
-      {/* Floating Card 1 (Alive Detail) */}
-      <div className="absolute top-1/4 left-[10%] hidden lg:flex flex-col gap-2 bg-white/60 backdrop-blur-md p-4 rounded-2xl shadow-sm border border-white/50 animate-[bounce_6s_infinite]">
-        <div className="flex items-center gap-2 text-teal-700 font-bold text-xs">
-          <div className="p-1.5 bg-teal-100 rounded-lg"><Building2 size={16}/></div>
-          LODGE NETWORKS
-        </div>
-        <p className="text-[10px] text-slate-500 w-32">Connect with over 10,000 students globally.</p>
-      </div>
 
       <div className="relative z-10 w-full max-w-[420px] rounded-3xl bg-white/80 backdrop-blur-xl p-8 sm:p-10 shadow-[0_8px_40px_rgba(0,0,0,0.04)] border border-white">
         

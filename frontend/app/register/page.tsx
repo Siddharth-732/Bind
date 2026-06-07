@@ -105,23 +105,6 @@ export default function RegisterPage() {
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-200/40 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-emerald-200/40 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '10s' }} />
       
-      {/* Floating Card 1 (Right) */}
-      <div className="absolute top-1/3 right-[10%] hidden xl:flex flex-col gap-2 bg-white/60 backdrop-blur-md p-5 rounded-2xl shadow-sm border border-white/50 animate-[bounce_7s_infinite] w-56">
-        <div className="flex items-center gap-2 text-indigo-600 font-bold text-[10px] uppercase tracking-wider">
-          <div className="p-1.5 bg-indigo-100 rounded-lg"><Sparkles size={14}/></div>
-          Smart Tools
-        </div>
-        <p className="text-xs font-medium text-slate-600 leading-relaxed">Access shared library resources and peer review systems.</p>
-      </div>
-
-      {/* Floating Card 2 (Left) */}
-      <div className="absolute bottom-1/4 left-[10%] hidden xl:flex flex-col gap-2 bg-white/60 backdrop-blur-md p-5 rounded-2xl shadow-sm border border-white/50 animate-[bounce_8s_infinite] w-56 delay-1000">
-        <div className="flex items-center gap-2 text-emerald-600 font-bold text-[10px] uppercase tracking-wider">
-          <div className="p-1.5 bg-emerald-100 rounded-lg"><Users size={14}/></div>
-          Community Hub
-        </div>
-        <p className="text-xs font-medium text-slate-600 leading-relaxed">Join over 12,000 students in collaborative study lodges.</p>
-      </div>
 
       <div className="relative z-10 w-full max-w-[420px]">
         {/* Step Indicator Top */}
