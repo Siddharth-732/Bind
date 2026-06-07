@@ -96,7 +96,7 @@ export const useLodgeStore = create<LodgeState>((set, get) => ({
   createLodge: async (data: FormData) => {
     set({ isCreating: true });
     try {
-      await axiosInstance.post("/lodges/create", data);
+      await axiosInstance.post("/lodges", data);
       toast.success("Lodge created successfully!");
       get().getMyLodges();
       get().getPublicLodges();
