@@ -297,7 +297,10 @@ export default function ChatPage() {
                 Likes
               </span>
             </button>
-            <button className="flex items-center gap-4 py-3 px-6 text-slate-600 hover:bg-slate-50 rounded-r-xl font-bold transition-all">
+            <button 
+              onClick={() => router.push(`/profile/${authUser?.username}`)}
+              className="flex items-center gap-4 py-3 px-6 text-slate-600 hover:bg-slate-50 rounded-r-xl font-bold transition-all"
+            >
               <div className="shrink-0">
                 <User size={20} strokeWidth={2} />
               </div>
