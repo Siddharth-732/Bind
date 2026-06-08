@@ -17,9 +17,5 @@ connectDB()
     });
   })
   .catch((error) => {
-    // DELETE THE EXTRA MSG WHEN READY TO BUILD
-    console.log(
-      "failed to establish connection with MONGO_database, msg from src/index.js",
-      error,
-    );
+    console.log("failed to establish connection with MONGO_database", error);
   });
