@@ -358,14 +358,20 @@ export const updateUserBanner = async (req, res) => {
   });
 };
 
-export const getUsersForSidebar = async (req, res) => {
+export const getDiscoverUsers = async (req, res) => {
   try {
     // req.user comes from your authentication middleware
     const loggedInUserId = req.user._id;
 
-    // find all users EXCEPT the currently logged in user, and hide passwords
+    const currentUser = await User.findById(loggedInUserId);
+    const excludedIds = [
+      loggedInUserId,
+      ...currentUser.peers,
+      ...currentUser.pendingRequests,
+    ];
+
     const filteredUsers = await User.find({
-      _id: { $ne: loggedInUserId },
+      _id: { $nin: excludedIds },
     }).select("-password");
 
     return res.status(200).json({
@@ -373,7 +379,7 @@ export const getUsersForSidebar = async (req, res) => {
       data: filteredUsers,
     });
   } catch (error) {
-    console.error("Error in getUsersForSidebar: ", error.message);
+    console.error("Error in getDiscoverUsers: ", error.message);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -405,5 +411,169 @@ export const checkUsername = async (req, res) => {
     return res
       .status(500)
       .json({ message: "Internal server error from username check" });
+  }
+};
+
+export const sendPeerRequest = async (req, res) => {
+  try {
+    const { peerId } = req.params;
+    const loggedInUserId = req.user._id;
+
+    if (peerId === loggedInUserId.toString()) {
+      return res
+        .status(400)
+        .json({ message: "Cannot send request to yourself" });
+    }
+
+    const targetUser = await User.findById(peerId);
+    if (!targetUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check if already peers
+    if (targetUser.peers.includes(loggedInUserId)) {
+      return res.status(400).json({ message: "Already peers" });
+    }
+
+    // Check if request already sent
+    if (targetUser.pendingRequests.includes(loggedInUserId)) {
+      return res.status(400).json({ message: "Request already sent" });
+    }
+
+    targetUser.pendingRequests.push(loggedInUserId);
+    await targetUser.save({ validateBeforeSave: false });
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Peer request sent" });
+  } catch (error) {
+    console.error("Error in sendPeerRequest:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const acceptPeerRequest = async (req, res) => {
+  try {
+    const { peerId } = req.params;
+    const loggedInUserId = req.user._id;
+
+    const loggedInUser = await User.findById(loggedInUserId);
+    const targetUser = await User.findById(peerId);
+
+    if (!targetUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check if request exists
+    if (!loggedInUser.pendingRequests.includes(peerId)) {
+      return res
+        .status(400)
+        .json({ message: "No pending request from this user" });
+    }
+
+    // Remove from pending
+    loggedInUser.pendingRequests = loggedInUser.pendingRequests.filter(
+      (id) => id.toString() !== peerId,
+    );
+
+    // Add to peers for both
+    if (!loggedInUser.peers.includes(peerId)) {
+      loggedInUser.peers.push(peerId);
+    }
+    if (!targetUser.peers.includes(loggedInUserId)) {
+      targetUser.peers.push(loggedInUserId);
+    }
+
+    await loggedInUser.save({ validateBeforeSave: false });
+    await targetUser.save({ validateBeforeSave: false });
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Peer request accepted" });
+  } catch (error) {
+    console.error("Error in acceptPeerRequest:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const rejectPeerRequest = async (req, res) => {
+  try {
+    const { peerId } = req.params;
+    const loggedInUserId = req.user._id;
+
+    const loggedInUser = await User.findById(loggedInUserId);
+
+    // Remove from pending
+    loggedInUser.pendingRequests = loggedInUser.pendingRequests.filter(
+      (id) => id.toString() !== peerId,
+    );
+
+    await loggedInUser.save({ validateBeforeSave: false });
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Peer request rejected" });
+  } catch (error) {
+    console.error("Error in rejectPeerRequest:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const removePeer = async (req, res) => {
+  try {
+    const { peerId } = req.params;
+    const loggedInUserId = req.user._id;
+
+    const loggedInUser = await User.findById(loggedInUserId);
+    const targetUser = await User.findById(peerId);
+
+    if (loggedInUser) {
+      loggedInUser.peers = loggedInUser.peers.filter(
+        (id) => id.toString() !== peerId,
+      );
+      await loggedInUser.save({ validateBeforeSave: false });
+    }
+
+    if (targetUser) {
+      targetUser.peers = targetUser.peers.filter(
+        (id) => id.toString() !== loggedInUserId.toString(),
+      );
+      await targetUser.save({ validateBeforeSave: false });
+    }
+
+    return res.status(200).json({ success: true, message: "Peer removed" });
+  } catch (error) {
+    console.error("Error in removePeer:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const getPeers = async (req, res) => {
+  try {
+    const loggedInUserId = req.user._id;
+    const user = await User.findById(loggedInUserId).populate(
+      "peers",
+      "-password",
+    );
+
+    return res.status(200).json({ success: true, data: user.peers });
+  } catch (error) {
+    console.error("Error in getPeers:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const getPeerRequests = async (req, res) => {
+  try {
+    const loggedInUserId = req.user._id;
+    const user = await User.findById(loggedInUserId).populate(
+      "pendingRequests",
+      "-password",
+    );
+
+    return res.status(200).json({ success: true, data: user.pendingRequests });
+  } catch (error) {
+    console.error("Error in getPeerRequests:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
   }
 };

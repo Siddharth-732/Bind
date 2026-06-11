@@ -1,6 +1,6 @@
 import { Router } from "express";
 import {
-  getUsersForSidebar,
+  getDiscoverUsers,
   registerUser,
   checkUsername,
   loginUser,
@@ -10,6 +10,12 @@ import {
   changeCurrentPassword,
   updateUserAvatar,
   updateUserBanner,
+  sendPeerRequest,
+  acceptPeerRequest,
+  rejectPeerRequest,
+  removePeer,
+  getPeers,
+  getPeerRequests,
 } from "../controllers/user.controllers.js";
 import { upload } from "../middleware/multer.middleware.js";
 import { verifyJWT } from "../middleware/auth.middleware.js";
@@ -26,7 +32,7 @@ router.route("/register").post(
 );
 router.route("/login").post(loginUser);
 router.route("/logout").post(verifyJWT, logoutUser);
-router.route("/").get(verifyJWT, getUsersForSidebar);
+router.route("/").get(verifyJWT, getDiscoverUsers);
 router.route("/refresh-token").post(refreshAccessToken);
 router.route("/update-account").patch(verifyJWT, updateAccountDetails);
 router.route("/change-password").post(verifyJWT, changeCurrentPassword);
@@ -40,4 +46,13 @@ router.route("/update-banner").patch(
   upload.single("banner"), // multer grabs the single file named "banner"
   updateUserBanner,
 );
+
+// peer Connections
+router.route("/peers").get(verifyJWT, getPeers);
+router.route("/peers/requests").get(verifyJWT, getPeerRequests);
+router.route("/peers/:peerId/request").post(verifyJWT, sendPeerRequest);
+router.route("/peers/:peerId/accept").post(verifyJWT, acceptPeerRequest);
+router.route("/peers/:peerId/reject").post(verifyJWT, rejectPeerRequest);
+router.route("/peers/:peerId/remove").post(verifyJWT, removePeer);
+
 export default router;
