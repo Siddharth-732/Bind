@@ -42,7 +42,7 @@ export default function ChatPage() {
     isUpdatingProfile,
   } = useAuthStore();
   const { selectedUser, setSelectedUser } = useChatStore();
-  const { peers, pendingRequests, getPeers, getPeerRequests, acceptPeerRequest, rejectPeerRequest } = useConnectionStore();
+  const { peers, pendingRequests, discoverUsers, getPeers, getPeerRequests, getDiscoverUsers, acceptPeerRequest, rejectPeerRequest, sendPeerRequest } = useConnectionStore();
 
   // LODGE STORE
   const {
@@ -131,6 +131,7 @@ export default function ChatPage() {
       connectSocket();
       getPeers();
       getPeerRequests();
+      getDiscoverUsers();
       getPublicLodges();
       getMyLodges();
       getStatuses();
@@ -147,6 +148,7 @@ export default function ChatPage() {
     disconnectSocket,
     getPeers,
     getPeerRequests,
+    getDiscoverUsers,
     getPublicLodges,
     getMyLodges,
     getStatuses,
@@ -287,7 +289,10 @@ export default function ChatPage() {
                 Search
               </span>
             </button>
-            <button className="flex items-center gap-4 py-3 px-6 text-slate-600 hover:bg-slate-50 rounded-r-xl font-bold transition-all">
+            <button 
+              onClick={() => setActiveTab("explore")}
+              className={`flex items-center gap-4 py-3 px-6 rounded-r-xl font-bold transition-all ${activeTab === "explore" ? "bg-[#E5FFF5] text-teal-700 border-l-4 border-teal-500" : "text-slate-600 hover:bg-slate-50"}`}
+            >
               <div className="shrink-0">
                 <Compass size={20} strokeWidth={2} />
               </div>
@@ -905,6 +910,104 @@ export default function ChatPage() {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* State 4: EXPLORE is active */}
+      {activeTab === "explore" && (
+        <div className="flex-1 overflow-y-auto bg-slate-50 p-8">
+          <div className="max-w-5xl mx-auto space-y-12">
+            
+            {/* Header */}
+            <div>
+              <h2 className="text-3xl font-extrabold text-slate-900">Explore Nexus</h2>
+              <p className="text-slate-500 font-medium mt-2">Discover new peers, lodges, and see what everyone is up to.</p>
+            </div>
+
+            {/* People You Might Know */}
+            <div>
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                  <User size={20} className="text-[#0099B3]" /> People You Might Know
+                </h3>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {discoverUsers.length === 0 ? (
+                  <p className="text-sm text-slate-400">No new users to discover right now.</p>
+                ) : (
+                  discoverUsers.map((user) => (
+                    <div key={user._id} className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow">
+                      <div className="h-12 w-12 rounded-full bg-slate-200 overflow-hidden shrink-0">
+                        {user.avatar && !user.avatar.includes("default") ? (
+                          <img src={user.avatar} alt="avatar" className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full bg-[#0099B3] flex items-center justify-center text-white font-bold">
+                            {user.displayName?.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-bold text-slate-900 truncate">{user.displayName}</p>
+                        <p className="text-xs text-slate-500 truncate">{user.bio || "Student at Nexus"}</p>
+                      </div>
+                      <button 
+                        onClick={() => sendPeerRequest(user._id)}
+                        className="p-2 bg-[#E5FFF5] text-teal-700 hover:bg-teal-100 rounded-xl transition-colors shrink-0"
+                        title="Connect"
+                      >
+                        <Plus size={18} />
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            {/* Recommended Lodges */}
+            <div>
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                  <Building2 size={20} className="text-[#0099B3]" /> Recommended Lodges
+                </h3>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {publicLodges.length === 0 ? (
+                  <p className="text-sm text-slate-400">No public lodges available.</p>
+                ) : (
+                  publicLodges.map((lodge) => (
+                    <div key={lodge._id} className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col gap-4 hover:shadow-md transition-shadow">
+                      <div className="flex items-center gap-4">
+                        <div className="h-12 w-12 rounded-xl bg-slate-200 overflow-hidden shrink-0">
+                          {lodge.avatar ? (
+                            <img src={lodge.avatar} alt="lodge" className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full bg-indigo-500 flex items-center justify-center text-white font-bold">
+                              {lodge.name.charAt(0).toUpperCase()}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-slate-900 truncate">{lodge.name}</p>
+                          <p className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
+                            <Users size={12} /> {lodge.members?.length || 1} Members
+                          </p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-slate-600 line-clamp-2">{lodge.description}</p>
+                      <button 
+                        onClick={() => joinLodge(lodge._id)}
+                        disabled={isJoining}
+                        className="w-full py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl text-sm font-bold transition-colors"
+                      >
+                        Join Lodge
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
           </div>
         </div>
       )}
