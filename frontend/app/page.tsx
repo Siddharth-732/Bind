@@ -3,6 +3,7 @@ import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
 import { useLodgeStore } from "../store/useLodgeStore";
 import { useStatusStore } from "../store/useStatusStore";
+import { useConnectionStore } from "../store/useConnectionStore";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 import {
@@ -11,6 +12,7 @@ import {
   Building2,
   Compass,
   Heart,
+  Bell,
   User,
   Settings,
   Phone,
@@ -39,7 +41,8 @@ export default function ChatPage() {
     updateUserBanner,
     isUpdatingProfile,
   } = useAuthStore();
-  const { users, getUsers, selectedUser, setSelectedUser } = useChatStore();
+  const { selectedUser, setSelectedUser } = useChatStore();
+  const { peers, pendingRequests, getPeers, getPeerRequests, acceptPeerRequest, rejectPeerRequest } = useConnectionStore();
 
   // LODGE STORE
   const {
@@ -74,7 +77,8 @@ export default function ChatPage() {
   const router = useRouter();
 
   // Navigation State
-  const [activeTab, setActiveTab] = useState<"chat" | "lodge">("chat");
+  const [activeTab, setActiveTab] = useState<"chat" | "lodge" | "explore">("chat");
+  const [showNotifications, setShowNotifications] = useState(false);
 
   // Channel Messaging State
   const [channelMessageText, setChannelMessageText] = useState("");
@@ -125,7 +129,8 @@ export default function ChatPage() {
       router.push("/login");
     } else {
       connectSocket();
-      getUsers();
+      getPeers();
+      getPeerRequests();
       getPublicLodges();
       getMyLodges();
       getStatuses();
@@ -140,7 +145,8 @@ export default function ChatPage() {
     router,
     connectSocket,
     disconnectSocket,
-    getUsers,
+    getPeers,
+    getPeerRequests,
     getPublicLodges,
     getMyLodges,
     getStatuses,
@@ -289,12 +295,18 @@ export default function ChatPage() {
                 Explore
               </span>
             </button>
-            <button className="flex items-center gap-4 py-3 px-6 text-slate-600 hover:bg-slate-50 rounded-r-xl font-bold transition-all">
+            <button 
+              onClick={() => setShowNotifications(!showNotifications)}
+              className="flex items-center gap-4 py-3 px-6 text-slate-600 hover:bg-slate-50 rounded-r-xl font-bold transition-all relative"
+            >
               <div className="shrink-0">
-                <Heart size={20} strokeWidth={2} />
+                <Bell size={20} strokeWidth={2} />
+                {pendingRequests.length > 0 && (
+                  <div className="absolute top-2 left-9 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></div>
+                )}
               </div>
               <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
-                Likes
+                Notifications
               </span>
             </button>
             <button 
@@ -360,12 +372,12 @@ export default function ChatPage() {
           {/* CHAT TAB */}
           {activeTab === "chat" && (
             <div className="space-y-3">
-              {users.length === 0 ? (
+              {peers.length === 0 ? (
                 <p className="text-center text-sm text-slate-400 mt-10">
-                  No peers found.
+                  No peers found. Head to Explore to find friends!
                 </p>
               ) : (
-                users.map((user) => {
+                peers.map((user) => {
                   const isSelected = selectedUser?._id === user._id;
                   return (
                     <button
@@ -1271,6 +1283,57 @@ export default function ChatPage() {
           </div>
         </div>
       )}
+      {/* Notifications Dropdown */}
+      {showNotifications && (
+        <div className="fixed left-24 top-24 w-80 bg-white rounded-2xl shadow-2xl border border-slate-100 z-50 overflow-hidden animate-in fade-in slide-in-from-left-4">
+          <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+            <h3 className="font-extrabold text-slate-900">Notifications</h3>
+            <button onClick={() => setShowNotifications(false)} className="text-slate-400 hover:text-slate-600">
+              <X size={18} />
+            </button>
+          </div>
+          <div className="max-h-96 overflow-y-auto p-2">
+            {pendingRequests.length === 0 ? (
+              <p className="text-center text-sm text-slate-400 p-6">No new notifications.</p>
+            ) : (
+              pendingRequests.map((request) => (
+                <div key={request._id} className="flex items-center gap-3 p-3 hover:bg-slate-50 rounded-xl transition-colors">
+                  <div className="w-10 h-10 rounded-full bg-slate-200 overflow-hidden shrink-0">
+                    {request.avatar && !request.avatar.includes("default") ? (
+                      <img src={request.avatar} alt="avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-[#0099B3] flex items-center justify-center text-white font-bold">
+                        {request.displayName?.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-slate-900 truncate">{request.displayName}</p>
+                    <p className="text-xs text-slate-500">wants to connect</p>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button 
+                      onClick={() => acceptPeerRequest(request._id)}
+                      className="p-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-lg transition-colors"
+                      title="Accept"
+                    >
+                      <Plus size={16} />
+                    </button>
+                    <button 
+                      onClick={() => rejectPeerRequest(request._id)}
+                      className="p-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
+                      title="Reject"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
