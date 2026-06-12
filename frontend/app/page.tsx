@@ -77,8 +77,7 @@ export default function ChatPage() {
   const router = useRouter();
 
   // Navigation State
-  const [activeTab, setActiveTab] = useState<"chat" | "lodge" | "explore">("chat");
-  const [showNotifications, setShowNotifications] = useState(false);
+  const [activeTab, setActiveTab] = useState<"chat" | "lodge" | "explore" | "notifications">("chat");
 
   // Channel Messaging State
   const [channelMessageText, setChannelMessageText] = useState("");
@@ -301,8 +300,8 @@ export default function ChatPage() {
               </span>
             </button>
             <button 
-              onClick={() => setShowNotifications(!showNotifications)}
-              className="flex items-center gap-4 py-3 px-6 text-slate-600 hover:bg-slate-50 rounded-r-xl font-bold transition-all relative"
+              onClick={() => setActiveTab("notifications")}
+              className={`flex items-center gap-4 py-3 px-6 rounded-r-xl font-bold transition-all relative ${activeTab === "notifications" ? "bg-[#E5FFF5] text-teal-700 border-l-4 border-teal-500" : "text-slate-600 hover:bg-slate-50"}`}
             >
               <div className="shrink-0">
                 <Bell size={20} strokeWidth={2} />
@@ -521,6 +520,56 @@ export default function ChatPage() {
               </div>
             </>
           )}
+          {/* NOTIFICATIONS TAB */}
+          {activeTab === "notifications" && (
+            <div>
+              <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider mb-3 px-2">
+                Pending Requests
+              </h3>
+              <div className="space-y-3">
+                {pendingRequests.length === 0 ? (
+                  <p className="text-center text-sm text-slate-400 mt-6">
+                    No new notifications.
+                  </p>
+                ) : (
+                  pendingRequests.map((request) => (
+                    <div key={request._id} className="flex flex-col gap-3 p-4 bg-white border border-slate-100 rounded-[20px] shadow-sm">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-slate-200 overflow-hidden shrink-0">
+                          {request.avatar && !request.avatar.includes("default") ? (
+                            <img src={request.avatar} alt="avatar" className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full bg-[#0099B3] flex items-center justify-center text-white font-bold">
+                              {request.displayName?.charAt(0).toUpperCase()}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-bold text-slate-900 truncate">{request.displayName}</p>
+                          <p className="text-xs text-slate-500">wants to connect</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button 
+                          onClick={() => acceptPeerRequest(request._id)}
+                          className="flex-1 py-2 bg-teal-50 text-teal-700 hover:bg-teal-100 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1"
+                        >
+                          <Plus size={14} /> Accept
+                        </button>
+                        <button 
+                          onClick={() => rejectPeerRequest(request._id)}
+                          className="flex-1 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1"
+                        >
+                          <X size={14} /> Reject
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+
         </div>
       </div>
 
@@ -1012,6 +1061,21 @@ export default function ChatPage() {
         </div>
       )}
 
+      {/* State 5: NOTIFICATIONS is active */}
+      {activeTab === "notifications" && (
+        <div className="flex-1 flex flex-col bg-white items-center justify-center text-center px-4">
+          <div className="h-24 w-24 bg-slate-100 rounded-full flex items-center justify-center text-slate-300 mb-6">
+            <Bell size={40} />
+          </div>
+          <h3 className="text-2xl font-bold text-slate-800">
+            Notifications Center
+          </h3>
+          <p className="text-slate-500 mt-2 max-w-md font-medium">
+            Manage your peer connection requests from the sidebar. Accept requests to grow your network and start chatting!
+          </p>
+        </div>
+      )}
+
       {/* ================= MODALS ================= */}
 
       {/* Settings Modal */}
@@ -1386,57 +1450,6 @@ export default function ChatPage() {
           </div>
         </div>
       )}
-      {/* Notifications Dropdown */}
-      {showNotifications && (
-        <div className="fixed left-24 top-24 w-80 bg-white rounded-2xl shadow-2xl border border-slate-100 z-50 overflow-hidden animate-in fade-in slide-in-from-left-4">
-          <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-            <h3 className="font-extrabold text-slate-900">Notifications</h3>
-            <button onClick={() => setShowNotifications(false)} className="text-slate-400 hover:text-slate-600">
-              <X size={18} />
-            </button>
-          </div>
-          <div className="max-h-96 overflow-y-auto p-2">
-            {pendingRequests.length === 0 ? (
-              <p className="text-center text-sm text-slate-400 p-6">No new notifications.</p>
-            ) : (
-              pendingRequests.map((request) => (
-                <div key={request._id} className="flex items-center gap-3 p-3 hover:bg-slate-50 rounded-xl transition-colors">
-                  <div className="w-10 h-10 rounded-full bg-slate-200 overflow-hidden shrink-0">
-                    {request.avatar && !request.avatar.includes("default") ? (
-                      <img src={request.avatar} alt="avatar" className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full bg-[#0099B3] flex items-center justify-center text-white font-bold">
-                        {request.displayName?.charAt(0).toUpperCase()}
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-slate-900 truncate">{request.displayName}</p>
-                    <p className="text-xs text-slate-500">wants to connect</p>
-                  </div>
-                  <div className="flex items-center gap-1 shrink-0">
-                    <button 
-                      onClick={() => acceptPeerRequest(request._id)}
-                      className="p-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-lg transition-colors"
-                      title="Accept"
-                    >
-                      <Plus size={16} />
-                    </button>
-                    <button 
-                      onClick={() => rejectPeerRequest(request._id)}
-                      className="p-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
-                      title="Reject"
-                    >
-                      <X size={16} />
-                    </button>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      )}
-
     </div>
   );
 }
