@@ -314,7 +314,10 @@ export default function ChatPage() {
               </span>
             </button>
             <button 
-              onClick={() => router.push(`/profile/${authUser?.username}`)}
+              onClick={() => {
+                if (!authUser?.username) return;
+                router.push(`/profile/${encodeURIComponent(authUser.username)}`);
+              }}
               className="flex items-center gap-4 py-3 px-6 text-slate-600 hover:bg-slate-50 rounded-r-xl font-bold transition-all"
             >
               <div className="shrink-0">

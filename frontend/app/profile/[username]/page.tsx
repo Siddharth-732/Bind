@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import {
   MapPin,
@@ -66,7 +66,11 @@ export default function ProfilePage() {
           <button className="bg-[#4F46E5] hover:bg-[#4338CA] text-white px-8 py-2 rounded-[10px] font-bold text-sm transition-colors shadow-sm">
             Follow
           </button>
-          <button className="p-2 border border-slate-200 text-slate-600 rounded-[10px] hover:bg-slate-50 transition-colors bg-white shadow-sm">
+          <button
+            type="button"
+            aria-label="Open profile options"
+            className="p-2 border border-slate-200 text-slate-600 rounded-[10px] hover:bg-slate-50 transition-colors bg-white shadow-sm"
+          >
             <MoreHorizontal size={20} />
           </button>
         </div>
@@ -115,7 +119,12 @@ export default function ProfilePage() {
               </div>
               <div className="flex items-center gap-3 text-sm font-medium">
                 <LinkIcon size={16} className="text-slate-400" />
-                <a href="#" className="text-indigo-600 hover:underline">
+                <a
+                  href="https://juliansterling.edu"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-indigo-600 hover:underline"
+                >
                   juliansterling.edu
                 </a>
               </div>
@@ -338,7 +347,11 @@ export default function ProfilePage() {
 
       {/* Floating Action Button (Mocked Chat) */}
       <div className="fixed bottom-8 right-8 z-50">
-        <button className="w-14 h-14 bg-[#4F46E5] hover:bg-[#4338CA] rounded-full shadow-lg flex items-center justify-center text-white hover:scale-105 transition-transform">
+        <button
+          type="button"
+          aria-label="Open chat"
+          className="w-14 h-14 bg-[#4F46E5] hover:bg-[#4338CA] rounded-full shadow-lg flex items-center justify-center text-white hover:scale-105 transition-transform"
+        >
           <MessageSquare size={24} />
         </button>
       </div>
