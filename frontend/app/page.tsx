@@ -122,38 +122,13 @@ export default function ChatPage() {
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const bannerInputRef = useRef<HTMLInputElement>(null);
 
-  // Bouncer & Initializer
+  // Bouncer
   useEffect(() => {
     if (!authUser) {
       router.push("/login");
-    } else {
-      connectSocket();
-      getPeers();
-      getPeerRequests();
-      getDiscoverUsers();
-      getPublicLodges();
-      getMyLodges();
-      getStatuses();
-      subscribeToStatuses();
     }
-    return () => {
-      disconnectSocket();
-      unsubscribeFromStatuses();
-    };
-  }, [
-    authUser,
-    router,
-    connectSocket,
-    disconnectSocket,
-    getPeers,
-    getPeerRequests,
-    getDiscoverUsers,
-    getPublicLodges,
-    getMyLodges,
-    getStatuses,
-    subscribeToStatuses,
-    unsubscribeFromStatuses,
-  ]);
+  }, [authUser, router]);
+
 
   const handleAddStoryClick = () => {
     setIsStoryModalOpen(true);
