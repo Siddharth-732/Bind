@@ -16,6 +16,7 @@ import {
   removePeer,
   getPeers,
   getPeerRequests,
+  getUserProfile,
 } from "../controllers/user.controllers.js";
 import { upload } from "../middleware/multer.middleware.js";
 import { verifyJWT } from "../middleware/auth.middleware.js";
@@ -46,6 +47,9 @@ router.route("/update-banner").patch(
   upload.single("banner"), // multer grabs the single file named "banner"
   updateUserBanner,
 );
+
+// Profile
+router.route("/profile/:username").get(verifyJWT, getUserProfile);
 
 // peer Connections
 router.route("/peers").get(verifyJWT, getPeers);

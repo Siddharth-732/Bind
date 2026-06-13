@@ -29,6 +29,8 @@ export default function RegisterPage() {
     password: "",
     username: "",
     bio: "",
+    institute: "",
+    specialization: "",
   });
 
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
@@ -88,6 +90,8 @@ export default function RegisterPage() {
     submitData.append("password", formData.password);
     submitData.append("username", formData.username);
     submitData.append("bio", formData.bio);
+    submitData.append("institute", formData.institute);
+    submitData.append("specialization", formData.specialization);
     if (avatarFile) submitData.append("avatar", avatarFile);
 
     try {
@@ -267,6 +271,28 @@ export default function RegisterPage() {
                   onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
                   className="block w-full rounded-xl border border-slate-200 bg-white/50 py-3 px-4 h-20 resize-none text-sm text-slate-900 transition-all placeholder:text-slate-400 focus:border-[#006F8D] focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#006F8D]/10"
                   placeholder="Tell us about your research interests or academic focus..."
+                />
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-slate-500">Institute / University</label>
+                <input
+                  type="text"
+                  value={formData.institute}
+                  onChange={(e) => setFormData({ ...formData, institute: e.target.value })}
+                  className="block w-full rounded-xl border border-slate-200 bg-white/50 py-3 px-4 text-sm text-slate-900 transition-all placeholder:text-slate-400 focus:border-[#006F8D] focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#006F8D]/10"
+                  placeholder="e.g. MIT, Stanford, Independent"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-slate-500">Specialization / Domain</label>
+                <input
+                  type="text"
+                  value={formData.specialization}
+                  onChange={(e) => setFormData({ ...formData, specialization: e.target.value })}
+                  className="block w-full rounded-xl border border-slate-200 bg-white/50 py-3 px-4 text-sm text-slate-900 transition-all placeholder:text-slate-400 focus:border-[#006F8D] focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#006F8D]/10"
+                  placeholder="e.g. Machine Learning, Quantum Physics"
                 />
               </div>
 

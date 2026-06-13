@@ -7,7 +7,7 @@ import jwt from "jsonwebtoken";
 
 export const registerUser = async (req, res) => {
   try {
-    const { email, password, displayName, username, bio, avatar } = req.body;
+    const { email, password, displayName, username, bio, institute, specialization, avatar } = req.body;
 
     if (!displayName || !email || !password || !username) {
       return res.status(400).json({ message: "All fields are required." });
@@ -46,6 +46,8 @@ export const registerUser = async (req, res) => {
       avatar: avatarUrl || "https://default-avatar-url.com/avatar.png",
       username: username.toLowerCase(),
       bio: bio || "",
+      institute: institute || "Independent Researcher",
+      specialization: specialization || "General Scholar",
     });
 
     // We never want to send the password hash back to the frontend
@@ -574,6 +576,24 @@ export const getPeerRequests = async (req, res) => {
     return res.status(200).json({ success: true, data: user.pendingRequests });
   } catch (error) {
     console.error("Error in getPeerRequests:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const getUserProfile = async (req, res) => {
+  try {
+    const { username } = req.params;
+
+    const user = await User.findOne({ username: username.toLowerCase() })
+      .select("-password -refreshToken");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.status(200).json({ success: true, data: user });
+  } catch (error) {
+    console.error("Error in getUserProfile:", error);
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };

@@ -57,6 +57,14 @@ const userSchema = new Schema(
       type: String,
       default: "Available",
     },
+    institute: {
+      type: String,
+      default: "Independent Researcher",
+    },
+    specialization: {
+      type: String,
+      default: "General Scholar",
+    },
     isOnline: {
       type: Boolean,
       default: false,

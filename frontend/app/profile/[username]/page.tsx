@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import {
   MapPin,
@@ -18,28 +18,66 @@ import {
   ChevronRight,
   Share2,
   BookOpen,
+  Loader2,
 } from "lucide-react";
+import { axiosInstance } from "../../../lib/axios";
 
 export default function ProfilePage() {
   const params = useParams();
   const username = params.username as string;
   const [activeTab, setActiveTab] = useState("posts");
+  const [profileData, setProfileData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await axiosInstance.get(`/users/profile/${username}`);
+        setProfileData(response.data.data);
+      } catch (error) {
+        console.error("Failed to fetch profile");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    if (username) fetchProfile();
+  }, [username]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC]">
+        <Loader2 className="animate-spin text-indigo-600" size={40} />
+      </div>
+    );
+  }
+
+  if (!profileData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC]">
+        <div className="text-slate-500 font-bold">User not found.</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] font-sans pb-20">
       {/* 1. Header Area (Banner & Avatar) */}
       <div className="relative w-full h-[280px] bg-slate-200">
-        <img
-          src="https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2000&auto=format&fit=crop"
-          alt="Banner"
-          className="w-full h-full object-cover"
-        />
+        {profileData.banner ? (
+          <img
+            src={profileData.banner}
+            alt="Banner"
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-r from-teal-400 to-blue-500"></div>
+        )}
         {/* Avatar positioned halfway off the banner */}
         <div className="absolute -bottom-16 left-8 md:left-24">
           <div className="relative">
             <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-white overflow-hidden bg-white shadow-md">
               <img
-                src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=400&auto=format&fit=crop"
+                src={profileData.avatar && !profileData.avatar.includes("default") ? profileData.avatar : `https://ui-avatars.com/api/?name=${profileData.displayName}&background=random`}
                 alt="Avatar"
                 className="w-full h-full object-cover"
               />
@@ -56,10 +94,10 @@ export default function ProfilePage() {
       <div className="max-w-6xl mx-auto px-8 md:px-24 mt-4 flex flex-col md:flex-row md:items-start justify-between gap-4">
         <div className="mt-14 md:mt-0 md:ml-48">
           <h1 className="text-3xl font-extrabold text-slate-900">
-            Dr. Julian Sterling
+            {profileData.displayName}
           </h1>
           <p className="text-sm font-bold text-indigo-600 mt-0.5">
-            @{username || "sterling_scholar"}
+            @{profileData.username}
           </p>
         </div>
         <div className="flex items-center gap-3 mt-2 md:mt-4">
@@ -92,11 +130,11 @@ export default function ProfilePage() {
               </div>
               <div className="inline-flex items-center gap-2 bg-teal-50 text-teal-700 px-3 py-1.5 rounded-full w-fit">
                 <FlaskConical size={14} className="text-teal-500" />
-                <span className="text-xs font-bold">ML Researcher</span>
+                <span className="text-xs font-bold">{profileData.specialization}</span>
               </div>
               <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full w-fit">
                 <GraduationCap size={14} className="text-blue-500" />
-                <span className="text-xs font-bold">Senior Scholar</span>
+                <span className="text-xs font-bold">{profileData.institute}</span>
               </div>
             </div>
           </div>
@@ -107,10 +145,7 @@ export default function ProfilePage() {
               About
             </h3>
             <p className="text-sm font-medium text-slate-600 leading-relaxed mb-6">
-              Synthesizing machine learning architectures with behavioral
-              psychology. Lead at "The Neural Lodge" and contributor to
-              open-source academic datasets. Passionate about decentralizing
-              knowledge sharing.
+              {profileData.bio}
             </p>
             <div className="space-y-3">
               <div className="flex items-center gap-3 text-sm text-slate-500 font-medium">
@@ -130,7 +165,7 @@ export default function ProfilePage() {
               </div>
               <div className="flex items-center gap-3 text-sm text-slate-500 font-medium">
                 <Calendar size={16} className="text-slate-400" />
-                Joined March 2021
+                Joined {new Date(profileData.createdAt).toLocaleDateString("en-US", { month: "long", year: "numeric" })}
               </div>
             </div>
           </div>
