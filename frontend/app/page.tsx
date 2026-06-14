@@ -692,59 +692,10 @@ export default function ChatPage() {
             </div>
           </div>
 
-          {/* CHAT AREA (Mockup) */}
           <div className="flex-1 overflow-y-auto p-8 pb-32 flex flex-col bg-white">
             <div className="text-center text-[13px] font-bold text-slate-600 mb-10">
               This is the beginning of your conversation with{" "}
               {selectedUser.displayName}.
-            </div>
-
-            <div className="flex justify-center mb-8">
-              <div className="bg-[#EAEFF4] text-slate-600 text-[10px] font-bold uppercase tracking-wider px-4 py-1.5 rounded-full">
-                OCTOBER 24, 2024
-              </div>
-            </div>
-
-            {/* Incoming Message Mockup */}
-            <div className="flex flex-col items-start mb-6 max-w-[80%]">
-              <div className="flex items-center gap-2 mb-2 ml-14">
-                <span className="font-bold text-sm text-slate-900">
-                  Elena Thorne
-                </span>
-                <span className="text-[10px] font-bold text-slate-500">
-                  10:42 AM
-                </span>
-              </div>
-              <div className="flex gap-4">
-                <div className="h-10 w-10 rounded-full bg-[#007A99] flex items-center justify-center text-white shrink-0">
-                  <User size={20} />
-                </div>
-                <div className="bg-white border border-slate-200 text-slate-700 px-5 py-4 rounded-[20px] rounded-tl-sm text-[15px] leading-relaxed shadow-sm">
-                  Does anyone have the link to the shared bibliography for the
-                  Neural Networks seminar?
-                </div>
-              </div>
-            </div>
-
-            {/* Outgoing Message Mockup */}
-            <div className="flex flex-col items-end mb-6 w-full">
-              <div className="flex items-center gap-2 mb-2 mr-14">
-                <span className="text-[10px] font-bold text-slate-500">
-                  10:45 AM
-                </span>
-                <span className="font-bold text-sm text-[#007A99]">You</span>
-              </div>
-              <div className="flex gap-4 justify-end max-w-[80%]">
-                <div className="bg-[#E6EAFC] text-slate-800 px-5 py-4 rounded-[20px] rounded-tr-sm text-[15px] leading-relaxed">
-                  Found it! I'll drop it here as well for quick access.
-                </div>
-                <div className="h-10 w-10 rounded-full bg-slate-800 flex items-center justify-center text-white shrink-0 overflow-hidden">
-                  <img
-                    src="https://ui-avatars.com/api/?name=Me&background=random"
-                    alt="Me"
-                  />
-                </div>
-              </div>
             </div>
           </div>
 
