@@ -42,7 +42,17 @@ export default function ChatPage() {
     isUpdatingProfile,
   } = useAuthStore();
   const { selectedUser, setSelectedUser } = useChatStore();
-  const { peers, pendingRequests, discoverUsers, getPeers, getPeerRequests, getDiscoverUsers, acceptPeerRequest, rejectPeerRequest, sendPeerRequest } = useConnectionStore();
+  const {
+    peers,
+    pendingRequests,
+    discoverUsers,
+    getPeers,
+    getPeerRequests,
+    getDiscoverUsers,
+    acceptPeerRequest,
+    rejectPeerRequest,
+    sendPeerRequest,
+  } = useConnectionStore();
 
   // LODGE STORE
   const {
@@ -77,14 +87,19 @@ export default function ChatPage() {
   const router = useRouter();
 
   // Navigation State
-  const [activeTab, setActiveTab] = useState<"chat" | "lodge" | "explore" | "notifications">("chat");
+  const [activeTab, setActiveTab] = useState<
+    "chat" | "lodge" | "explore" | "notifications"
+  >("chat");
 
   // Channel Messaging State
   const [channelMessageText, setChannelMessageText] = useState("");
 
   const handleSendChannelMessage = async () => {
     if (!channelMessageText.trim() || !selectedChannel) return;
-    const success = await sendChannelMessage(selectedChannel._id, channelMessageText);
+    const success = await sendChannelMessage(
+      selectedChannel._id,
+      channelMessageText,
+    );
     if (success) {
       setChannelMessageText("");
     }
@@ -128,7 +143,6 @@ export default function ChatPage() {
       router.push("/login");
     }
   }, [authUser, router]);
-
 
   const handleAddStoryClick = () => {
     setIsStoryModalOpen(true);
@@ -255,15 +269,7 @@ export default function ChatPage() {
                 Lodge
               </span>
             </button>
-            <button className="flex items-center gap-4 py-3 px-6 text-slate-600 hover:bg-slate-50 rounded-r-xl font-bold transition-all">
-              <div className="shrink-0">
-                <Search size={20} strokeWidth={2} />
-              </div>
-              <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
-                Search
-              </span>
-            </button>
-            <button 
+            <button
               onClick={() => setActiveTab("explore")}
               className={`flex items-center gap-4 py-3 px-6 rounded-r-xl font-bold transition-all ${activeTab === "explore" ? "bg-[#E5FFF5] text-teal-700 border-l-4 border-teal-500" : "text-slate-600 hover:bg-slate-50"}`}
             >
@@ -274,7 +280,7 @@ export default function ChatPage() {
                 Explore
               </span>
             </button>
-            <button 
+            <button
               onClick={() => setActiveTab("notifications")}
               className={`flex items-center gap-4 py-3 px-6 rounded-r-xl font-bold transition-all relative ${activeTab === "notifications" ? "bg-[#E5FFF5] text-teal-700 border-l-4 border-teal-500" : "text-slate-600 hover:bg-slate-50"}`}
             >
@@ -288,10 +294,12 @@ export default function ChatPage() {
                 Notifications
               </span>
             </button>
-            <button 
+            <button
               onClick={() => {
                 if (!authUser?.username) return;
-                router.push(`/profile/${encodeURIComponent(authUser.username)}`);
+                router.push(
+                  `/profile/${encodeURIComponent(authUser.username)}`,
+                );
               }}
               className="flex items-center gap-4 py-3 px-6 text-slate-600 hover:bg-slate-50 rounded-r-xl font-bold transition-all"
             >
@@ -316,15 +324,23 @@ export default function ChatPage() {
             }}
             className="flex items-center gap-4 py-3 px-6 text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-r-xl font-bold transition-all"
           >
-            <div className="shrink-0"><Settings size={20} strokeWidth={2} /></div>
-            <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Settings</span>
+            <div className="shrink-0">
+              <Settings size={20} strokeWidth={2} />
+            </div>
+            <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
+              Settings
+            </span>
           </button>
           <button
             onClick={logout}
             className="flex items-center gap-4 py-3 px-6 text-slate-500 hover:text-red-500 hover:bg-red-50 rounded-r-xl font-bold transition-all"
           >
-            <div className="shrink-0"><LogOutIcon size={20} strokeWidth={2} /></div>
-            <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Logout</span>
+            <div className="shrink-0">
+              <LogOutIcon size={20} strokeWidth={2} />
+            </div>
+            <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
+              Logout
+            </span>
           </button>
         </div>
       </div>
@@ -511,11 +527,19 @@ export default function ChatPage() {
                   </p>
                 ) : (
                   pendingRequests.map((request) => (
-                    <div key={request._id} className="flex flex-col gap-3 p-4 bg-white border border-slate-100 rounded-[20px] shadow-sm">
+                    <div
+                      key={request._id}
+                      className="flex flex-col gap-3 p-4 bg-white border border-slate-100 rounded-[20px] shadow-sm"
+                    >
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-slate-200 overflow-hidden shrink-0">
-                          {request.avatar && !request.avatar.includes("default") ? (
-                            <img src={request.avatar} alt="avatar" className="w-full h-full object-cover" />
+                          {request.avatar &&
+                          !request.avatar.includes("default") ? (
+                            <img
+                              src={request.avatar}
+                              alt="avatar"
+                              className="w-full h-full object-cover"
+                            />
                           ) : (
                             <div className="w-full h-full bg-[#0099B3] flex items-center justify-center text-white font-bold">
                               {request.displayName?.charAt(0).toUpperCase()}
@@ -523,18 +547,22 @@ export default function ChatPage() {
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-bold text-slate-900 truncate">{request.displayName}</p>
-                          <p className="text-xs text-slate-500">wants to connect</p>
+                          <p className="text-sm font-bold text-slate-900 truncate">
+                            {request.displayName}
+                          </p>
+                          <p className="text-xs text-slate-500">
+                            wants to connect
+                          </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <button 
+                        <button
                           onClick={() => acceptPeerRequest(request._id)}
                           className="flex-1 py-2 bg-teal-50 text-teal-700 hover:bg-teal-100 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1"
                         >
                           <Plus size={14} /> Accept
                         </button>
-                        <button 
+                        <button
                           onClick={() => rejectPeerRequest(request._id)}
                           className="flex-1 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1"
                         >
@@ -547,7 +575,6 @@ export default function ChatPage() {
               </div>
             </div>
           )}
-
         </div>
       </div>
 
@@ -803,51 +830,80 @@ export default function ChatPage() {
                       This is the start of the #{selectedChannel.name} channel.
                     </p>
                   </div>
-                  
+
                   {isChannelMessagesLoading ? (
                     <div className="flex-1 flex justify-center items-center">
-                      <Loader2 className="animate-spin text-teal-500" size={32} />
+                      <Loader2
+                        className="animate-spin text-teal-500"
+                        size={32}
+                      />
                     </div>
                   ) : (
                     channelMessages.map((msg, index) => {
                       const isMe = msg.senderId?._id === authUser?._id;
                       return (
-                        <div key={msg._id || index} className={`flex flex-col mb-6 w-full ${isMe ? 'items-end' : 'items-start'}`}>
-                          <div className={`flex items-center gap-2 mb-2 ${isMe ? 'mr-14' : 'ml-14'}`}>
+                        <div
+                          key={msg._id || index}
+                          className={`flex flex-col mb-6 w-full ${isMe ? "items-end" : "items-start"}`}
+                        >
+                          <div
+                            className={`flex items-center gap-2 mb-2 ${isMe ? "mr-14" : "ml-14"}`}
+                          >
                             {!isMe && (
                               <span className="font-bold text-sm text-slate-900">
                                 {msg.senderId?.displayName}
                               </span>
                             )}
                             <span className="text-[10px] font-bold text-slate-500">
-                              {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              {new Date(msg.createdAt).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
                             </span>
                             {isMe && (
-                              <span className="font-bold text-sm text-[#007A99]">You</span>
+                              <span className="font-bold text-sm text-[#007A99]">
+                                You
+                              </span>
                             )}
                           </div>
-                          
-                          <div className={`flex gap-4 max-w-[80%] ${isMe ? 'justify-end' : ''}`}>
+
+                          <div
+                            className={`flex gap-4 max-w-[80%] ${isMe ? "justify-end" : ""}`}
+                          >
                             {!isMe && (
                               <div className="h-10 w-10 rounded-[14px] bg-[#007A99] flex items-center justify-center text-white shrink-0 overflow-hidden font-bold">
                                 {msg.senderId?.avatar ? (
-                                  <img src={msg.senderId.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                                  <img
+                                    src={msg.senderId.avatar}
+                                    alt="Avatar"
+                                    className="w-full h-full object-cover"
+                                  />
                                 ) : (
-                                  msg.senderId?.displayName?.charAt(0).toUpperCase() || <User size={20} />
+                                  msg.senderId?.displayName
+                                    ?.charAt(0)
+                                    .toUpperCase() || <User size={20} />
                                 )}
                               </div>
                             )}
-                            
-                            <div className={`px-5 py-4 text-[15px] leading-relaxed ${isMe ? 'bg-[#E6EAFC] text-slate-800 rounded-[20px] rounded-tr-sm' : 'bg-white border border-slate-200 text-slate-700 rounded-[20px] rounded-tl-sm shadow-sm'}`}>
+
+                            <div
+                              className={`px-5 py-4 text-[15px] leading-relaxed ${isMe ? "bg-[#E6EAFC] text-slate-800 rounded-[20px] rounded-tr-sm" : "bg-white border border-slate-200 text-slate-700 rounded-[20px] rounded-tl-sm shadow-sm"}`}
+                            >
                               {msg.content}
                             </div>
-                            
+
                             {isMe && (
                               <div className="h-10 w-10 rounded-[14px] bg-slate-800 flex items-center justify-center text-white shrink-0 overflow-hidden font-bold">
                                 {authUser?.avatar ? (
-                                  <img src={authUser.avatar} alt="Me" className="w-full h-full object-cover" />
+                                  <img
+                                    src={authUser.avatar}
+                                    alt="Me"
+                                    className="w-full h-full object-cover"
+                                  />
                                 ) : (
-                                  authUser?.displayName?.charAt(0).toUpperCase() || <User size={20} />
+                                  authUser?.displayName
+                                    ?.charAt(0)
+                                    .toUpperCase() || <User size={20} />
                                 )}
                               </div>
                             )}
@@ -879,7 +935,7 @@ export default function ChatPage() {
                     placeholder={`Message #${selectedChannel.name}`}
                     className="flex-1 bg-transparent px-4 py-2 focus:outline-none text-slate-700 font-medium text-[15px] placeholder:text-slate-400"
                   />
-                  <button 
+                  <button
                     onClick={handleSendChannelMessage}
                     className="h-10 w-10 bg-[#0099B3] hover:bg-[#007A99] transition-colors rounded-full flex items-center justify-center text-white shrink-0 mr-1"
                   >
@@ -896,29 +952,42 @@ export default function ChatPage() {
       {activeTab === "explore" && (
         <div className="flex-1 overflow-y-auto bg-slate-50 p-8">
           <div className="max-w-5xl mx-auto space-y-12">
-            
             {/* Header */}
             <div>
-              <h2 className="text-3xl font-extrabold text-slate-900">Explore Nexus</h2>
-              <p className="text-slate-500 font-medium mt-2">Discover new peers, lodges, and see what everyone is up to.</p>
+              <h2 className="text-3xl font-extrabold text-slate-900">
+                Explore Nexus
+              </h2>
+              <p className="text-slate-500 font-medium mt-2">
+                Discover new peers, lodges, and see what everyone is up to.
+              </p>
             </div>
 
             {/* People You Might Know */}
             <div>
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                  <User size={20} className="text-[#0099B3]" /> People You Might Know
+                  <User size={20} className="text-[#0099B3]" /> People You Might
+                  Know
                 </h3>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {discoverUsers.length === 0 ? (
-                  <p className="text-sm text-slate-400">No new users to discover right now.</p>
+                  <p className="text-sm text-slate-400">
+                    No new users to discover right now.
+                  </p>
                 ) : (
                   discoverUsers.map((user) => (
-                    <div key={user._id} className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow">
+                    <div
+                      key={user._id}
+                      className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow"
+                    >
                       <div className="h-12 w-12 rounded-full bg-slate-200 overflow-hidden shrink-0">
                         {user.avatar && !user.avatar.includes("default") ? (
-                          <img src={user.avatar} alt="avatar" className="w-full h-full object-cover" />
+                          <img
+                            src={user.avatar}
+                            alt="avatar"
+                            className="w-full h-full object-cover"
+                          />
                         ) : (
                           <div className="w-full h-full bg-[#0099B3] flex items-center justify-center text-white font-bold">
                             {user.displayName?.charAt(0).toUpperCase()}
@@ -926,10 +995,14 @@ export default function ChatPage() {
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-bold text-slate-900 truncate">{user.displayName}</p>
-                        <p className="text-xs text-slate-500 truncate">{user.bio || "Student at Nexus"}</p>
+                        <p className="font-bold text-slate-900 truncate">
+                          {user.displayName}
+                        </p>
+                        <p className="text-xs text-slate-500 truncate">
+                          {user.bio || "Student at Nexus"}
+                        </p>
                       </div>
-                      <button 
+                      <button
                         onClick={() => sendPeerRequest(user._id)}
                         className="p-2 bg-[#E5FFF5] text-teal-700 hover:bg-teal-100 rounded-xl transition-colors shrink-0"
                         title="Connect"
@@ -946,19 +1019,29 @@ export default function ChatPage() {
             <div>
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                  <Building2 size={20} className="text-[#0099B3]" /> Recommended Lodges
+                  <Building2 size={20} className="text-[#0099B3]" /> Recommended
+                  Lodges
                 </h3>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {publicLodges.length === 0 ? (
-                  <p className="text-sm text-slate-400">No public lodges available.</p>
+                  <p className="text-sm text-slate-400">
+                    No public lodges available.
+                  </p>
                 ) : (
                   publicLodges.map((lodge) => (
-                    <div key={lodge._id} className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col gap-4 hover:shadow-md transition-shadow">
+                    <div
+                      key={lodge._id}
+                      className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col gap-4 hover:shadow-md transition-shadow"
+                    >
                       <div className="flex items-center gap-4">
                         <div className="h-12 w-12 rounded-xl bg-slate-200 overflow-hidden shrink-0">
                           {lodge.avatar ? (
-                            <img src={lodge.avatar} alt="lodge" className="w-full h-full object-cover" />
+                            <img
+                              src={lodge.avatar}
+                              alt="lodge"
+                              className="w-full h-full object-cover"
+                            />
                           ) : (
                             <div className="w-full h-full bg-indigo-500 flex items-center justify-center text-white font-bold">
                               {lodge.name.charAt(0).toUpperCase()}
@@ -966,14 +1049,19 @@ export default function ChatPage() {
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-bold text-slate-900 truncate">{lodge.name}</p>
+                          <p className="font-bold text-slate-900 truncate">
+                            {lodge.name}
+                          </p>
                           <p className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
-                            <Users size={12} /> {lodge.members?.length || 1} Members
+                            <Users size={12} /> {lodge.members?.length || 1}{" "}
+                            Members
                           </p>
                         </div>
                       </div>
-                      <p className="text-xs text-slate-600 line-clamp-2">{lodge.description}</p>
-                      <button 
+                      <p className="text-xs text-slate-600 line-clamp-2">
+                        {lodge.description}
+                      </p>
+                      <button
                         onClick={() => joinLodge(lodge._id)}
                         disabled={isJoining}
                         className="w-full py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl text-sm font-bold transition-colors"
@@ -985,7 +1073,6 @@ export default function ChatPage() {
                 )}
               </div>
             </div>
-
           </div>
         </div>
       )}
@@ -1000,7 +1087,8 @@ export default function ChatPage() {
             Notifications Center
           </h3>
           <p className="text-slate-500 mt-2 max-w-md font-medium">
-            Manage your peer connection requests from the sidebar. Accept requests to grow your network and start chatting!
+            Manage your peer connection requests from the sidebar. Accept
+            requests to grow your network and start chatting!
           </p>
         </div>
       )}
