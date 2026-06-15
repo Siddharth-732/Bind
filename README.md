@@ -47,7 +47,7 @@ The repository is strictly separated into decoupled Frontend and Backend environ
 - **Framework:** React / Next.js
 - **Network:** Axios (with interceptors for token refresh)
 - **Real-time:** Socket.io-client
-- **State Management:** Zustand / Redux (Planned)
+- **State Management:** Zustand
 
 ---
 
@@ -128,36 +128,69 @@ http://localhost:5000
 
 ---
 
-## 🎨 Frontend
+## 🎨 Frontend Setup
+
+### 1. Navigate to the Frontend Directory
+
+```bash
+cd Talk_8iv/frontend
+```
+
+### 2. Install Dependencies
+
+```bash
+npm install
+```
+
+### 3. Configure Environment Variables
+
+Create a `.env.local` file in the `frontend` directory:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:5000/api
+NEXT_PUBLIC_SOCKET_URL=http://localhost:5000
+```
+
+### 4. Run the Development Server
+
+```bash
+npm run dev
+```
+
+The frontend should now be running at:
 
 ```text
- ██████╗ ██████╗  ██████╗ ██╗  ██╗██╗███╗   ██╗ ██████╗
-██╔════╝██╔═══██╗██╔═══██╗██║ ██╔╝██║████╗  ██║██╔════╝
-██║     ██║   ██║██║   ██║█████╔╝ ██║██╔██╗ ██║██║  ███╗
-██║     ██║   ██║██║   ██║██╔═██╗ ██║██║╚██╗██║██║   ██║
-╚██████╗╚██████╔╝╚██████╔╝██║  ██╗██║██║ ╚████║╚██████╔╝
- ╚═════╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝ ╚═════╝
-
-        🚧 Frontend Currently Under Development 🚧
+http://localhost:3000
 ```
 
 ## 📂 Project Structure
 
 ```text
-backend/
+Talk_8iv/
 │
-├── src/
-│   ├── controllers/
-│   ├── models/
-│   ├── routes/
-│   ├── middlewares/
-│   ├── utils/
-│   ├── db/
-│   ├── app.js
-│   └── index.js
+├── backend/
+│   ├── src/
+│   │   ├── controllers/
+│   │   ├── models/
+│   │   ├── routes/
+│   │   ├── middlewares/
+│   │   ├── utils/
+│   │   ├── db/
+│   │   ├── app.js
+│   │   └── index.js
+│   │
+│   ├── public/
+│   ├── .env
+│   ├── package.json
+│   └── README.md
 │
-├── public/
-├── .env
-├── package.json
-└── README.md
+└── frontend/
+    ├── app/
+    ├── components/
+    ├── lib/
+    ├── public/
+    ├── store/
+    ├── .env.local
+    ├── package.json
+    └── README.md
 ```
