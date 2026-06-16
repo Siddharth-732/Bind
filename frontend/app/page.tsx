@@ -47,8 +47,11 @@ export default function ChatPage() {
     messages,
     isMessagesLoading,
     isSendingMessage,
+    isTyping,
     getMessages,
     sendMessage,
+    emitStartTyping,
+    emitStopTyping,
     subscribeToMessages,
     unsubscribeFromMessages
   } = useChatStore();
@@ -106,12 +109,28 @@ export default function ChatPage() {
 
   // Direct Messaging State
   const [chatMessageText, setChatMessageText] = useState("");
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleChatInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setChatMessageText(e.target.value);
+
+    if (selectedUser) {
+      emitStartTyping(selectedUser._id);
+
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+
+      typingTimeoutRef.current = setTimeout(() => {
+        emitStopTyping(selectedUser._id);
+      }, 2000);
+    }
+  };
 
   const handleSendChatMessage = async () => {
     if (!chatMessageText.trim() || !selectedUser) return;
     const success = await sendMessage(selectedUser._id, chatMessageText);
     if (success) {
       setChatMessageText("");
+      emitStopTyping(selectedUser._id);
     }
   };
 
@@ -840,6 +859,39 @@ export default function ChatPage() {
                 );
               })
             )}
+
+            {/* TYPING INDICATOR */}
+            {isTyping && (
+              <div className="flex flex-col mb-6 w-full items-start">
+                <div className="flex items-center gap-2 mb-2 ml-14">
+                  <span className="font-bold text-sm text-slate-900">
+                    {selectedUser.displayName}
+                  </span>
+                  <span className="text-[10px] font-bold text-slate-500 italic">
+                    typing...
+                  </span>
+                </div>
+                <div className="flex gap-4 max-w-[80%]">
+                  <div className="h-10 w-10 rounded-[14px] bg-[#007A99] flex items-center justify-center text-white shrink-0 overflow-hidden font-bold">
+                    {selectedUser.avatar && !selectedUser.avatar.includes("default") ? (
+                      <img
+                        src={selectedUser.avatar}
+                        alt="Avatar"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      selectedUser.displayName.charAt(0).toUpperCase() || <User size={20} />
+                    )}
+                  </div>
+                  <div className="px-5 py-4 h-10 flex items-center justify-center bg-white border border-slate-200 text-slate-700 rounded-[20px] rounded-tl-sm shadow-sm gap-1">
+                    <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                    <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                    <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div ref={chatEndRef} />
           </div>
 
@@ -852,7 +904,7 @@ export default function ChatPage() {
               <input
                 type="text"
                 value={chatMessageText}
-                onChange={(e) => setChatMessageText(e.target.value)}
+                onChange={handleChatInputChange}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") handleSendChatMessage();
                 }}
