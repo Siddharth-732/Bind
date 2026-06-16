@@ -41,8 +41,8 @@ export default function ChatPage() {
     updateUserBanner,
     isUpdatingProfile,
   } = useAuthStore();
-  const { 
-    selectedUser, 
+  const {
+    selectedUser,
     setSelectedUser,
     messages,
     isMessagesLoading,
@@ -53,7 +53,7 @@ export default function ChatPage() {
     emitStartTyping,
     emitStopTyping,
     subscribeToMessages,
-    unsubscribeFromMessages
+    unsubscribeFromMessages,
   } = useChatStore();
   const {
     peers,
@@ -783,15 +783,17 @@ export default function ChatPage() {
               This is the beginning of your conversation with{" "}
               {selectedUser.displayName}.
             </div>
-            
+
             {isMessagesLoading ? (
               <div className="flex-1 flex justify-center items-center">
                 <Loader2 className="animate-spin text-teal-500" size={32} />
               </div>
             ) : (
               messages.map((msg, index) => {
-                const isMe = msg.senderId === authUser?._id || msg.senderId?._id === authUser?._id;
-                
+                const isMe =
+                  msg.senderId === authUser?._id ||
+                  msg.senderId?._id === authUser?._id;
+
                 return (
                   <div
                     key={msg._id || index}
@@ -823,34 +825,48 @@ export default function ChatPage() {
                     >
                       {!isMe && (
                         <div className="h-10 w-10 rounded-[14px] bg-[#007A99] flex items-center justify-center text-white shrink-0 overflow-hidden font-bold">
-                          {selectedUser.avatar && !selectedUser.avatar.includes("default") ? (
+                          {selectedUser.avatar &&
+                          !selectedUser.avatar.includes("default") ? (
                             <img
                               src={selectedUser.avatar}
                               alt="Avatar"
                               className="w-full h-full object-cover"
                             />
                           ) : (
-                            selectedUser.displayName.charAt(0).toUpperCase() || <User size={20} />
+                            selectedUser.displayName
+                              .charAt(0)
+                              .toUpperCase() || <User size={20} />
                           )}
                         </div>
                       )}
 
                       <div
-                        className={`px-5 py-4 text-[15px] leading-relaxed ${isMe ? "bg-[#E6EAFC] text-slate-800 rounded-[20px] rounded-tr-sm" : "bg-white border border-slate-200 text-slate-700 rounded-[20px] rounded-tl-sm shadow-sm"}`}
+                        className={`px-5 py-4 text-[15px] leading-relaxed transition-all duration-500 ${
+                          !isMe
+                            ? "bg-white border border-slate-200 text-slate-700 rounded-[20px] rounded-tl-sm shadow-sm"
+                            : msg.isRead
+                              ? "bg-gradient-to-r from-[#0099B3] to-[#0099B3] text-white rounded-[20px] rounded-tr-sm shadow-md shadow-[#0099B3]/20"
+                              : msg.isDelivered
+                                ? "bg-[#E6EAFC] text-slate-800 rounded-[20px] rounded-tr-sm border border-transparent"
+                                : "bg-slate-50 border border-slate-200 text-slate-500 rounded-[20px] rounded-tr-sm"
+                        }`}
                       >
                         {msg.content}
                       </div>
 
                       {isMe && (
                         <div className="h-10 w-10 rounded-[14px] bg-slate-800 flex items-center justify-center text-white shrink-0 overflow-hidden font-bold">
-                          {authUser?.avatar && !authUser.avatar.includes("default") ? (
+                          {authUser?.avatar &&
+                          !authUser.avatar.includes("default") ? (
                             <img
                               src={authUser.avatar}
                               alt="Me"
                               className="w-full h-full object-cover"
                             />
                           ) : (
-                            authUser?.displayName?.charAt(0).toUpperCase() || <User size={20} />
+                            authUser?.displayName?.charAt(0).toUpperCase() || (
+                              <User size={20} />
+                            )
                           )}
                         </div>
                       )}
@@ -873,20 +889,32 @@ export default function ChatPage() {
                 </div>
                 <div className="flex gap-4 max-w-[80%]">
                   <div className="h-10 w-10 rounded-[14px] bg-[#007A99] flex items-center justify-center text-white shrink-0 overflow-hidden font-bold">
-                    {selectedUser.avatar && !selectedUser.avatar.includes("default") ? (
+                    {selectedUser.avatar &&
+                    !selectedUser.avatar.includes("default") ? (
                       <img
                         src={selectedUser.avatar}
                         alt="Avatar"
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      selectedUser.displayName.charAt(0).toUpperCase() || <User size={20} />
+                      selectedUser.displayName.charAt(0).toUpperCase() || (
+                        <User size={20} />
+                      )
                     )}
                   </div>
                   <div className="px-5 py-4 h-10 flex items-center justify-center bg-white border border-slate-200 text-slate-700 rounded-[20px] rounded-tl-sm shadow-sm gap-1">
-                    <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                    <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                    <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                    <span
+                      className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"
+                      style={{ animationDelay: "0ms" }}
+                    ></span>
+                    <span
+                      className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"
+                      style={{ animationDelay: "150ms" }}
+                    ></span>
+                    <span
+                      className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"
+                      style={{ animationDelay: "300ms" }}
+                    ></span>
                   </div>
                 </div>
               </div>
@@ -915,12 +943,16 @@ export default function ChatPage() {
                 <button className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
                   <Smile size={22} />
                 </button>
-                <button 
+                <button
                   onClick={handleSendChatMessage}
                   disabled={isSendingMessage}
                   className="h-10 w-10 bg-[#0099B3] hover:bg-[#007A99] disabled:opacity-50 disabled:cursor-not-allowed rounded-full flex items-center justify-center text-white shadow-md transition-colors"
                 >
-                  {isSendingMessage ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} className="ml-0.5" />}
+                  {isSendingMessage ? (
+                    <Loader2 size={18} className="animate-spin" />
+                  ) : (
+                    <Send size={18} className="ml-0.5" />
+                  )}
                 </button>
               </div>
             </div>

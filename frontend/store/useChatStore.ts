@@ -17,6 +17,8 @@ interface ChatState {
   sendMessage: (userId: string, content: string) => Promise<boolean>;
   emitStartTyping: (receiverId: string) => void;
   emitStopTyping: (receiverId: string) => void;
+  markMessagesAsDelivered: (senderId: string) => Promise<void>;
+  markMessagesAsRead: (senderId: string) => Promise<void>;
   subscribeToMessages: () => void;
   unsubscribeFromMessages: () => void;
 }
@@ -51,6 +53,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
     try {
       const response = await axiosInstance.get(`/messages/${userId}`);
       set({ messages: response.data.data });
+
+      // Automatically mark them as read now that we fetched them
+      get().markMessagesAsRead(userId);
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to get messages");
     } finally {
@@ -88,6 +93,37 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }
   },
 
+  markMessagesAsDelivered: async (senderId: string) => {
+    try {
+      await axiosInstance.put(`/messages/delivered/${senderId}`);
+      const socket = useAuthStore.getState().socket;
+      if (socket) socket.emit("messageDelivered", { senderId });
+    } catch (error) {
+      console.error("Failed to mark messages as delivered", error);
+    }
+  },
+
+  markMessagesAsRead: async (senderId: string) => {
+    try {
+      await axiosInstance.put(`/messages/read/${senderId}`);
+      
+      // Update our local state to reflect that WE read them
+      const currentMessages = get().messages;
+      const updatedMessages = currentMessages.map((msg) => {
+        if (msg.senderId === senderId && !msg.isRead) {
+          return { ...msg, isRead: true, isDelivered: true };
+        }
+        return msg;
+      });
+      set({ messages: updatedMessages });
+
+      const socket = useAuthStore.getState().socket;
+      if (socket) socket.emit("markAsRead", { senderId });
+    } catch (error) {
+      console.error("Failed to mark messages as read", error);
+    }
+  },
+
   subscribeToMessages: () => {
     const selectedUser = get().selectedUser;
     if (!selectedUser) return;
@@ -96,12 +132,42 @@ export const useChatStore = create<ChatState>((set, get) => ({
     if (!socket) return;
 
     socket.on("newMessage", (newMessage: any) => {
-      // Check if the incoming message is from the user we are currently chatting with
-      // If it is, append it to the messages array
+      // 1. Immediately tell the sender it was delivered
+      socket.emit("messageDelivered", { senderId: newMessage.senderId });
+
+      // 2. Check if the incoming message is from the user we are currently chatting with
       const isMessageFromSelectedUser = newMessage.senderId === selectedUser._id;
       if (!isMessageFromSelectedUser) return;
 
-      set({ messages: [...get().messages, newMessage] });
+      // 3. Since we are actively looking at the chat, mark it as read!
+      get().markMessagesAsRead(newMessage.senderId);
+
+      set({ messages: [...get().messages, { ...newMessage, isDelivered: true, isRead: true }] });
+    });
+
+    // Listen for our OUTGOING messages getting delivered or read
+    socket.on("messagesDelivered", ({ receiverId }: { receiverId: string }) => {
+      if (selectedUser && receiverId === selectedUser._id) {
+        set({
+          messages: get().messages.map((msg) =>
+            msg.receiverId === receiverId && !msg.isDelivered
+              ? { ...msg, isDelivered: true }
+              : msg
+          ),
+        });
+      }
+    });
+
+    socket.on("messagesRead", ({ receiverId }: { receiverId: string }) => {
+      if (selectedUser && receiverId === selectedUser._id) {
+        set({
+          messages: get().messages.map((msg) =>
+            msg.receiverId === receiverId && !msg.isRead
+              ? { ...msg, isRead: true, isDelivered: true }
+              : msg
+          ),
+        });
+      }
     });
 
     socket.on("userTyping", ({ senderId }: { senderId: string }) => {
@@ -126,6 +192,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
     socket.off("newMessage");
     socket.off("userTyping");
     socket.off("userStoppedTyping");
+    socket.off("messagesDelivered");
+    socket.off("messagesRead");
     set({ isTyping: false });
   },
 }));
