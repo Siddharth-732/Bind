@@ -41,7 +41,20 @@ export default function ChatPage() {
     updateUserBanner,
     isUpdatingProfile,
   } = useAuthStore();
-  const { selectedUser, setSelectedUser } = useChatStore();
+  const { 
+    selectedUser, 
+    setSelectedUser,
+    messages,
+    isMessagesLoading,
+    isSendingMessage,
+    isTyping,
+    getMessages,
+    sendMessage,
+    emitStartTyping,
+    emitStopTyping,
+    subscribeToMessages,
+    unsubscribeFromMessages
+  } = useChatStore();
   const {
     peers,
     pendingRequests,
@@ -94,6 +107,33 @@ export default function ChatPage() {
   // Channel Messaging State
   const [channelMessageText, setChannelMessageText] = useState("");
 
+  // Direct Messaging State
+  const [chatMessageText, setChatMessageText] = useState("");
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleChatInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setChatMessageText(e.target.value);
+
+    if (selectedUser) {
+      emitStartTyping(selectedUser._id);
+
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+
+      typingTimeoutRef.current = setTimeout(() => {
+        emitStopTyping(selectedUser._id);
+      }, 2000);
+    }
+  };
+
+  const handleSendChatMessage = async () => {
+    if (!chatMessageText.trim() || !selectedUser) return;
+    const success = await sendMessage(selectedUser._id, chatMessageText);
+    if (success) {
+      setChatMessageText("");
+      emitStopTyping(selectedUser._id);
+    }
+  };
+
   const handleSendChannelMessage = async () => {
     if (!channelMessageText.trim() || !selectedChannel) return;
     const success = await sendChannelMessage(
@@ -137,12 +177,31 @@ export default function ChatPage() {
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const bannerInputRef = useRef<HTMLInputElement>(null);
 
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (chatEndRef.current && activeTab === "chat") {
+      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, activeTab]);
+
   // Bouncer
   useEffect(() => {
     if (!authUser) {
       router.push("/login");
     }
   }, [authUser, router]);
+
+  // Direct Messages Subscription
+  useEffect(() => {
+    if (selectedUser) {
+      getMessages(selectedUser._id);
+      subscribeToMessages();
+    }
+    return () => {
+      unsubscribeFromMessages();
+    };
+  }, [selectedUser, getMessages, subscribeToMessages, unsubscribeFromMessages]);
 
   const handleAddStoryClick = () => {
     setIsStoryModalOpen(true);
@@ -724,6 +783,116 @@ export default function ChatPage() {
               This is the beginning of your conversation with{" "}
               {selectedUser.displayName}.
             </div>
+            
+            {isMessagesLoading ? (
+              <div className="flex-1 flex justify-center items-center">
+                <Loader2 className="animate-spin text-teal-500" size={32} />
+              </div>
+            ) : (
+              messages.map((msg, index) => {
+                const isMe = msg.senderId === authUser?._id || msg.senderId?._id === authUser?._id;
+                
+                return (
+                  <div
+                    key={msg._id || index}
+                    className={`flex flex-col mb-6 w-full ${isMe ? "items-end" : "items-start"}`}
+                  >
+                    <div
+                      className={`flex items-center gap-2 mb-2 ${isMe ? "mr-14" : "ml-14"}`}
+                    >
+                      {!isMe && (
+                        <span className="font-bold text-sm text-slate-900">
+                          {selectedUser.displayName}
+                        </span>
+                      )}
+                      <span className="text-[10px] font-bold text-slate-500">
+                        {new Date(msg.createdAt).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
+                      {isMe && (
+                        <span className="font-bold text-sm text-[#007A99]">
+                          You
+                        </span>
+                      )}
+                    </div>
+
+                    <div
+                      className={`flex gap-4 max-w-[80%] ${isMe ? "justify-end" : ""}`}
+                    >
+                      {!isMe && (
+                        <div className="h-10 w-10 rounded-[14px] bg-[#007A99] flex items-center justify-center text-white shrink-0 overflow-hidden font-bold">
+                          {selectedUser.avatar && !selectedUser.avatar.includes("default") ? (
+                            <img
+                              src={selectedUser.avatar}
+                              alt="Avatar"
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            selectedUser.displayName.charAt(0).toUpperCase() || <User size={20} />
+                          )}
+                        </div>
+                      )}
+
+                      <div
+                        className={`px-5 py-4 text-[15px] leading-relaxed ${isMe ? "bg-[#E6EAFC] text-slate-800 rounded-[20px] rounded-tr-sm" : "bg-white border border-slate-200 text-slate-700 rounded-[20px] rounded-tl-sm shadow-sm"}`}
+                      >
+                        {msg.content}
+                      </div>
+
+                      {isMe && (
+                        <div className="h-10 w-10 rounded-[14px] bg-slate-800 flex items-center justify-center text-white shrink-0 overflow-hidden font-bold">
+                          {authUser?.avatar && !authUser.avatar.includes("default") ? (
+                            <img
+                              src={authUser.avatar}
+                              alt="Me"
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            authUser?.displayName?.charAt(0).toUpperCase() || <User size={20} />
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })
+            )}
+
+            {/* TYPING INDICATOR */}
+            {isTyping && (
+              <div className="flex flex-col mb-6 w-full items-start">
+                <div className="flex items-center gap-2 mb-2 ml-14">
+                  <span className="font-bold text-sm text-slate-900">
+                    {selectedUser.displayName}
+                  </span>
+                  <span className="text-[10px] font-bold text-slate-500 italic">
+                    typing...
+                  </span>
+                </div>
+                <div className="flex gap-4 max-w-[80%]">
+                  <div className="h-10 w-10 rounded-[14px] bg-[#007A99] flex items-center justify-center text-white shrink-0 overflow-hidden font-bold">
+                    {selectedUser.avatar && !selectedUser.avatar.includes("default") ? (
+                      <img
+                        src={selectedUser.avatar}
+                        alt="Avatar"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      selectedUser.displayName.charAt(0).toUpperCase() || <User size={20} />
+                    )}
+                  </div>
+                  <div className="px-5 py-4 h-10 flex items-center justify-center bg-white border border-slate-200 text-slate-700 rounded-[20px] rounded-tl-sm shadow-sm gap-1">
+                    <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                    <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                    <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div ref={chatEndRef} />
           </div>
 
           {/* CHAT INPUT */}
@@ -734,6 +903,11 @@ export default function ChatPage() {
               </button>
               <input
                 type="text"
+                value={chatMessageText}
+                onChange={handleChatInputChange}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleSendChatMessage();
+                }}
                 placeholder="Contribute to the conversation..."
                 className="flex-1 bg-transparent px-4 py-2 focus:outline-none text-slate-700 font-medium placeholder:text-slate-500 text-[15px]"
               />
@@ -741,8 +915,12 @@ export default function ChatPage() {
                 <button className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
                   <Smile size={22} />
                 </button>
-                <button className="h-10 w-10 bg-[#0099B3] hover:bg-[#007A99] rounded-full flex items-center justify-center text-white shadow-md transition-colors">
-                  <Send size={18} className="ml-0.5" />
+                <button 
+                  onClick={handleSendChatMessage}
+                  disabled={isSendingMessage}
+                  className="h-10 w-10 bg-[#0099B3] hover:bg-[#007A99] disabled:opacity-50 disabled:cursor-not-allowed rounded-full flex items-center justify-center text-white shadow-md transition-colors"
+                >
+                  {isSendingMessage ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} className="ml-0.5" />}
                 </button>
               </div>
             </div>
