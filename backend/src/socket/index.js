@@ -24,8 +24,6 @@ export const initializeSocket = (server) => {
     if (userId && userId !== "undefined") {
       userSocketMap[userId] = socket.id;
     }
-    /*  TODO: for now we update the online check for all the user,
-     we need to implement this for only the peers for a particular user. */
 
     // list of ALL online users to everyone
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
@@ -53,6 +51,29 @@ export const initializeSocket = (server) => {
       const receiverSocketId = getReceiverSocketId(receiverId);
       if (receiverSocketId) {
         io.to(receiverSocketId).emit("userStoppedTyping", { senderId: userId });
+      }
+    });
+
+    // Message Lifecycle (Read Receipts)
+    socket.on("messageDelivered", ({ senderId }) => {
+      // The person who received the message is telling us it got delivered
+      // We bounce this back to the original sender
+      const originalSenderSocketId = getReceiverSocketId(senderId);
+      if (originalSenderSocketId) {
+        io.to(originalSenderSocketId).emit("messagesDelivered", {
+          receiverId: userId,
+        });
+      }
+    });
+
+    socket.on("markAsRead", ({ senderId }) => {
+      // The person who received the message is telling us they read it
+      // We bounce this back to the original sender
+      const originalSenderSocketId = getReceiverSocketId(senderId);
+      if (originalSenderSocketId) {
+        io.to(originalSenderSocketId).emit("messagesRead", {
+          receiverId: userId,
+        });
       }
     });
 
