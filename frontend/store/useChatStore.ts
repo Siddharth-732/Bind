@@ -10,10 +10,13 @@ interface ChatState {
   isUsersLoading: boolean;
   isMessagesLoading: boolean;
   isSendingMessage: boolean;
+  isTyping: boolean;
   getUsers: () => Promise<void>;
   setSelectedUser: (user: any | null) => void;
   getMessages: (userId: string) => Promise<void>;
   sendMessage: (userId: string, content: string) => Promise<boolean>;
+  emitStartTyping: (receiverId: string) => void;
+  emitStopTyping: (receiverId: string) => void;
   subscribeToMessages: () => void;
   unsubscribeFromMessages: () => void;
 }
@@ -25,6 +28,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   isUsersLoading: false,
   isMessagesLoading: false,
   isSendingMessage: false,
+  isTyping: false,
 
   // fetch all users for the sidebar
   getUsers: async () => {
@@ -70,6 +74,20 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }
   },
 
+  emitStartTyping: (receiverId: string) => {
+    const socket = useAuthStore.getState().socket;
+    if (socket) {
+      socket.emit("typing", { receiverId });
+    }
+  },
+
+  emitStopTyping: (receiverId: string) => {
+    const socket = useAuthStore.getState().socket;
+    if (socket) {
+      socket.emit("stopTyping", { receiverId });
+    }
+  },
+
   subscribeToMessages: () => {
     const selectedUser = get().selectedUser;
     if (!selectedUser) return;
@@ -85,6 +103,20 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
       set({ messages: [...get().messages, newMessage] });
     });
+
+    socket.on("userTyping", ({ senderId }: { senderId: string }) => {
+      const selectedUser = get().selectedUser;
+      if (selectedUser && senderId === selectedUser._id) {
+        set({ isTyping: true });
+      }
+    });
+
+    socket.on("userStoppedTyping", ({ senderId }: { senderId: string }) => {
+      const selectedUser = get().selectedUser;
+      if (selectedUser && senderId === selectedUser._id) {
+        set({ isTyping: false });
+      }
+    });
   },
 
   unsubscribeFromMessages: () => {
@@ -92,5 +124,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
     if (!socket) return;
 
     socket.off("newMessage");
+    socket.off("userTyping");
+    socket.off("userStoppedTyping");
+    set({ isTyping: false });
   },
 }));

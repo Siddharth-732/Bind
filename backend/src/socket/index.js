@@ -41,6 +41,21 @@ export const initializeSocket = (server) => {
       console.log(`Socket ${socket.id} left channel ${channelId}`);
     });
 
+    // Typing Indicators
+    socket.on("typing", ({ receiverId }) => {
+      const receiverSocketId = getReceiverSocketId(receiverId);
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("userTyping", { senderId: userId });
+      }
+    });
+
+    socket.on("stopTyping", ({ receiverId }) => {
+      const receiverSocketId = getReceiverSocketId(receiverId);
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("userStoppedTyping", { senderId: userId });
+      }
+    });
+
     socket.on("disconnect", () => {
       console.log(`Disconnected: ${socket.id}`);
       // Remove them from the phonebook
