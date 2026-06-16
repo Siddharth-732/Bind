@@ -125,3 +125,46 @@ export const getConversations = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+export const markMessagesAsDelivered = async (req, res) => {
+  try {
+    const { id: senderId } = req.params;
+    const receiverId = req.user._id;
+
+    // Update all messages sent by senderId to receiverId where isDelivered is false
+    await Message.updateMany(
+      { senderId, receiverId, isDelivered: false },
+      { $set: { isDelivered: true } },
+    );
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Messages marked as delivered" });
+  } catch (error) {
+    console.error(
+      "Error in markMessagesAsDelivered controller: ",
+      error.message,
+    );
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const markMessagesAsRead = async (req, res) => {
+  try {
+    const { id: senderId } = req.params;
+    const receiverId = req.user._id;
+
+    // Update all messages sent by senderId to receiverId where isRead is false
+    await Message.updateMany(
+      { senderId, receiverId, isRead: false },
+      { $set: { isRead: true, isDelivered: true } }, // Mark as delivered too, just in case
+    );
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Messages marked as read" });
+  } catch (error) {
+    console.error("Error in markMessagesAsRead controller: ", error.message);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};

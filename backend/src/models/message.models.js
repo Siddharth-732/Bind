@@ -17,6 +17,10 @@ const messageSchema = new Schema(
       required: true,
       trim: true,
     },
+    isDelivered: {
+      type: Boolean,
+      default: false,
+    },
     isRead: {
       type: Boolean,
       default: false,
