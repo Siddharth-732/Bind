@@ -1,30 +1,62 @@
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import toast from "react-hot-toast";
-import { useAuthStore } from "./useAuthStore";
+import { useAuthStore, AuthUser } from "./useAuthStore";
+import { AxiosError } from "axios";
+
+export interface LodgeMember {
+  _id: string;
+  role: string;
+  user: AuthUser;
+  [key: string]: unknown;
+}
+
+export interface Lodge {
+  _id: string;
+  name: string;
+  description?: string;
+  avatar?: string;
+  members?: LodgeMember[];
+  [key: string]: unknown;
+}
+
+export interface Channel {
+  _id: string;
+  name: string;
+  [key: string]: unknown;
+}
+
+export interface LodgeMessage {
+  _id: string;
+  channelId: string;
+  content?: string;
+  senderId?: AuthUser;
+  createdAt: string;
+  [key: string]: unknown;
+}
 
 interface LodgeState {
-  publicLodges: any[];
-  myLodges: any[];
-  currentLodgeChannels: any[];
-  currentLodgeMembers: any[];
-  selectedLodge: any | null;
-  selectedChannel: any | null;
+  publicLodges: Lodge[];
+  myLodges: Lodge[];
+  currentLodgeChannels: Channel[];
+  currentLodgeMembers: LodgeMember[];
+  selectedLodge: Lodge | null;
+  selectedChannel: Channel | null;
   isLoadingLodges: boolean;
   isJoining: boolean;
   isCreating: boolean;
-  
+
   getPublicLodges: () => Promise<void>;
   getMyLodges: () => Promise<void>;
   joinLodge: (lodgeId: string) => Promise<boolean>;
   getLodgeChannels: (lodgeId: string) => Promise<void>;
   getLodgeMembers: (lodgeId: string) => Promise<void>;
   createLodge: (data: FormData) => Promise<boolean>;
-  setSelectedLodge: (lodge: any | null) => void;
-  setSelectedChannel: (channel: any | null) => void;
+  setSelectedLodge: (lodge: Lodge | null) => void;
+  setSelectedChannel: (channel: Channel | null) => void;
 
   // Messaging
-  channelMessages: any[];
+  channelMessages: LodgeMessage[];
   isChannelMessagesLoading: boolean;
   getChannelMessages: (channelId: string) => Promise<void>;
   sendChannelMessage: (channelId: string, content: string) => Promise<boolean>;
@@ -50,8 +82,11 @@ export const useLodgeStore = create<LodgeState>((set, get) => ({
     try {
       const response = await axiosInstance.get("/lodges");
       set({ publicLodges: response.data.data });
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to load lodges");
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ message: string }>;
+      toast.error(
+        axiosError.response?.data?.message || "Failed to load lodges",
+      );
     } finally {
       set({ isLoadingLodges: false });
     }
@@ -61,7 +96,7 @@ export const useLodgeStore = create<LodgeState>((set, get) => ({
     try {
       const response = await axiosInstance.get("/lodges/my-lodges");
       set({ myLodges: response.data.data });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to fetch my lodges", error);
     }
   },
@@ -74,8 +109,9 @@ export const useLodgeStore = create<LodgeState>((set, get) => ({
       // Refresh my lodges
       get().getMyLodges();
       return true;
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to join lodge");
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ message: string }>;
+      toast.error(axiosError.response?.data?.message || "Failed to join lodge");
       return false;
     } finally {
       set({ isJoining: false });
@@ -91,7 +127,7 @@ export const useLodgeStore = create<LodgeState>((set, get) => ({
       if (channels.length > 0) {
         set({ selectedChannel: channels[0] });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to load channels", error);
     }
   },
@@ -100,7 +136,7 @@ export const useLodgeStore = create<LodgeState>((set, get) => ({
     try {
       const response = await axiosInstance.get(`/lodges/${lodgeId}/members`);
       set({ currentLodgeMembers: response.data.data });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to load members", error);
     }
   },
@@ -113,8 +149,11 @@ export const useLodgeStore = create<LodgeState>((set, get) => ({
       get().getMyLodges();
       get().getPublicLodges();
       return true;
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to create lodge");
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ message: string }>;
+      toast.error(
+        axiosError.response?.data?.message || "Failed to create lodge",
+      );
       return false;
     } finally {
       set({ isCreating: false });
@@ -128,18 +167,22 @@ export const useLodgeStore = create<LodgeState>((set, get) => ({
       get().getLodgeChannels(lodge._id);
       get().getLodgeMembers(lodge._id);
     } else {
-      set({ currentLodgeChannels: [], currentLodgeMembers: [], selectedChannel: null });
+      set({
+        currentLodgeChannels: [],
+        currentLodgeMembers: [],
+        selectedChannel: null,
+      });
     }
   },
-  
+
   setSelectedChannel: (channel) => {
     const previousChannel = get().selectedChannel;
     if (previousChannel) {
       get().unsubscribeFromChannelMessages(previousChannel._id);
     }
-    
+
     set({ selectedChannel: channel });
-    
+
     if (channel) {
       get().getChannelMessages(channel._id);
       get().subscribeToChannelMessages(channel._id);
@@ -151,10 +194,15 @@ export const useLodgeStore = create<LodgeState>((set, get) => ({
   getChannelMessages: async (channelId: string) => {
     set({ isChannelMessagesLoading: true });
     try {
-      const response = await axiosInstance.get(`/lodges/channels/${channelId}/messages`);
+      const response = await axiosInstance.get(
+        `/lodges/channels/${channelId}/messages`,
+      );
       set({ channelMessages: response.data.data });
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to load channel messages");
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ message: string }>;
+      toast.error(
+        axiosError.response?.data?.message || "Failed to load channel messages",
+      );
     } finally {
       set({ isChannelMessagesLoading: false });
     }
@@ -162,10 +210,15 @@ export const useLodgeStore = create<LodgeState>((set, get) => ({
 
   sendChannelMessage: async (channelId: string, content: string) => {
     try {
-      await axiosInstance.post(`/lodges/channels/${channelId}/messages`, { content });
+      await axiosInstance.post(`/lodges/channels/${channelId}/messages`, {
+        content,
+      });
       return true;
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to send message");
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ message: string }>;
+      toast.error(
+        axiosError.response?.data?.message || "Failed to send message",
+      );
       return false;
     }
   },
@@ -176,7 +229,7 @@ export const useLodgeStore = create<LodgeState>((set, get) => ({
 
     socket.emit("join-channel", channelId);
 
-    socket.on("newChannelMessage", (newMessage: any) => {
+    socket.on("newChannelMessage", (newMessage: LodgeMessage) => {
       if (newMessage.channelId !== get().selectedChannel?._id) return;
       set((state) => ({
         channelMessages: [...state.channelMessages, newMessage],

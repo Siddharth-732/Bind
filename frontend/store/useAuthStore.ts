@@ -1,27 +1,44 @@
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import toast from "react-hot-toast";
-import { io } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
+import { AxiosError } from "axios";
+
+export interface AuthUser {
+  _id: string;
+  username: string;
+  email: string;
+  avatar?: string;
+  banner?: string;
+  displayName: string;
+  bio?: string;
+  specialization?: string;
+  institute?: string;
+  createdAt: string;
+  [key: string]: unknown;
+}
 
 // Define the shape of our store for TypeScript
 interface AuthState {
-  authUser: any;
+  authUser: AuthUser | null;
   isLoggingIn: boolean;
   isRegistering: boolean;
   isUpdatingProfile: boolean;
-  socket: any;
-  login: (data: any) => Promise<void>;
-  register: (data: any) => Promise<void>;
+  socket: Socket | null;
+  login: (data: Record<string, unknown> | FormData) => Promise<void>;
+  register: (data: Record<string, unknown> | FormData) => Promise<void>;
   logout: () => Promise<void>;
-  connectSocket: () => void; 
-  disconnectSocket: () => void; 
-  updateAccountDetails: (data: { displayName?: string; bio?: string }) => Promise<boolean>;
+  connectSocket: () => void;
+  disconnectSocket: () => void;
+  updateAccountDetails: (data: {
+    displayName?: string;
+    bio?: string;
+  }) => Promise<boolean>;
   updateUserAvatar: (file: File) => Promise<boolean>;
   updateUserBanner: (file: File) => Promise<boolean>;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
-  
   authUser: null, // Holds the user's data when logged in
   isLoggingIn: false,
   isRegistering: false,
@@ -29,14 +46,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   login: async (data) => {
     set({ isLoggingIn: true });
-    
+
     try {
       const response = await axiosInstance.post("/users/login", data);
-      set({ authUser: response.data.user }); 
+      set({ authUser: response.data.user });
       toast.success("Logged in successfully!");
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to log in");
-      
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ message: string }>;
+      toast.error(axiosError.response?.data?.message || "Failed to log in");
     } finally {
       set({ isLoggingIn: false });
     }
@@ -47,10 +64,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       const response = await axiosInstance.post("/users/register", data);
       // Our backend returns the registered user in the 'user' field
-      set({ authUser: response.data.user }); 
+      set({ authUser: response.data.user });
       toast.success("Account created successfully!");
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to create account");
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ message: string }>;
+      toast.error(
+        axiosError.response?.data?.message || "Failed to create account",
+      );
     } finally {
       set({ isRegistering: false });
     }
@@ -60,13 +80,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       // tell the Express backend to clear the HTTP-Only cookies
       await axiosInstance.post("/users/logout");
-      
+
       // clear the user from our frontend global memory
-      set({ authUser: null }); 
-      
+      set({ authUser: null });
+
       toast.success("Logged out successfully");
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to log out");
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ message: string }>;
+      toast.error(axiosError.response?.data?.message || "Failed to log out");
     }
   },
 
@@ -77,8 +98,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({ authUser: response.data.user });
       toast.success("Profile updated successfully");
       return true;
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to update profile");
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ message: string }>;
+      toast.error(
+        axiosError.response?.data?.message || "Failed to update profile",
+      );
       return false;
     } finally {
       set({ isUpdatingProfile: false });
@@ -90,12 +114,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       const formData = new FormData();
       formData.append("avatar", file);
-      const response = await axiosInstance.patch("/users/update-avatar", formData);
+      const response = await axiosInstance.patch(
+        "/users/update-avatar",
+        formData,
+      );
       set({ authUser: response.data.user });
       toast.success("Avatar updated successfully");
       return true;
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to update avatar");
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ message: string }>;
+      toast.error(
+        axiosError.response?.data?.message || "Failed to update avatar",
+      );
       return false;
     } finally {
       set({ isUpdatingProfile: false });
@@ -107,12 +137,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       const formData = new FormData();
       formData.append("banner", file);
-      const response = await axiosInstance.patch("/users/update-banner", formData);
+      const response = await axiosInstance.patch(
+        "/users/update-banner",
+        formData,
+      );
       set({ authUser: response.data.user });
       toast.success("Banner updated successfully");
       return true;
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to update banner");
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ message: string }>;
+      toast.error(
+        axiosError.response?.data?.message || "Failed to update banner",
+      );
       return false;
     } finally {
       set({ isUpdatingProfile: false });
@@ -121,9 +157,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   socket: null,
   connectSocket: () => {
-
     const { authUser, socket } = get();
-    
+
     // if we aren't logged in, or the socket is already connected, do nothing!
     if (!authUser || socket?.connected) return;
 

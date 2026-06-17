@@ -26,7 +26,7 @@ export default function ProfilePage() {
   const params = useParams();
   const username = params.username as string;
   const [activeTab, setActiveTab] = useState("posts");
-  const [profileData, setProfileData] = useState<any>(null);
+  const [profileData, setProfileData] = useState<import("../../../store/useAuthStore").AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -77,7 +77,11 @@ export default function ProfilePage() {
           <div className="relative">
             <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-white overflow-hidden bg-white shadow-md">
               <img
-                src={profileData.avatar && !profileData.avatar.includes("default") ? profileData.avatar : `https://ui-avatars.com/api/?name=${profileData.displayName}&background=random`}
+                src={
+                  profileData.avatar && !profileData.avatar.includes("default")
+                    ? profileData.avatar
+                    : `https://ui-avatars.com/api/?name=${profileData.displayName}&background=random`
+                }
                 alt="Avatar"
                 className="w-full h-full object-cover"
               />
@@ -130,11 +134,15 @@ export default function ProfilePage() {
               </div>
               <div className="inline-flex items-center gap-2 bg-teal-50 text-teal-700 px-3 py-1.5 rounded-full w-fit">
                 <FlaskConical size={14} className="text-teal-500" />
-                <span className="text-xs font-bold">{profileData.specialization}</span>
+                <span className="text-xs font-bold">
+                  {profileData.specialization}
+                </span>
               </div>
               <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full w-fit">
                 <GraduationCap size={14} className="text-blue-500" />
-                <span className="text-xs font-bold">{profileData.institute}</span>
+                <span className="text-xs font-bold">
+                  {profileData.institute}
+                </span>
               </div>
             </div>
           </div>
@@ -165,7 +173,11 @@ export default function ProfilePage() {
               </div>
               <div className="flex items-center gap-3 text-sm text-slate-500 font-medium">
                 <Calendar size={16} className="text-slate-400" />
-                Joined {new Date(profileData.createdAt).toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+                Joined{" "}
+                {new Date(profileData.createdAt).toLocaleDateString("en-US", {
+                  month: "long",
+                  year: "numeric",
+                })}
               </div>
             </div>
           </div>

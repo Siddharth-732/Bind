@@ -11,7 +11,6 @@ import {
   Search,
   Building2,
   Compass,
-  Heart,
   Bell,
   User,
   Settings,
@@ -34,8 +33,6 @@ export default function ChatPage() {
   const {
     authUser,
     logout,
-    connectSocket,
-    disconnectSocket,
     updateAccountDetails,
     updateUserAvatar,
     updateUserBanner,
@@ -59,9 +56,6 @@ export default function ChatPage() {
     peers,
     pendingRequests,
     discoverUsers,
-    getPeers,
-    getPeerRequests,
-    getDiscoverUsers,
     acceptPeerRequest,
     rejectPeerRequest,
     sendPeerRequest,
@@ -75,8 +69,6 @@ export default function ChatPage() {
     currentLodgeMembers,
     selectedLodge,
     selectedChannel,
-    getPublicLodges,
-    getMyLodges,
     joinLodge,
     setSelectedLodge,
     setSelectedChannel,
@@ -89,14 +81,7 @@ export default function ChatPage() {
   } = useLodgeStore();
 
   // STATUS STORE
-  const {
-    statuses,
-    getStatuses,
-    createStatus,
-    isCreatingStatus,
-    subscribeToStatuses,
-    unsubscribeFromStatuses,
-  } = useStatusStore();
+  const { statuses, createStatus, isCreatingStatus } = useStatusStore();
 
   const router = useRouter();
 
@@ -148,7 +133,9 @@ export default function ChatPage() {
 
   // Lodge Creation State
   const [isLodgeModalOpen, setIsLodgeModalOpen] = useState(false);
-  const [lodgeModalTab, setLodgeModalTab] = useState<"discover" | "create">("discover");
+  const [lodgeModalTab, setLodgeModalTab] = useState<"discover" | "create">(
+    "discover",
+  );
   const [lodgeName, setLodgeName] = useState("");
   const [lodgeDescription, setLodgeDescription] = useState("");
   const [lodgeAvatar, setLodgeAvatar] = useState<File | null>(null);
@@ -162,7 +149,7 @@ export default function ChatPage() {
   const [storyPreview, setStoryPreview] = useState<string | null>(null);
 
   // Active Story Viewing
-  const [viewingStatus, setViewingStatus] = useState<any | null>(null);
+  const [viewingStatus, setViewingStatus] = useState<import("../store/useStatusStore").Status | null>(null);
 
   // Members Sidebar State
   const [isMembersSidebarOpen, setIsMembersSidebarOpen] = useState(true);
@@ -260,6 +247,7 @@ export default function ChatPage() {
   };
 
   const handleSaveProfile = async () => {
+    if (!authUser) return;
     // update text fields if changed
     if (
       settingsDisplayName !== authUser.displayName ||
@@ -285,21 +273,25 @@ export default function ChatPage() {
 
   if (!authUser) return null;
 
-  const botModerator = {
+  const botModerator: import("../store/useLodgeStore").LodgeMember = {
     _id: "bot_1",
     role: "captain",
     user: {
       _id: "bot_user_1",
       displayName: "Lodge Bot",
       avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix",
-      username: "lodge_bot"
-    }
+      username: "lodge_bot",
+      email: "bot@lodge.edu",
+      createdAt: new Date().toISOString(),
+    },
   };
 
-  const fetchedModerators = currentLodgeMembers?.filter((m: any) => m.role === "captain") || [];
+  const fetchedModerators =
+    currentLodgeMembers?.filter((m) => m.role === "captain") || [];
   const moderators = [botModerator, ...fetchedModerators];
-  
-  const members = currentLodgeMembers?.filter((m: any) => m.role !== "captain") || [];
+
+  const members =
+    currentLodgeMembers?.filter((m) => m.role !== "captain") || [];
 
   return (
     <div className="flex h-screen bg-white text-slate-800 font-sans overflow-hidden">
@@ -451,7 +443,11 @@ export default function ChatPage() {
                   }`}
                 >
                   {lodge.avatar && !lodge.avatar.includes("default") ? (
-                    <img src={lodge.avatar} alt={lodge.name} className="w-full h-full object-cover" />
+                    <img
+                      src={lodge.avatar}
+                      alt={lodge.name}
+                      className="w-full h-full object-cover"
+                    />
                   ) : (
                     lodge.name.charAt(0).toUpperCase()
                   )}
@@ -472,7 +468,11 @@ export default function ChatPage() {
         <div className="w-[320px] bg-[#F4F7F9] border-l border-r border-slate-200 flex flex-col shrink-0 z-10">
           <div className="p-6 pb-4">
             <h2 className="text-2xl font-extrabold text-slate-900 mb-6">
-              {activeTab === "chat" ? "Chat" : activeTab === "notifications" ? "Notifications" : "Explore"}
+              {activeTab === "chat"
+                ? "Chat"
+                : activeTab === "notifications"
+                  ? "Notifications"
+                  : "Explore"}
             </h2>
             <div className="relative">
               <Search
@@ -754,9 +754,7 @@ export default function ChatPage() {
               </div>
             ) : (
               messages.map((msg, index) => {
-                const isMe =
-                  msg.senderId === authUser?._id ||
-                  msg.senderId?._id === authUser?._id;
+                const isMe = msg.senderId._id === authUser?._id;
 
                 return (
                   <div
@@ -936,17 +934,42 @@ export default function ChatPage() {
                     {selectedLodge.name}
                   </h3>
                   <div className="text-slate-500">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
                   </div>
                 </div>
                 <div className="flex-1 overflow-y-auto p-3 space-y-1">
                   <div className="flex items-center justify-between px-1 mt-2 mb-1 group cursor-pointer">
                     <div className="text-[11px] font-bold text-slate-500 hover:text-slate-700 transition-colors flex items-center gap-1 uppercase">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
                       CHANNELS
                     </div>
                     {selectedLodge.myRole === "captain" && (
-                      <Plus size={14} className="text-slate-400 hover:text-slate-700" />
+                      <Plus
+                        size={14}
+                        className="text-slate-400 hover:text-slate-700"
+                      />
                     )}
                   </div>
                   {currentLodgeChannels.map((channel) => (
@@ -962,12 +985,35 @@ export default function ChatPage() {
 
                   <div className="flex items-center justify-between px-1 mt-6 mb-1 group cursor-pointer">
                     <div className="text-[11px] font-bold text-slate-500 hover:text-slate-700 transition-colors flex items-center gap-1 uppercase">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
                       VOICE
                     </div>
                   </div>
                   <button className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-[14px] font-semibold text-slate-500 hover:bg-slate-200/50 hover:text-slate-700 transition-colors">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                      <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                    </svg>
                     <span className="truncate">Study Hall</span>
                   </button>
                 </div>
@@ -977,8 +1023,6 @@ export default function ChatPage() {
                 Select a lodge
               </div>
             )}
-
-
           </div>
 
           {/* Lodge Chat Window */}
@@ -993,16 +1037,48 @@ export default function ChatPage() {
                     </h3>
                     <div className="flex items-center gap-3 text-slate-400">
                       <button className="hover:text-slate-600 transition-colors">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                        </svg>
                       </button>
                       <button className="hover:text-slate-600 transition-colors">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="17" x2="12" y2="22"></line><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"></path></svg>
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <line x1="12" y1="17" x2="12" y2="22"></line>
+                          <path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"></path>
+                        </svg>
                       </button>
-                      <button onClick={() => setIsMembersSidebarOpen(!isMembersSidebarOpen)} className={`transition-colors ${isMembersSidebarOpen ? "text-[#006F8D]" : "hover:text-slate-600"}`}>
+                      <button
+                        onClick={() =>
+                          setIsMembersSidebarOpen(!isMembersSidebarOpen)
+                        }
+                        className={`transition-colors ${isMembersSidebarOpen ? "text-[#006F8D]" : "hover:text-slate-600"}`}
+                      >
                         <Users size={20} />
                       </button>
                       <div className="relative ml-2">
-                        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                        <Search
+                          className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400"
+                          size={14}
+                        />
                         <input
                           type="text"
                           placeholder="Search..."
@@ -1010,52 +1086,85 @@ export default function ChatPage() {
                         />
                       </div>
                       <button className="hover:text-slate-600 transition-colors ml-2">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
                       </button>
                     </div>
                   </div>
                   <div className="flex-1 overflow-y-auto p-6 pb-32 flex flex-col">
-                  <div className="mt-6 mb-8">
-                    <div className="h-16 w-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
-                      <Hash size={32} className="text-slate-400" />
+                    <div className="mt-6 mb-8">
+                      <div className="h-16 w-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
+                        <Hash size={32} className="text-slate-400" />
+                      </div>
+                      <h2 className="text-3xl font-extrabold text-slate-900">
+                        Welcome to #{selectedChannel.name}!
+                      </h2>
+                      <p className="text-[15px] font-medium text-slate-500 mt-2">
+                        This is the start of the #{selectedChannel.name}{" "}
+                        channel.
+                      </p>
                     </div>
-                    <h2 className="text-3xl font-extrabold text-slate-900">
-                      Welcome to #{selectedChannel.name}!
-                    </h2>
-                    <p className="text-[15px] font-medium text-slate-500 mt-2">
-                      This is the start of the #{selectedChannel.name} channel.
-                    </p>
-                  </div>
 
-                  {isChannelMessagesLoading ? (
-                    <div className="flex-1 flex justify-center items-center">
-                      <Loader2 className="animate-spin text-blue-500" size={32} />
-                    </div>
-                  ) : (
-                    channelMessages.map((msg, index) => {
-                      return (
-                        <div key={msg._id || index} className={`flex w-full mt-4 hover:bg-slate-50/50 p-1 rounded-md transition-colors`}>
-                           <div className="w-10 h-10 rounded-full bg-[#005a73] flex items-center justify-center text-white shrink-0 overflow-hidden font-bold mt-1 cursor-pointer">
+                    {isChannelMessagesLoading ? (
+                      <div className="flex-1 flex justify-center items-center">
+                        <Loader2
+                          className="animate-spin text-blue-500"
+                          size={32}
+                        />
+                      </div>
+                    ) : (
+                      channelMessages.map((msg, index) => {
+                        return (
+                          <div
+                            key={msg._id || index}
+                            className={`flex w-full mt-4 hover:bg-slate-50/50 p-1 rounded-md transition-colors`}
+                          >
+                            <div className="w-10 h-10 rounded-full bg-[#005a73] flex items-center justify-center text-white shrink-0 overflow-hidden font-bold mt-1 cursor-pointer">
                               {msg.senderId?.avatar ? (
-                                <img src={msg.senderId.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                                <img
+                                  src={msg.senderId.avatar}
+                                  alt="Avatar"
+                                  className="w-full h-full object-cover"
+                                />
                               ) : (
-                                msg.senderId?.displayName?.charAt(0).toUpperCase() || <User size={20} />
+                                msg.senderId?.displayName
+                                  ?.charAt(0)
+                                  .toUpperCase() || <User size={20} />
                               )}
-                           </div>
-                           <div className="ml-4 flex flex-col min-w-0">
+                            </div>
+                            <div className="ml-4 flex flex-col min-w-0">
                               <div className="flex items-baseline gap-2">
-                                <span className="font-bold text-[15px] text-slate-900 hover:underline cursor-pointer">{msg.senderId?.displayName}</span>
-                                <span className="text-[11px] font-medium text-slate-500">{new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                <span className="font-bold text-[15px] text-slate-900 hover:underline cursor-pointer">
+                                  {msg.senderId?.displayName}
+                                </span>
+                                <span className="text-[11px] font-medium text-slate-500">
+                                  {new Date(msg.createdAt).toLocaleTimeString(
+                                    [],
+                                    { hour: "2-digit", minute: "2-digit" },
+                                  )}
+                                </span>
                               </div>
                               <div className="text-[15px] text-slate-800 mt-0.5 leading-relaxed break-words whitespace-pre-wrap">
                                 {msg.content}
                               </div>
-                           </div>
-                        </div>
-                      );
-                    })
-                  )}
-                </div>
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
                   <div className="absolute bottom-6 left-6 right-6">
                     <div className="bg-slate-100 rounded-lg flex items-center p-1 pl-3 focus-within:ring-2 focus-within:ring-blue-400 transition-all">
                       <button className="p-2 text-slate-400 hover:text-slate-600 transition-colors rounded-full shrink-0">
@@ -1093,7 +1202,7 @@ export default function ChatPage() {
                 </div>
               )}
             </div>
-            
+
             {/* Right Members Sidebar */}
             {isMembersSidebarOpen && (
               <div className="w-64 bg-[#EAF5F4]/40 border-l border-slate-200 flex flex-col shrink-0 overflow-y-auto hidden lg:flex">
@@ -1104,21 +1213,35 @@ export default function ChatPage() {
                         Moderators — {moderators.length}
                       </h4>
                       <div className="space-y-1 mb-6">
-                        {moderators.map((member: any) => (
-                          <div key={member._id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-100 cursor-pointer transition-colors group">
+                        {moderators.map((member: import("../store/useLodgeStore").LodgeMember) => (
+                          <div
+                            key={member._id}
+                            className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-100 cursor-pointer transition-colors group"
+                          >
                             <div className="relative shrink-0">
                               <div className="h-9 w-9 rounded-full overflow-hidden flex items-center justify-center font-bold text-white bg-[#00BAE6]">
-                                {member.user?.avatar && !member.user.avatar.includes("default") ? (
-                                  <img src={member.user.avatar} alt={member.user.displayName} className="w-full h-full object-cover" />
+                                {member.user?.avatar &&
+                                !member.user.avatar.includes("default") ? (
+                                  <img
+                                    src={member.user.avatar}
+                                    alt={member.user.displayName}
+                                    className="w-full h-full object-cover"
+                                  />
                                 ) : (
-                                  member.user?.displayName?.charAt(0).toUpperCase() || <User size={14} />
+                                  member.user?.displayName
+                                    ?.charAt(0)
+                                    .toUpperCase() || <User size={14} />
                                 )}
                               </div>
                               <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 border-2 border-white rounded-full"></div>
                             </div>
                             <div className="min-w-0 flex-1">
-                              <p className="text-[13px] font-bold text-[#006F8D] truncate group-hover:underline">{member.user?.displayName}</p>
-                              <p className="text-[10px] text-slate-500 truncate">Captain</p>
+                              <p className="text-[13px] font-bold text-[#006F8D] truncate group-hover:underline">
+                                {member.user?.displayName}
+                              </p>
+                              <p className="text-[10px] text-slate-500 truncate">
+                                Captain
+                              </p>
                             </div>
                           </div>
                         ))}
@@ -1132,21 +1255,35 @@ export default function ChatPage() {
                         Members — {members.length}
                       </h4>
                       <div className="space-y-1 mb-6">
-                        {members.map((member: any) => (
-                          <div key={member._id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-200/50 cursor-pointer transition-colors group">
+                        {members.map((member: import("../store/useLodgeStore").LodgeMember) => (
+                          <div
+                            key={member._id}
+                            className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-200/50 cursor-pointer transition-colors group"
+                          >
                             <div className="relative shrink-0">
                               <div className="h-9 w-9 rounded-full overflow-hidden flex items-center justify-center font-bold text-white bg-[#005a73]">
-                                {member.user?.avatar && !member.user.avatar.includes("default") ? (
-                                  <img src={member.user.avatar} alt={member.user.displayName} className="w-full h-full object-cover" />
+                                {member.user?.avatar &&
+                                !member.user.avatar.includes("default") ? (
+                                  <img
+                                    src={member.user.avatar}
+                                    alt={member.user.displayName}
+                                    className="w-full h-full object-cover"
+                                  />
                                 ) : (
-                                  member.user?.displayName?.charAt(0).toUpperCase() || <User size={14} />
+                                  member.user?.displayName
+                                    ?.charAt(0)
+                                    .toUpperCase() || <User size={14} />
                                 )}
                               </div>
                               <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 border-2 border-[#EAF5F4] rounded-full"></div>
                             </div>
                             <div className="min-w-0 flex-1">
-                              <p className="text-[13px] font-bold text-slate-700 truncate group-hover:underline">{member.user?.displayName}</p>
-                              <p className="text-[10px] text-slate-500 truncate">Member</p>
+                              <p className="text-[13px] font-bold text-slate-700 truncate group-hover:underline">
+                                {member.user?.displayName}
+                              </p>
+                              <p className="text-[10px] text-slate-500 truncate">
+                                Member
+                              </p>
                             </div>
                           </div>
                         ))}
@@ -1447,9 +1584,7 @@ export default function ChatPage() {
         <div className="fixed inset-0 bg-[#1e2532]/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-[24px] w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200 flex flex-col max-h-[85vh]">
             <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
-              <h2 className="text-lg font-extrabold text-slate-900">
-                Lodges
-              </h2>
+              <h2 className="text-lg font-extrabold text-slate-900">Lodges</h2>
               <button
                 onClick={() => setIsLodgeModalOpen(false)}
                 className="text-slate-400 hover:text-slate-600 transition-colors"
@@ -1457,20 +1592,20 @@ export default function ChatPage() {
                 <X size={24} />
               </button>
             </div>
-            
+
             <div className="flex border-b border-slate-100 shrink-0">
-               <button 
-                 onClick={() => setLodgeModalTab("discover")}
-                 className={`flex-1 py-3 text-sm font-bold transition-colors ${lodgeModalTab === "discover" ? "text-[#006F8D] border-b-2 border-blue-500" : "text-slate-500 hover:text-slate-700"}`}
-               >
-                 Discover
-               </button>
-               <button 
-                 onClick={() => setLodgeModalTab("create")}
-                 className={`flex-1 py-3 text-sm font-bold transition-colors ${lodgeModalTab === "create" ? "text-[#006F8D] border-b-2 border-blue-500" : "text-slate-500 hover:text-slate-700"}`}
-               >
-                 Create Lodge
-               </button>
+              <button
+                onClick={() => setLodgeModalTab("discover")}
+                className={`flex-1 py-3 text-sm font-bold transition-colors ${lodgeModalTab === "discover" ? "text-[#006F8D] border-b-2 border-blue-500" : "text-slate-500 hover:text-slate-700"}`}
+              >
+                Discover
+              </button>
+              <button
+                onClick={() => setLodgeModalTab("create")}
+                className={`flex-1 py-3 text-sm font-bold transition-colors ${lodgeModalTab === "create" ? "text-[#006F8D] border-b-2 border-blue-500" : "text-slate-500 hover:text-slate-700"}`}
+              >
+                Create Lodge
+              </button>
             </div>
 
             <div className="overflow-y-auto">
@@ -1550,14 +1685,18 @@ export default function ChatPage() {
               ) : (
                 <div className="p-4 space-y-3">
                   {publicLodges.filter(
-                    (pl) => !myLodges.find((ml) => ml._id === pl._id)
+                    (pl) => !myLodges.find((ml) => ml._id === pl._id),
                   ).length === 0 ? (
                     <div className="text-center py-10">
                       <div className="h-16 w-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
                         <Compass size={24} className="text-slate-300" />
                       </div>
-                      <p className="text-sm font-bold text-slate-600">No new lodges to discover.</p>
-                      <p className="text-xs text-slate-400 mt-1">Check back later or create your own!</p>
+                      <p className="text-sm font-bold text-slate-600">
+                        No new lodges to discover.
+                      </p>
+                      <p className="text-xs text-slate-400 mt-1">
+                        Check back later or create your own!
+                      </p>
                     </div>
                   ) : (
                     publicLodges
@@ -1570,7 +1709,11 @@ export default function ChatPage() {
                           <div className="flex items-center gap-3">
                             <div className="h-12 w-12 rounded-[14px] bg-slate-100 text-slate-400 flex items-center justify-center font-bold text-lg overflow-hidden shrink-0">
                               {lodge.avatar ? (
-                                <img src={lodge.avatar} alt="lodge" className="w-full h-full object-cover" />
+                                <img
+                                  src={lodge.avatar}
+                                  alt="lodge"
+                                  className="w-full h-full object-cover"
+                                />
                               ) : (
                                 lodge.name.charAt(0).toUpperCase()
                               )}
