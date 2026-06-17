@@ -982,8 +982,8 @@ export default function ChatPage() {
           </div>
 
           {/* Lodge Chat Window */}
-          <div className="flex-1 flex relative bg-white overflow-hidden">
-            <div className="flex-1 flex flex-col min-w-0">
+          <div className="flex-1 flex bg-white overflow-hidden">
+            <div className="flex-1 flex flex-col min-w-0 relative">
               {selectedChannel ? (
                 <>
                   <div className="h-12 border-b border-slate-100 flex items-center justify-between px-4 shrink-0 shadow-sm">
