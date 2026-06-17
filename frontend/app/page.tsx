@@ -961,36 +961,7 @@ export default function ChatPage() {
               </div>
             )}
 
-            {/* User Profile Area */}
-            <div className="h-14 bg-[#E2E8F0]/80 flex items-center justify-between px-3 shrink-0">
-              <div className="flex items-center gap-2 hover:bg-slate-300/30 p-1 rounded-md cursor-pointer transition-colors min-w-0 flex-1">
-                <div className="relative shrink-0">
-                  <div className="h-8 w-8 rounded-full bg-[#1D39C4] flex items-center justify-center text-white overflow-hidden font-bold text-xs">
-                    {authUser?.avatar && !authUser.avatar.includes("default") ? (
-                      <img src={authUser.avatar} alt="Me" className="w-full h-full object-cover" />
-                    ) : (
-                      authUser?.displayName?.charAt(0).toUpperCase() || <User size={14} />
-                    )}
-                  </div>
-                  <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 border-2 border-[#E2E8F0] rounded-full"></div>
-                </div>
-                <div className="flex flex-col min-w-0">
-                  <span className="text-[13px] font-bold text-slate-800 leading-tight truncate">{authUser?.username || "user"}</span>
-                  <span className="text-[10px] font-medium text-slate-500 leading-tight truncate">Online</span>
-                </div>
-              </div>
-              <div className="flex items-center gap-1 shrink-0 ml-1">
-                <button className="p-1.5 text-slate-600 hover:bg-slate-300/50 rounded-md transition-colors">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line></svg>
-                </button>
-                <button 
-                  onClick={() => setIsSettingsModalOpen(true)}
-                  className="p-1.5 text-slate-600 hover:bg-slate-300/50 rounded-md transition-colors"
-                >
-                  <Settings size={18} />
-                </button>
-              </div>
-            </div>
+
           </div>
 
           {/* Lodge Chat Window */}
