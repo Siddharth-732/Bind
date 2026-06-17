@@ -9,7 +9,8 @@ export default function AppInitializer() {
   const { authUser, connectSocket, disconnectSocket } = useAuthStore();
   const { getPeers, getPeerRequests, getDiscoverUsers } = useConnectionStore();
   const { getPublicLodges, getMyLodges } = useLodgeStore();
-  const { getStatuses, subscribeToStatuses, unsubscribeFromStatuses } = useStatusStore();
+  const { getStatuses, subscribeToStatuses, unsubscribeFromStatuses } =
+    useStatusStore();
 
   useEffect(() => {
     if (authUser) {
@@ -25,7 +26,7 @@ export default function AppInitializer() {
       disconnectSocket();
       unsubscribeFromStatuses();
     }
-    
+
     return () => {
       disconnectSocket();
       unsubscribeFromStatuses();
@@ -41,7 +42,7 @@ export default function AppInitializer() {
     getMyLodges,
     getStatuses,
     subscribeToStatuses,
-    unsubscribeFromStatuses
+    unsubscribeFromStatuses,
   ]);
 
   return null;

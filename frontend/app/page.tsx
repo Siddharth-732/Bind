@@ -11,7 +11,6 @@ import {
   Search,
   Building2,
   Compass,
-  Heart,
   Bell,
   User,
   Settings,
@@ -34,8 +33,6 @@ export default function ChatPage() {
   const {
     authUser,
     logout,
-    connectSocket,
-    disconnectSocket,
     updateAccountDetails,
     updateUserAvatar,
     updateUserBanner,
@@ -59,9 +56,6 @@ export default function ChatPage() {
     peers,
     pendingRequests,
     discoverUsers,
-    getPeers,
-    getPeerRequests,
-    getDiscoverUsers,
     acceptPeerRequest,
     rejectPeerRequest,
     sendPeerRequest,
@@ -72,10 +66,9 @@ export default function ChatPage() {
     publicLodges,
     myLodges,
     currentLodgeChannels,
+    currentLodgeMembers,
     selectedLodge,
     selectedChannel,
-    getPublicLodges,
-    getMyLodges,
     joinLodge,
     setSelectedLodge,
     setSelectedChannel,
@@ -88,14 +81,7 @@ export default function ChatPage() {
   } = useLodgeStore();
 
   // STATUS STORE
-  const {
-    statuses,
-    getStatuses,
-    createStatus,
-    isCreatingStatus,
-    subscribeToStatuses,
-    unsubscribeFromStatuses,
-  } = useStatusStore();
+  const { statuses, createStatus, isCreatingStatus } = useStatusStore();
 
   const router = useRouter();
 
@@ -147,6 +133,9 @@ export default function ChatPage() {
 
   // Lodge Creation State
   const [isLodgeModalOpen, setIsLodgeModalOpen] = useState(false);
+  const [lodgeModalTab, setLodgeModalTab] = useState<"discover" | "create">(
+    "discover",
+  );
   const [lodgeName, setLodgeName] = useState("");
   const [lodgeDescription, setLodgeDescription] = useState("");
   const [lodgeAvatar, setLodgeAvatar] = useState<File | null>(null);
@@ -160,7 +149,10 @@ export default function ChatPage() {
   const [storyPreview, setStoryPreview] = useState<string | null>(null);
 
   // Active Story Viewing
-  const [viewingStatus, setViewingStatus] = useState<any | null>(null);
+  const [viewingStatus, setViewingStatus] = useState<import("../store/useStatusStore").Status | null>(null);
+
+  // Members Sidebar State
+  const [isMembersSidebarOpen, setIsMembersSidebarOpen] = useState(true);
 
   // Settings Profile State
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
@@ -255,6 +247,7 @@ export default function ChatPage() {
   };
 
   const handleSaveProfile = async () => {
+    if (!authUser) return;
     // update text fields if changed
     if (
       settingsDisplayName !== authUser.displayName ||
@@ -280,13 +273,33 @@ export default function ChatPage() {
 
   if (!authUser) return null;
 
+  const botModerator: import("../store/useLodgeStore").LodgeMember = {
+    _id: "bot_1",
+    role: "captain",
+    user: {
+      _id: "bot_user_1",
+      displayName: "Lodge Bot",
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix",
+      username: "lodge_bot",
+      email: "bot@lodge.edu",
+      createdAt: new Date().toISOString(),
+    },
+  };
+
+  const fetchedModerators =
+    currentLodgeMembers?.filter((m) => m.role === "captain") || [];
+  const moderators = [botModerator, ...fetchedModerators];
+
+  const members =
+    currentLodgeMembers?.filter((m) => m.role !== "captain") || [];
+
   return (
     <div className="flex h-screen bg-white text-slate-800 font-sans overflow-hidden">
       {/* ================= PANE 1: GLOBAL NAVIGATION ================= */}
       <div className="w-[88px] hover:w-[260px] group transition-all duration-300 overflow-hidden bg-white flex flex-col justify-between py-6 shrink-0 z-20 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
         <div>
           <div className="px-6 mb-10 flex items-center gap-3">
-            <div className="h-10 w-10 shrink-0 bg-[#007A99] text-white rounded-[10px] flex items-center justify-center font-bold text-xl">
+            <div className="h-10 w-10 shrink-0 bg-[#005a73] text-white rounded-[10px] flex items-center justify-center font-bold text-xl">
               B
             </div>
             <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
@@ -302,10 +315,10 @@ export default function ChatPage() {
           <nav className="flex flex-col pr-4 gap-1">
             <button
               onClick={() => setActiveTab("chat")}
-              className={`flex items-center gap-4 py-3 px-6 rounded-r-xl font-bold transition-all relative ${activeTab === "chat" ? "bg-[#E5FFF5] text-teal-700" : "text-slate-600 hover:bg-slate-50"}`}
+              className={`flex items-center gap-4 py-3 px-6 rounded-r-xl font-bold transition-all relative ${activeTab === "chat" ? "bg-[#EAF5F4] text-[#006F8D]" : "text-slate-600 hover:bg-slate-50"}`}
             >
               {activeTab === "chat" && (
-                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-teal-600 rounded-r-full"></div>
+                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#006F8D] rounded-r-full"></div>
               )}
               <div className="shrink-0">
                 <MessageCircle size={20} strokeWidth={2} />
@@ -316,10 +329,10 @@ export default function ChatPage() {
             </button>
             <button
               onClick={() => setActiveTab("lodge")}
-              className={`flex items-center gap-4 py-3 px-6 rounded-r-xl font-bold transition-all relative ${activeTab === "lodge" ? "bg-[#E5FFF5] text-teal-700" : "text-slate-600 hover:bg-slate-50"}`}
+              className={`flex items-center gap-4 py-3 px-6 rounded-r-xl font-bold transition-all relative ${activeTab === "lodge" ? "bg-[#EAF5F4] text-[#006F8D]" : "text-slate-600 hover:bg-slate-50"}`}
             >
               {activeTab === "lodge" && (
-                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-teal-600 rounded-r-full"></div>
+                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#006F8D] rounded-r-full"></div>
               )}
               <div className="shrink-0">
                 <Building2 size={20} strokeWidth={2} />
@@ -330,7 +343,7 @@ export default function ChatPage() {
             </button>
             <button
               onClick={() => setActiveTab("explore")}
-              className={`flex items-center gap-4 py-3 px-6 rounded-r-xl font-bold transition-all ${activeTab === "explore" ? "bg-[#E5FFF5] text-teal-700 border-l-4 border-teal-500" : "text-slate-600 hover:bg-slate-50"}`}
+              className={`flex items-center gap-4 py-3 px-6 rounded-r-xl font-bold transition-all ${activeTab === "explore" ? "bg-[#EAF5F4] text-[#006F8D] border-l-4 border-blue-500" : "text-slate-600 hover:bg-slate-50"}`}
             >
               <div className="shrink-0">
                 <Compass size={20} strokeWidth={2} />
@@ -341,7 +354,7 @@ export default function ChatPage() {
             </button>
             <button
               onClick={() => setActiveTab("notifications")}
-              className={`flex items-center gap-4 py-3 px-6 rounded-r-xl font-bold transition-all relative ${activeTab === "notifications" ? "bg-[#E5FFF5] text-teal-700 border-l-4 border-teal-500" : "text-slate-600 hover:bg-slate-50"}`}
+              className={`flex items-center gap-4 py-3 px-6 rounded-r-xl font-bold transition-all relative ${activeTab === "notifications" ? "bg-[#EAF5F4] text-[#006F8D] border-l-4 border-blue-500" : "text-slate-600 hover:bg-slate-50"}`}
             >
               <div className="shrink-0">
                 <Bell size={20} strokeWidth={2} />
@@ -405,237 +418,188 @@ export default function ChatPage() {
       </div>
 
       {/* ================= PANE 2: SIDEBAR LIST ================= */}
-      <div className="w-[320px] bg-[#F4F7F9] border-l border-r border-slate-200 flex flex-col shrink-0 z-10">
-        <div className="p-6 pb-4">
-          <h2 className="text-2xl font-extrabold text-slate-900 mb-6">
-            {activeTab === "chat" ? "Chat" : "Lodges"}
-          </h2>
-          <div className="relative">
-            <Search
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
-              size={18}
-            />
-            <input
-              type="text"
-              placeholder={
-                activeTab === "chat" ? "Search Peers" : "Find a Lodge"
-              }
-              className="w-full bg-white border border-slate-200 rounded-full py-3 pl-12 pr-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent shadow-sm placeholder:text-slate-400"
-            />
-          </div>
+      {activeTab === "lodge" ? (
+        <div className="w-[72px] bg-slate-50 border-r border-slate-200 flex flex-col items-center py-4 shrink-0 z-10 gap-3 overflow-y-auto">
+          {myLodges.map((lodge) => {
+            const isSelected = selectedLodge?._id === lodge._id;
+            return (
+              <button
+                key={lodge._id}
+                onClick={() => setSelectedLodge(lodge)}
+                className="relative group w-full flex justify-center"
+                title={lodge.name}
+              >
+                {isSelected && (
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-[#006F8D] rounded-r-full"></div>
+                )}
+                {!isSelected && (
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-2 bg-slate-300 rounded-r-full opacity-0 group-hover:opacity-100 group-hover:h-5 transition-all duration-300"></div>
+                )}
+                <div
+                  className={`w-12 h-12 flex items-center justify-center font-bold text-lg overflow-hidden transition-all duration-300 ${
+                    isSelected
+                      ? "rounded-[16px] bg-[#006F8D] text-white shadow-md"
+                      : "rounded-full bg-white text-slate-500 border border-slate-200 group-hover:rounded-[16px] group-hover:bg-[#006F8D] group-hover:text-white group-hover:border-transparent group-hover:shadow-md"
+                  }`}
+                >
+                  {lodge.avatar && !lodge.avatar.includes("default") ? (
+                    <img
+                      src={lodge.avatar}
+                      alt={lodge.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    lodge.name.charAt(0).toUpperCase()
+                  )}
+                </div>
+              </button>
+            );
+          })}
+          <div className="w-8 h-[2px] bg-slate-200 my-1 rounded-full shrink-0"></div>
+          <button
+            onClick={() => setIsLodgeModalOpen(true)}
+            className="w-12 h-12 rounded-full flex items-center justify-center border border-dashed border-slate-300 text-slate-400 hover:text-[#006F8D] hover:border-[#006F8D] hover:bg-blue-50 transition-all duration-300 shrink-0"
+            title="Add a Lodge"
+          >
+            <Plus size={24} />
+          </button>
         </div>
-
-        <div className="flex-1 overflow-y-auto px-4 space-y-3 pb-4">
-          {/* CHAT TAB */}
-          {activeTab === "chat" && (
-            <div className="space-y-3">
-              {peers.length === 0 ? (
-                <p className="text-center text-sm text-slate-400 mt-10">
-                  No peers found. Head to Explore to find friends!
-                </p>
-              ) : (
-                peers.map((user) => {
-                  const isSelected = selectedUser?._id === user._id;
-                  return (
-                    <button
-                      key={user._id}
-                      onClick={() => setSelectedUser(user)}
-                      className={`w-full flex items-center gap-3 p-4 rounded-[20px] transition-all text-left ${
-                        isSelected
-                          ? "bg-[#E5FFF5] shadow-sm border border-teal-200/60"
-                          : "bg-white border border-slate-100 hover:bg-slate-50 shadow-sm"
-                      }`}
-                    >
-                      <div className="relative shrink-0">
-                        <div className="h-12 w-12 rounded-full bg-[#0099B3] flex items-center justify-center font-bold text-white text-lg">
-                          {user.displayName.charAt(0).toUpperCase()}
-                        </div>
-                        <div className="absolute bottom-0 right-0 h-3.5 w-3.5 bg-green-500 rounded-full border-2 border-white"></div>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex justify-between items-center mb-0.5">
-                          <p className="text-sm font-bold text-slate-900 truncate pr-2">
-                            {user.displayName}
-                          </p>
-                          <span className="text-[10px] font-bold text-slate-500 shrink-0">
-                            10:42 AM
-                          </span>
-                        </div>
-                        <p
-                          className={`text-xs truncate ${isSelected ? "text-teal-700/80 font-medium" : "text-slate-500"}`}
-                        >
-                          Tap to view conversation...
-                        </p>
-                      </div>
-                    </button>
-                  );
-                })
-              )}
+      ) : (
+        <div className="w-[320px] bg-[#F4F7F9] border-l border-r border-slate-200 flex flex-col shrink-0 z-10">
+          <div className="p-6 pb-4">
+            <h2 className="text-2xl font-extrabold text-slate-900 mb-6">
+              {activeTab === "chat"
+                ? "Chat"
+                : activeTab === "notifications"
+                  ? "Notifications"
+                  : "Explore"}
+            </h2>
+            <div className="relative">
+              <Search
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                size={18}
+              />
+              <input
+                type="text"
+                placeholder={
+                  activeTab === "chat" ? "Search Peers" : "Search..."
+                }
+                className="w-full bg-white border border-slate-200 rounded-full py-3 pl-12 pr-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent shadow-sm placeholder:text-slate-400"
+              />
             </div>
-          )}
-
-          {/* LODGE TAB */}
-          {activeTab === "lodge" && (
-            <>
-              {/* My Lodges */}
+          </div>
+          <div className="flex-1 overflow-y-auto px-4 space-y-3 pb-4">
+            {/* CHAT TAB */}
+            {activeTab === "chat" && (
+              <div className="space-y-3">
+                {peers.length === 0 ? (
+                  <p className="text-center text-sm text-slate-400 mt-10">
+                    No peers found. Head to Explore to find friends!
+                  </p>
+                ) : (
+                  peers.map((user) => {
+                    const isSelected = selectedUser?._id === user._id;
+                    return (
+                      <button
+                        key={user._id}
+                        onClick={() => setSelectedUser(user)}
+                        className={`w-full flex items-center gap-3 p-4 rounded-[20px] transition-all text-left ${
+                          isSelected
+                            ? "bg-[#EAF5F4] shadow-sm border border-blue-200/60"
+                            : "bg-white border border-slate-100 hover:bg-slate-50 shadow-sm"
+                        }`}
+                      >
+                        <div className="relative shrink-0">
+                          <div className="h-12 w-12 rounded-full bg-[#006F8D] flex items-center justify-center font-bold text-white text-lg">
+                            {user.displayName.charAt(0).toUpperCase()}
+                          </div>
+                          <div className="absolute bottom-0 right-0 h-3.5 w-3.5 bg-green-500 rounded-full border-2 border-white"></div>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex justify-between items-center mb-0.5">
+                            <p className="text-sm font-bold text-slate-900 truncate pr-2">
+                              {user.displayName}
+                            </p>
+                            <span className="text-[10px] font-bold text-slate-500 shrink-0">
+                              10:42 AM
+                            </span>
+                          </div>
+                          <p
+                            className={`text-xs truncate ${isSelected ? "text-[#006F8D]/80 font-medium" : "text-slate-500"}`}
+                          >
+                            Tap to view conversation...
+                          </p>
+                        </div>
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+            )}
+            {/* NOTIFICATIONS TAB */}
+            {activeTab === "notifications" && (
               <div>
                 <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider mb-3 px-2">
-                  My Lodges
+                  Pending Requests
                 </h3>
                 <div className="space-y-3">
-                  {myLodges.length === 0 ? (
-                    <p className="text-center text-xs text-slate-400 py-2">
-                      You haven't joined any lodges yet.
+                  {pendingRequests.length === 0 ? (
+                    <p className="text-center text-sm text-slate-400 mt-6">
+                      No new notifications.
                     </p>
                   ) : (
-                    myLodges.map((lodge) => {
-                      const isSelected = selectedLodge?._id === lodge._id;
-                      return (
-                        <button
-                          key={lodge._id}
-                          onClick={() => setSelectedLodge(lodge)}
-                          className={`w-full flex items-center gap-3 p-4 rounded-[20px] transition-all text-left ${
-                            isSelected
-                              ? "bg-[#E5FFF5] shadow-sm border border-teal-200/60"
-                              : "bg-white border border-slate-100 hover:bg-slate-50 shadow-sm"
-                          }`}
-                        >
-                          <div className="h-12 w-12 rounded-[14px] bg-[#007A99] flex items-center justify-center font-bold text-white shadow-sm shrink-0 text-lg">
-                            {lodge.name.charAt(0).toUpperCase()}
+                    pendingRequests.map((request) => (
+                      <div
+                        key={request._id}
+                        className="flex flex-col gap-3 p-4 bg-white border border-slate-100 rounded-[20px] shadow-sm"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-slate-200 overflow-hidden shrink-0">
+                            {request.avatar &&
+                            !request.avatar.includes("default") ? (
+                              <img
+                                src={request.avatar}
+                                alt="avatar"
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-[#006F8D] flex items-center justify-center text-white font-bold">
+                                {request.displayName?.charAt(0).toUpperCase()}
+                              </div>
+                            )}
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-bold text-slate-900 truncate">
-                              {lodge.name}
+                              {request.displayName}
                             </p>
-                            <p
-                              className={`text-[10px] font-extrabold uppercase mt-0.5 ${isSelected ? "text-teal-600" : "text-slate-400"}`}
-                            >
-                              {lodge.myRole}
+                            <p className="text-xs text-slate-500">
+                              wants to connect
                             </p>
                           </div>
-                        </button>
-                      );
-                    })
-                  )}
-                </div>
-                <button
-                  onClick={() => setIsLodgeModalOpen(true)}
-                  className="w-full mt-4 py-3 bg-[#007A99] hover:bg-[#00627A] text-white rounded-[16px] font-bold transition-colors flex items-center justify-center gap-2 shadow-sm"
-                >
-                  <Plus size={20} /> New Lodge
-                </button>
-              </div>
-
-              {/* Public Lodges (Discovery) */}
-              <div className="pt-6 border-t border-slate-200/60 mt-4">
-                <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider mb-3 px-2">
-                  Discover
-                </h3>
-                <div className="space-y-3">
-                  {publicLodges.filter(
-                    (pl) => !myLodges.find((ml) => ml._id === pl._id),
-                  ).length === 0 ? (
-                    <p className="text-center text-xs text-slate-400 py-2">
-                      No new lodges to discover.
-                    </p>
-                  ) : (
-                    publicLodges
-                      .filter((pl) => !myLodges.find((ml) => ml._id === pl._id))
-                      .map((lodge) => (
-                        <div
-                          key={lodge._id}
-                          className="bg-white p-4 rounded-[20px] border border-slate-100 shadow-sm flex flex-col gap-3"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="h-12 w-12 rounded-[14px] bg-slate-100 text-slate-400 flex items-center justify-center font-bold text-lg">
-                              {lodge.name.charAt(0).toUpperCase()}
-                            </div>
-                            <div>
-                              <p className="text-sm font-bold text-slate-900">
-                                {lodge.name}
-                              </p>
-                              <p className="text-xs font-medium text-slate-500 flex items-center gap-1 mt-0.5">
-                                <Users size={12} /> Public
-                              </p>
-                            </div>
-                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
                           <button
-                            onClick={() => joinLodge(lodge._id)}
-                            disabled={isJoining}
-                            className="w-full py-2 bg-slate-50 hover:bg-[#E5FFF5] text-teal-700 rounded-xl text-xs font-bold transition-colors border border-slate-100 hover:border-teal-200"
+                            onClick={() => acceptPeerRequest(request._id)}
+                            className="flex-1 py-2 bg-blue-50 text-[#006F8D] hover:bg-blue-100 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1"
                           >
-                            Join Lodge
+                            <Plus size={14} /> Accept
+                          </button>
+                          <button
+                            onClick={() => rejectPeerRequest(request._id)}
+                            className="flex-1 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1"
+                          >
+                            <X size={14} /> Reject
                           </button>
                         </div>
-                      ))
+                      </div>
+                    ))
                   )}
                 </div>
               </div>
-            </>
-          )}
-          {/* NOTIFICATIONS TAB */}
-          {activeTab === "notifications" && (
-            <div>
-              <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider mb-3 px-2">
-                Pending Requests
-              </h3>
-              <div className="space-y-3">
-                {pendingRequests.length === 0 ? (
-                  <p className="text-center text-sm text-slate-400 mt-6">
-                    No new notifications.
-                  </p>
-                ) : (
-                  pendingRequests.map((request) => (
-                    <div
-                      key={request._id}
-                      className="flex flex-col gap-3 p-4 bg-white border border-slate-100 rounded-[20px] shadow-sm"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-slate-200 overflow-hidden shrink-0">
-                          {request.avatar &&
-                          !request.avatar.includes("default") ? (
-                            <img
-                              src={request.avatar}
-                              alt="avatar"
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-[#0099B3] flex items-center justify-center text-white font-bold">
-                              {request.displayName?.charAt(0).toUpperCase()}
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-bold text-slate-900 truncate">
-                            {request.displayName}
-                          </p>
-                          <p className="text-xs text-slate-500">
-                            wants to connect
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => acceptPeerRequest(request._id)}
-                          className="flex-1 py-2 bg-teal-50 text-teal-700 hover:bg-teal-100 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1"
-                        >
-                          <Plus size={14} /> Accept
-                        </button>
-                        <button
-                          onClick={() => rejectPeerRequest(request._id)}
-                          className="flex-1 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1"
-                        >
-                          <X size={14} /> Reject
-                        </button>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* ================= PANE 3: MAIN WINDOW ================= */}
 
@@ -649,7 +613,7 @@ export default function ChatPage() {
               onClick={handleAddStoryClick}
               className="flex flex-col items-center gap-2 shrink-0 group"
             >
-              <div className="h-14 w-14 rounded-full border-2 border-dashed border-[#0099B3] flex items-center justify-center text-[#0099B3] group-hover:bg-[#E5FFF5] transition-colors bg-white relative">
+              <div className="h-14 w-14 rounded-full border-2 border-dashed border-[#0099B3] flex items-center justify-center text-[#006F8D] group-hover:bg-[#EAF5F4] transition-colors bg-white relative">
                 <Plus size={24} />
               </div>
               <span className="text-[10px] font-bold text-slate-700">
@@ -708,7 +672,7 @@ export default function ChatPage() {
               onClick={handleAddStoryClick}
               className="flex flex-col items-center gap-2 shrink-0 group"
             >
-              <div className="h-14 w-14 rounded-full border-2 border-dashed border-[#0099B3] flex items-center justify-center text-[#0099B3] group-hover:bg-[#E5FFF5] transition-colors bg-white relative">
+              <div className="h-14 w-14 rounded-full border-2 border-dashed border-[#0099B3] flex items-center justify-center text-[#006F8D] group-hover:bg-[#EAF5F4] transition-colors bg-white relative">
                 <Plus size={24} />
               </div>
               <span className="text-[10px] font-bold text-slate-800">
@@ -745,7 +709,7 @@ export default function ChatPage() {
           {/* CHAT HEADER */}
           <div className="h-[88px] bg-white border-b border-slate-100 flex items-center justify-between px-8 z-10 shrink-0">
             <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-full bg-[#0099B3] flex items-center justify-center font-bold text-white text-xl">
+              <div className="h-12 w-12 rounded-full bg-[#006F8D] flex items-center justify-center font-bold text-white text-xl">
                 {selectedUser.displayName.charAt(0).toUpperCase()}
               </div>
               <div>
@@ -786,13 +750,11 @@ export default function ChatPage() {
 
             {isMessagesLoading ? (
               <div className="flex-1 flex justify-center items-center">
-                <Loader2 className="animate-spin text-teal-500" size={32} />
+                <Loader2 className="animate-spin text-blue-500" size={32} />
               </div>
             ) : (
               messages.map((msg, index) => {
-                const isMe =
-                  msg.senderId === authUser?._id ||
-                  msg.senderId?._id === authUser?._id;
+                const isMe = msg.senderId._id === authUser?._id;
 
                 return (
                   <div
@@ -814,7 +776,7 @@ export default function ChatPage() {
                         })}
                       </span>
                       {isMe && (
-                        <span className="font-bold text-sm text-[#007A99]">
+                        <span className="font-bold text-sm text-[#005a73]">
                           You
                         </span>
                       )}
@@ -824,7 +786,7 @@ export default function ChatPage() {
                       className={`flex gap-4 max-w-[80%] ${isMe ? "justify-end" : ""}`}
                     >
                       {!isMe && (
-                        <div className="h-10 w-10 rounded-[14px] bg-[#007A99] flex items-center justify-center text-white shrink-0 overflow-hidden font-bold">
+                        <div className="h-10 w-10 rounded-[14px] bg-[#005a73] flex items-center justify-center text-white shrink-0 overflow-hidden font-bold">
                           {selectedUser.avatar &&
                           !selectedUser.avatar.includes("default") ? (
                             <img
@@ -888,7 +850,7 @@ export default function ChatPage() {
                   </span>
                 </div>
                 <div className="flex gap-4 max-w-[80%]">
-                  <div className="h-10 w-10 rounded-[14px] bg-[#007A99] flex items-center justify-center text-white shrink-0 overflow-hidden font-bold">
+                  <div className="h-10 w-10 rounded-[14px] bg-[#005a73] flex items-center justify-center text-white shrink-0 overflow-hidden font-bold">
                     {selectedUser.avatar &&
                     !selectedUser.avatar.includes("default") ? (
                       <img
@@ -946,7 +908,7 @@ export default function ChatPage() {
                 <button
                   onClick={handleSendChatMessage}
                   disabled={isSendingMessage}
-                  className="h-10 w-10 bg-[#0099B3] hover:bg-[#007A99] disabled:opacity-50 disabled:cursor-not-allowed rounded-full flex items-center justify-center text-white shadow-md transition-colors"
+                  className="h-10 w-10 bg-[#006F8D] hover:bg-[#005a73] disabled:opacity-50 disabled:cursor-not-allowed rounded-full flex items-center justify-center text-white shadow-md transition-colors"
                 >
                   {isSendingMessage ? (
                     <Loader2 size={18} className="animate-spin" />
@@ -960,197 +922,374 @@ export default function ChatPage() {
         </div>
       )}
 
-      {/* State 3: LODGE is active but no lodge selected */}
-      {activeTab === "lodge" && !selectedLodge && (
-        <div className="flex-1 flex flex-col items-center justify-center bg-slate-50/50 text-center px-4">
-          <div className="h-24 w-24 bg-white rounded-[24px] shadow-sm border border-slate-100 flex items-center justify-center text-slate-300 mb-6">
-            <Building2 size={40} />
-          </div>
-          <h3 className="text-2xl font-bold text-slate-800">
-            Lodge Headquarters
-          </h3>
-          <p className="text-slate-500 mt-2 max-w-md font-medium">
-            Join a public lodge from the sidebar to start collaborating on
-            projects, or create your own study group.
-          </p>
-        </div>
-      )}
-
-      {/* State 4: LODGE is active and lodge selected */}
-      {activeTab === "lodge" && selectedLodge && (
+      {/* State 3 & 4: LODGE is active */}
+      {activeTab === "lodge" && (
         <div className="flex-1 flex bg-white">
           {/* Lodge Channels Sidebar */}
-          <div className="w-64 bg-[#F9FAFB] border-r border-slate-200 flex flex-col">
-            <div className="p-6 border-b border-slate-200">
-              <h3 className="font-extrabold text-lg text-slate-900 truncate">
-                {selectedLodge.name}
-              </h3>
-              <p className="text-xs font-medium text-slate-500 mt-1 truncate">
-                {selectedLodge.description || "A student lodge"}
-              </p>
-            </div>
-            <div className="flex-1 overflow-y-auto p-4 space-y-1">
-              <div className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-3 px-2 pt-2">
-                Channels
+          <div className="w-60 bg-[#E2E8F0]/30 border-r border-slate-200 flex flex-col justify-between shrink-0">
+            {selectedLodge ? (
+              <div className="flex flex-col h-full overflow-hidden">
+                <div className="p-4 border-b border-slate-200/50 hover:bg-slate-200/30 cursor-pointer transition-colors flex items-center justify-between">
+                  <h3 className="font-extrabold text-[15px] text-slate-800 truncate">
+                    {selectedLodge.name}
+                  </h3>
+                  <div className="text-slate-500">
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </div>
+                </div>
+                <div className="flex-1 overflow-y-auto p-3 space-y-1">
+                  <div className="flex items-center justify-between px-1 mt-2 mb-1 group cursor-pointer">
+                    <div className="text-[11px] font-bold text-slate-500 hover:text-slate-700 transition-colors flex items-center gap-1 uppercase">
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
+                      CHANNELS
+                    </div>
+                    {selectedLodge.myRole === "captain" && (
+                      <Plus
+                        size={14}
+                        className="text-slate-400 hover:text-slate-700"
+                      />
+                    )}
+                  </div>
+                  {currentLodgeChannels.map((channel) => (
+                    <button
+                      key={channel._id}
+                      onClick={() => setSelectedChannel(channel)}
+                      className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-[14px] font-semibold transition-colors ${selectedChannel?._id === channel._id ? "bg-[#E6F7FF]/60 text-slate-800" : "text-slate-500 hover:bg-slate-200/50 hover:text-slate-700"}`}
+                    >
+                      <Hash size={18} className="text-slate-400 shrink-0" />
+                      <span className="truncate">{channel.name}</span>
+                    </button>
+                  ))}
+
+                  <div className="flex items-center justify-between px-1 mt-6 mb-1 group cursor-pointer">
+                    <div className="text-[11px] font-bold text-slate-500 hover:text-slate-700 transition-colors flex items-center gap-1 uppercase">
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
+                      VOICE
+                    </div>
+                  </div>
+                  <button className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-[14px] font-semibold text-slate-500 hover:bg-slate-200/50 hover:text-slate-700 transition-colors">
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                      <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                    </svg>
+                    <span className="truncate">Study Hall</span>
+                  </button>
+                </div>
               </div>
-              {currentLodgeChannels.map((channel) => (
-                <button
-                  key={channel._id}
-                  onClick={() => setSelectedChannel(channel)}
-                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-[12px] text-sm font-bold transition-colors ${selectedChannel?._id === channel._id ? "bg-[#E5FFF5] text-teal-700" : "text-slate-600 hover:bg-slate-200/50"}`}
-                >
-                  <Hash
-                    size={18}
-                    className={
-                      selectedChannel?._id === channel._id
-                        ? "text-teal-600"
-                        : "text-slate-400"
-                    }
-                  />
-                  {channel.name}
-                </button>
-              ))}
-              {selectedLodge.myRole === "captain" && (
-                <button className="w-full flex items-center gap-3 px-4 py-2.5 mt-2 rounded-[12px] text-sm font-bold text-teal-600 hover:bg-[#E5FFF5] transition-colors">
-                  <Plus size={18} /> Add Channel
-                </button>
-              )}
-            </div>
+            ) : (
+              <div className="p-6 text-center text-slate-400 text-sm font-medium mt-10">
+                Select a lodge
+              </div>
+            )}
           </div>
 
           {/* Lodge Chat Window */}
-          <div className="flex-1 flex flex-col relative bg-white">
-            <div className="h-[88px] border-b border-slate-100 flex items-center px-8 shrink-0">
-              <h3 className="font-extrabold text-lg text-slate-900 flex items-center gap-2">
-                <Hash size={24} className="text-slate-400" />
-                {selectedChannel ? selectedChannel.name : "Select a channel"}
-              </h3>
-            </div>
-            <div className="flex-1 overflow-y-auto p-8 pb-32 flex flex-col">
+          <div className="flex-1 flex bg-white overflow-hidden">
+            <div className="flex-1 flex flex-col min-w-0 relative">
               {selectedChannel ? (
                 <>
-                  <div className="text-center mt-10 mb-8">
-                    <div className="h-20 w-20 bg-[#F4F7F9] rounded-full flex items-center justify-center mx-auto mb-6">
-                      <Hash size={36} className="text-slate-400" />
-                    </div>
-                    <h2 className="text-2xl font-extrabold text-slate-900">
-                      Welcome to #{selectedChannel.name}!
-                    </h2>
-                    <p className="text-[15px] font-medium text-slate-500 mt-2">
-                      This is the start of the #{selectedChannel.name} channel.
-                    </p>
-                  </div>
-
-                  {isChannelMessagesLoading ? (
-                    <div className="flex-1 flex justify-center items-center">
-                      <Loader2
-                        className="animate-spin text-teal-500"
-                        size={32}
-                      />
-                    </div>
-                  ) : (
-                    channelMessages.map((msg, index) => {
-                      const isMe = msg.senderId?._id === authUser?._id;
-                      return (
-                        <div
-                          key={msg._id || index}
-                          className={`flex flex-col mb-6 w-full ${isMe ? "items-end" : "items-start"}`}
+                  <div className="h-12 border-b border-slate-100 flex items-center justify-between px-4 shrink-0 shadow-sm">
+                    <h3 className="font-bold text-[15px] text-slate-800 flex items-center gap-2">
+                      <Hash size={20} className="text-slate-400" />
+                      {selectedChannel.name}
+                    </h3>
+                    <div className="flex items-center gap-3 text-slate-400">
+                      <button className="hover:text-slate-600 transition-colors">
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
                         >
-                          <div
-                            className={`flex items-center gap-2 mb-2 ${isMe ? "mr-14" : "ml-14"}`}
-                          >
-                            {!isMe && (
-                              <span className="font-bold text-sm text-slate-900">
-                                {msg.senderId?.displayName}
-                              </span>
-                            )}
-                            <span className="text-[10px] font-bold text-slate-500">
-                              {new Date(msg.createdAt).toLocaleTimeString([], {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
-                            </span>
-                            {isMe && (
-                              <span className="font-bold text-sm text-[#007A99]">
-                                You
-                              </span>
-                            )}
-                          </div>
+                          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                        </svg>
+                      </button>
+                      <button className="hover:text-slate-600 transition-colors">
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <line x1="12" y1="17" x2="12" y2="22"></line>
+                          <path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"></path>
+                        </svg>
+                      </button>
+                      <button
+                        onClick={() =>
+                          setIsMembersSidebarOpen(!isMembersSidebarOpen)
+                        }
+                        className={`transition-colors ${isMembersSidebarOpen ? "text-[#006F8D]" : "hover:text-slate-600"}`}
+                      >
+                        <Users size={20} />
+                      </button>
+                      <div className="relative ml-2">
+                        <Search
+                          className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400"
+                          size={14}
+                        />
+                        <input
+                          type="text"
+                          placeholder="Search..."
+                          className="w-36 bg-slate-100 border border-transparent rounded-md py-1 pl-8 pr-2 text-xs focus:outline-none focus:bg-white focus:border-slate-300 focus:ring-1 focus:ring-slate-300 transition-all placeholder:text-slate-400"
+                        />
+                      </div>
+                      <button className="hover:text-slate-600 transition-colors ml-2">
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex-1 overflow-y-auto p-6 pb-32 flex flex-col">
+                    <div className="mt-6 mb-8">
+                      <div className="h-16 w-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
+                        <Hash size={32} className="text-slate-400" />
+                      </div>
+                      <h2 className="text-3xl font-extrabold text-slate-900">
+                        Welcome to #{selectedChannel.name}!
+                      </h2>
+                      <p className="text-[15px] font-medium text-slate-500 mt-2">
+                        This is the start of the #{selectedChannel.name}{" "}
+                        channel.
+                      </p>
+                    </div>
 
+                    {isChannelMessagesLoading ? (
+                      <div className="flex-1 flex justify-center items-center">
+                        <Loader2
+                          className="animate-spin text-blue-500"
+                          size={32}
+                        />
+                      </div>
+                    ) : (
+                      channelMessages.map((msg, index) => {
+                        return (
                           <div
-                            className={`flex gap-4 max-w-[80%] ${isMe ? "justify-end" : ""}`}
+                            key={msg._id || index}
+                            className={`flex w-full mt-4 hover:bg-slate-50/50 p-1 rounded-md transition-colors`}
                           >
-                            {!isMe && (
-                              <div className="h-10 w-10 rounded-[14px] bg-[#007A99] flex items-center justify-center text-white shrink-0 overflow-hidden font-bold">
-                                {msg.senderId?.avatar ? (
-                                  <img
-                                    src={msg.senderId.avatar}
-                                    alt="Avatar"
-                                    className="w-full h-full object-cover"
-                                  />
-                                ) : (
-                                  msg.senderId?.displayName
-                                    ?.charAt(0)
-                                    .toUpperCase() || <User size={20} />
-                                )}
-                              </div>
-                            )}
-
-                            <div
-                              className={`px-5 py-4 text-[15px] leading-relaxed ${isMe ? "bg-[#E6EAFC] text-slate-800 rounded-[20px] rounded-tr-sm" : "bg-white border border-slate-200 text-slate-700 rounded-[20px] rounded-tl-sm shadow-sm"}`}
-                            >
-                              {msg.content}
+                            <div className="w-10 h-10 rounded-full bg-[#005a73] flex items-center justify-center text-white shrink-0 overflow-hidden font-bold mt-1 cursor-pointer">
+                              {msg.senderId?.avatar ? (
+                                <img
+                                  src={msg.senderId.avatar}
+                                  alt="Avatar"
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                msg.senderId?.displayName
+                                  ?.charAt(0)
+                                  .toUpperCase() || <User size={20} />
+                              )}
                             </div>
-
-                            {isMe && (
-                              <div className="h-10 w-10 rounded-[14px] bg-slate-800 flex items-center justify-center text-white shrink-0 overflow-hidden font-bold">
-                                {authUser?.avatar ? (
-                                  <img
-                                    src={authUser.avatar}
-                                    alt="Me"
-                                    className="w-full h-full object-cover"
-                                  />
-                                ) : (
-                                  authUser?.displayName
-                                    ?.charAt(0)
-                                    .toUpperCase() || <User size={20} />
-                                )}
+                            <div className="ml-4 flex flex-col min-w-0">
+                              <div className="flex items-baseline gap-2">
+                                <span className="font-bold text-[15px] text-slate-900 hover:underline cursor-pointer">
+                                  {msg.senderId?.displayName}
+                                </span>
+                                <span className="text-[11px] font-medium text-slate-500">
+                                  {new Date(msg.createdAt).toLocaleTimeString(
+                                    [],
+                                    { hour: "2-digit", minute: "2-digit" },
+                                  )}
+                                </span>
                               </div>
-                            )}
+                              <div className="text-[15px] text-slate-800 mt-0.5 leading-relaxed break-words whitespace-pre-wrap">
+                                {msg.content}
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      );
-                    })
-                  )}
+                        );
+                      })
+                    )}
+                  </div>
+                  <div className="absolute bottom-6 left-6 right-6">
+                    <div className="bg-slate-100 rounded-lg flex items-center p-1 pl-3 focus-within:ring-2 focus-within:ring-blue-400 transition-all">
+                      <button className="p-2 text-slate-400 hover:text-slate-600 transition-colors rounded-full shrink-0">
+                        <Plus size={20} />
+                      </button>
+                      <input
+                        type="text"
+                        value={channelMessageText}
+                        onChange={(e) => setChannelMessageText(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") handleSendChannelMessage();
+                        }}
+                        placeholder={`Message #${selectedChannel.name}`}
+                        className="flex-1 bg-transparent px-3 py-2.5 focus:outline-none text-slate-700 font-medium text-[15px] placeholder:text-slate-500"
+                      />
+                      <div className="flex items-center gap-1 pr-2 shrink-0">
+                        <button className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
+                          <Smile size={20} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </>
               ) : (
-                <div className="text-center text-[15px] font-medium text-slate-400 mt-10">
-                  Select a channel to start chatting.
+                <div className="flex-1 flex flex-col items-center justify-center bg-white text-center px-4">
+                  <div className="h-24 w-24 bg-slate-50 rounded-full flex items-center justify-center text-slate-300 mb-6">
+                    <Hash size={40} />
+                  </div>
+                  <h3 className="text-2xl font-bold text-slate-800">
+                    No Channel Selected
+                  </h3>
+                  <p className="text-slate-500 mt-2 max-w-md font-medium">
+                    Select a channel from the sidebar to start collaborating.
+                  </p>
                 </div>
               )}
             </div>
-            {selectedChannel && (
-              <div className="absolute bottom-8 left-8 right-8">
-                <div className="bg-white rounded-full shadow-lg border border-slate-200 flex items-center p-2 focus-within:ring-2 focus-within:ring-teal-400 focus-within:border-transparent transition-all">
-                  <button className="p-3 text-slate-400 hover:text-slate-600 transition-colors rounded-full shrink-0">
-                    <Plus size={20} />
-                  </button>
-                  <input
-                    type="text"
-                    value={channelMessageText}
-                    onChange={(e) => setChannelMessageText(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") handleSendChannelMessage();
-                    }}
-                    placeholder={`Message #${selectedChannel.name}`}
-                    className="flex-1 bg-transparent px-4 py-2 focus:outline-none text-slate-700 font-medium text-[15px] placeholder:text-slate-400"
-                  />
-                  <button
-                    onClick={handleSendChannelMessage}
-                    className="h-10 w-10 bg-[#0099B3] hover:bg-[#007A99] transition-colors rounded-full flex items-center justify-center text-white shrink-0 mr-1"
-                  >
-                    <Send size={18} className="ml-0.5" />
-                  </button>
+
+            {/* Right Members Sidebar */}
+            {isMembersSidebarOpen && (
+              <div className="w-64 bg-[#EAF5F4]/40 border-l border-slate-200 flex flex-col shrink-0 overflow-y-auto hidden lg:flex">
+                <div className="p-4">
+                  {moderators.length > 0 && (
+                    <>
+                      <h4 className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider mb-4">
+                        Moderators — {moderators.length}
+                      </h4>
+                      <div className="space-y-1 mb-6">
+                        {moderators.map((member: import("../store/useLodgeStore").LodgeMember) => (
+                          <div
+                            key={member._id}
+                            className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-100 cursor-pointer transition-colors group"
+                          >
+                            <div className="relative shrink-0">
+                              <div className="h-9 w-9 rounded-full overflow-hidden flex items-center justify-center font-bold text-white bg-[#00BAE6]">
+                                {member.user?.avatar &&
+                                !member.user.avatar.includes("default") ? (
+                                  <img
+                                    src={member.user.avatar}
+                                    alt={member.user.displayName}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  member.user?.displayName
+                                    ?.charAt(0)
+                                    .toUpperCase() || <User size={14} />
+                                )}
+                              </div>
+                              <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 border-2 border-white rounded-full"></div>
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-[13px] font-bold text-[#006F8D] truncate group-hover:underline">
+                                {member.user?.displayName}
+                              </p>
+                              <p className="text-[10px] text-slate-500 truncate">
+                                Captain
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
+
+                  {members.length > 0 && (
+                    <>
+                      <h4 className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider mb-4">
+                        Members — {members.length}
+                      </h4>
+                      <div className="space-y-1 mb-6">
+                        {members.map((member: import("../store/useLodgeStore").LodgeMember) => (
+                          <div
+                            key={member._id}
+                            className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-200/50 cursor-pointer transition-colors group"
+                          >
+                            <div className="relative shrink-0">
+                              <div className="h-9 w-9 rounded-full overflow-hidden flex items-center justify-center font-bold text-white bg-[#005a73]">
+                                {member.user?.avatar &&
+                                !member.user.avatar.includes("default") ? (
+                                  <img
+                                    src={member.user.avatar}
+                                    alt={member.user.displayName}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  member.user?.displayName
+                                    ?.charAt(0)
+                                    .toUpperCase() || <User size={14} />
+                                )}
+                              </div>
+                              <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 border-2 border-[#EAF5F4] rounded-full"></div>
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-[13px] font-bold text-slate-700 truncate group-hover:underline">
+                                {member.user?.displayName}
+                              </p>
+                              <p className="text-[10px] text-slate-500 truncate">
+                                Member
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             )}
@@ -1176,7 +1315,7 @@ export default function ChatPage() {
             <div>
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                  <User size={20} className="text-[#0099B3]" /> People You Might
+                  <User size={20} className="text-[#006F8D]" /> People You Might
                   Know
                 </h3>
               </div>
@@ -1199,7 +1338,7 @@ export default function ChatPage() {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full bg-[#0099B3] flex items-center justify-center text-white font-bold">
+                          <div className="w-full h-full bg-[#006F8D] flex items-center justify-center text-white font-bold">
                             {user.displayName?.charAt(0).toUpperCase()}
                           </div>
                         )}
@@ -1214,7 +1353,7 @@ export default function ChatPage() {
                       </div>
                       <button
                         onClick={() => sendPeerRequest(user._id)}
-                        className="p-2 bg-[#E5FFF5] text-teal-700 hover:bg-teal-100 rounded-xl transition-colors shrink-0"
+                        className="p-2 bg-[#EAF5F4] text-[#006F8D] hover:bg-blue-100 rounded-xl transition-colors shrink-0"
                         title="Connect"
                       >
                         <Plus size={18} />
@@ -1229,7 +1368,7 @@ export default function ChatPage() {
             <div>
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                  <Building2 size={20} className="text-[#0099B3]" /> Recommended
+                  <Building2 size={20} className="text-[#006F8D]" /> Recommended
                   Lodges
                 </h3>
               </div>
@@ -1307,7 +1446,7 @@ export default function ChatPage() {
 
       {/* Settings Modal */}
       {isSettingsModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-[#1e2532]/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-[24px] w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
             <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
               <h2 className="text-lg font-extrabold text-slate-900">
@@ -1427,7 +1566,7 @@ export default function ChatPage() {
               <button
                 onClick={handleSaveProfile}
                 disabled={isUpdatingProfile || !settingsDisplayName}
-                className="px-6 py-3 bg-[#007A99] hover:bg-[#00627A] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-bold transition-all shadow-md flex items-center gap-2"
+                className="px-6 py-3 bg-[#005a73] hover:bg-[#10239E] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-bold transition-all shadow-md flex items-center gap-2"
               >
                 {isUpdatingProfile ? (
                   <Loader2 size={18} className="animate-spin" />
@@ -1440,14 +1579,12 @@ export default function ChatPage() {
         </div>
       )}
 
-      {/* Lodge Creation Modal */}
+      {/* Lodge Modal (Discover & Create) */}
       {isLodgeModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-[24px] w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
-            <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
-              <h2 className="text-lg font-extrabold text-slate-900">
-                Create a Lodge
-              </h2>
+        <div className="fixed inset-0 bg-[#1e2532]/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-[24px] w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200 flex flex-col max-h-[85vh]">
+            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
+              <h2 className="text-lg font-extrabold text-slate-900">Lodges</h2>
               <button
                 onClick={() => setIsLodgeModalOpen(false)}
                 className="text-slate-400 hover:text-slate-600 transition-colors"
@@ -1456,75 +1593,155 @@ export default function ChatPage() {
               </button>
             </div>
 
-            <div className="p-6 space-y-6">
-              {/* Avatar Upload */}
-              <div className="flex justify-center">
-                <div
-                  className="h-24 w-24 rounded-[20px] border-2 border-dashed border-slate-200 bg-slate-50 flex flex-col items-center justify-center overflow-hidden cursor-pointer hover:bg-slate-100 transition-colors relative"
-                  onClick={() => lodgeFileInputRef.current?.click()}
-                >
-                  {lodgeAvatar ? (
-                    <img
-                      src={URL.createObjectURL(lodgeAvatar)}
-                      alt="Preview"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <Building2 size={32} className="text-[#0099B3]" />
-                  )}
-                  <input
-                    type="file"
-                    ref={lodgeFileInputRef}
-                    className="hidden"
-                    accept="image/*"
-                    onChange={(e) => {
-                      if (e.target.files?.[0])
-                        setLodgeAvatar(e.target.files[0]);
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* Name */}
-              <div>
-                <label className="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">
-                  Lodge Name
-                </label>
-                <input
-                  type="text"
-                  value={lodgeName}
-                  onChange={(e) => setLodgeName(e.target.value)}
-                  placeholder="e.g. CS101 Study Group"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 focus:outline-none focus:ring-2 focus:ring-[#0099B3] text-sm font-medium"
-                />
-              </div>
-
-              {/* Description */}
-              <div>
-                <label className="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">
-                  Description (Optional)
-                </label>
-                <textarea
-                  value={lodgeDescription}
-                  onChange={(e) => setLodgeDescription(e.target.value)}
-                  placeholder="What is this lodge about?"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 h-24 resize-none focus:outline-none focus:ring-2 focus:ring-[#0099B3] text-sm font-medium"
-                />
-              </div>
+            <div className="flex border-b border-slate-100 shrink-0">
+              <button
+                onClick={() => setLodgeModalTab("discover")}
+                className={`flex-1 py-3 text-sm font-bold transition-colors ${lodgeModalTab === "discover" ? "text-[#006F8D] border-b-2 border-blue-500" : "text-slate-500 hover:text-slate-700"}`}
+              >
+                Discover
+              </button>
+              <button
+                onClick={() => setLodgeModalTab("create")}
+                className={`flex-1 py-3 text-sm font-bold transition-colors ${lodgeModalTab === "create" ? "text-[#006F8D] border-b-2 border-blue-500" : "text-slate-500 hover:text-slate-700"}`}
+              >
+                Create Lodge
+              </button>
             </div>
 
-            <div className="p-5 bg-slate-50 border-t border-slate-100 flex justify-end">
-              <button
-                onClick={handleCreateLodge}
-                disabled={isCreating || !lodgeName}
-                className="px-6 py-3 bg-[#007A99] hover:bg-[#00627A] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-bold transition-all shadow-md flex items-center gap-2"
-              >
-                {isCreating ? (
-                  <Loader2 size={18} className="animate-spin" />
-                ) : (
-                  "Create Lodge"
-                )}
-              </button>
+            <div className="overflow-y-auto">
+              {lodgeModalTab === "create" ? (
+                <>
+                  <div className="p-6 space-y-6">
+                    {/* Avatar Upload */}
+                    <div className="flex justify-center">
+                      <div
+                        className="h-24 w-24 rounded-[20px] border-2 border-dashed border-slate-200 bg-slate-50 flex flex-col items-center justify-center overflow-hidden cursor-pointer hover:bg-slate-100 transition-colors relative"
+                        onClick={() => lodgeFileInputRef.current?.click()}
+                      >
+                        {lodgeAvatar ? (
+                          <img
+                            src={URL.createObjectURL(lodgeAvatar)}
+                            alt="Preview"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <Building2 size={32} className="text-[#006F8D]" />
+                        )}
+                        <input
+                          type="file"
+                          ref={lodgeFileInputRef}
+                          className="hidden"
+                          accept="image/*"
+                          onChange={(e) => {
+                            if (e.target.files?.[0])
+                              setLodgeAvatar(e.target.files[0]);
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Name */}
+                    <div>
+                      <label className="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">
+                        Lodge Name
+                      </label>
+                      <input
+                        type="text"
+                        value={lodgeName}
+                        onChange={(e) => setLodgeName(e.target.value)}
+                        placeholder="e.g. CS101 Study Group"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 focus:outline-none focus:ring-2 focus:ring-[#0099B3] text-sm font-medium"
+                      />
+                    </div>
+
+                    {/* Description */}
+                    <div>
+                      <label className="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">
+                        Description (Optional)
+                      </label>
+                      <textarea
+                        value={lodgeDescription}
+                        onChange={(e) => setLodgeDescription(e.target.value)}
+                        placeholder="What is this lodge about?"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 h-24 resize-none focus:outline-none focus:ring-2 focus:ring-[#0099B3] text-sm font-medium"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="p-5 bg-slate-50 border-t border-slate-100 flex justify-end shrink-0">
+                    <button
+                      onClick={handleCreateLodge}
+                      disabled={isCreating || !lodgeName}
+                      className="px-6 py-3 bg-[#005a73] hover:bg-[#10239E] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-bold transition-all shadow-md flex items-center gap-2"
+                    >
+                      {isCreating ? (
+                        <Loader2 size={18} className="animate-spin" />
+                      ) : (
+                        "Create Lodge"
+                      )}
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div className="p-4 space-y-3">
+                  {publicLodges.filter(
+                    (pl) => !myLodges.find((ml) => ml._id === pl._id),
+                  ).length === 0 ? (
+                    <div className="text-center py-10">
+                      <div className="h-16 w-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Compass size={24} className="text-slate-300" />
+                      </div>
+                      <p className="text-sm font-bold text-slate-600">
+                        No new lodges to discover.
+                      </p>
+                      <p className="text-xs text-slate-400 mt-1">
+                        Check back later or create your own!
+                      </p>
+                    </div>
+                  ) : (
+                    publicLodges
+                      .filter((pl) => !myLodges.find((ml) => ml._id === pl._id))
+                      .map((lodge) => (
+                        <div
+                          key={lodge._id}
+                          className="bg-white p-4 rounded-[20px] border border-slate-100 shadow-sm flex flex-col gap-3"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="h-12 w-12 rounded-[14px] bg-slate-100 text-slate-400 flex items-center justify-center font-bold text-lg overflow-hidden shrink-0">
+                              {lodge.avatar ? (
+                                <img
+                                  src={lodge.avatar}
+                                  alt="lodge"
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                lodge.name.charAt(0).toUpperCase()
+                              )}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-sm font-bold text-slate-900 truncate">
+                                {lodge.name}
+                              </p>
+                              <p className="text-xs font-medium text-slate-500 flex items-center gap-1 mt-0.5 truncate">
+                                <Users size={12} /> Public
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => {
+                              joinLodge(lodge._id);
+                              setIsLodgeModalOpen(false);
+                            }}
+                            disabled={isJoining}
+                            className="w-full py-2 bg-slate-50 hover:bg-[#EAF5F4] text-[#006F8D] rounded-xl text-xs font-bold transition-colors border border-slate-100 hover:border-blue-200"
+                          >
+                            Join Lodge
+                          </button>
+                        </div>
+                      ))
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -1532,7 +1749,7 @@ export default function ChatPage() {
 
       {/* Story Creation Modal */}
       {isStoryModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-[#1e2532]/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-[24px] w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
             <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
               <h2 className="text-lg font-extrabold text-slate-900">
@@ -1560,7 +1777,7 @@ export default function ChatPage() {
                   />
                 ) : (
                   <>
-                    <Plus size={36} className="text-[#0099B3] mb-3" />
+                    <Plus size={36} className="text-[#006F8D] mb-3" />
                     <p className="text-sm font-bold text-slate-700">
                       Add Image or Video
                     </p>
@@ -1596,7 +1813,7 @@ export default function ChatPage() {
               <button
                 onClick={handlePostStory}
                 disabled={isCreatingStatus || (!storyText && !storyFile)}
-                className="px-6 py-3 bg-[#007A99] hover:bg-[#00627A] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-bold transition-all shadow-md flex items-center gap-2"
+                className="px-6 py-3 bg-[#005a73] hover:bg-[#10239E] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-bold transition-all shadow-md flex items-center gap-2"
               >
                 {isCreatingStatus ? (
                   <Loader2 size={18} className="animate-spin" />
@@ -1646,7 +1863,7 @@ export default function ChatPage() {
           </div>
 
           {/* Content Area */}
-          <div className="relative w-full max-w-md aspect-[9/16] bg-slate-900 rounded-[32px] overflow-hidden flex flex-col items-center justify-center shadow-2xl">
+          <div className="relative w-full max-w-md aspect-[9/16] bg-[#1e2532] rounded-[32px] overflow-hidden flex flex-col items-center justify-center shadow-2xl">
             {viewingStatus.mediaType === "image" && (
               <img
                 src={viewingStatus.mediaUrl}

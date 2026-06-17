@@ -211,3 +211,34 @@ export const getLodgeChannels = async (req, res) => {
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
+export const getLodgeMembers = async (req, res) => {
+  try {
+    const { lodgeId } = req.params;
+    const userId = req.user._id;
+
+    // Optional: Check if user is a member of the lodge before showing members
+    const membership = await LodgeMember.findOne({
+      user: userId,
+      lodge: lodgeId,
+    });
+    
+    if (!membership) {
+      return res
+        .status(403)
+        .json({ message: "You must join the lodge to view members" });
+    }
+
+    const members = await LodgeMember.find({ lodge: lodgeId })
+      .populate("user", "displayName username avatar")
+      .sort({ role: 1, createdAt: 1 });
+
+    return res.status(200).json({
+      success: true,
+      data: members,
+    });
+  } catch (error) {
+    console.error("Error in getLodgeMembers:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};

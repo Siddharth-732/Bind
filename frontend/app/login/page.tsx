@@ -27,14 +27,17 @@ export default function LoginPage() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-teal-50 to-emerald-100 overflow-hidden font-sans">
-      
       {/* Animated Background Elements */}
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-200/40 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-emerald-200/40 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '10s' }} />
-      
+      <div
+        className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-200/40 rounded-full blur-3xl animate-pulse"
+        style={{ animationDuration: "8s" }}
+      />
+      <div
+        className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-emerald-200/40 rounded-full blur-3xl animate-pulse"
+        style={{ animationDuration: "10s" }}
+      />
 
       <div className="relative z-10 w-full max-w-[420px] rounded-3xl bg-white/80 backdrop-blur-xl p-8 sm:p-10 shadow-[0_8px_40px_rgba(0,0,0,0.04)] border border-white">
-        
         {/* Header */}
         <div className="mb-8 flex flex-col items-center text-center">
           <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#006F8D] text-white shadow-lg">
@@ -44,7 +47,7 @@ export default function LoginPage() {
             Lodge
           </h1>
           <p className="mt-2 text-sm font-medium text-slate-500">
-            Welcome back to the scholar's hub.
+            Welcome back to the scholar&apos;s hub.
           </p>
         </div>
 
@@ -74,7 +77,10 @@ export default function LoginPage() {
               <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500">
                 Password
               </label>
-              <Link href="#" className="text-[11px] font-bold text-[#006F8D] hover:text-[#004e63] hover:underline">
+              <Link
+                href="#"
+                className="text-[11px] font-bold text-[#006F8D] hover:text-[#004e63] hover:underline"
+              >
                 Forgot Password?
               </Link>
             </div>
@@ -106,7 +112,10 @@ export default function LoginPage() {
               type="checkbox"
               className="h-4 w-4 rounded border-slate-300 text-[#006F8D] focus:ring-[#006F8D]"
             />
-            <label htmlFor="remember-me" className="ml-2 block text-xs font-medium text-slate-600 cursor-pointer">
+            <label
+              htmlFor="remember-me"
+              className="ml-2 block text-xs font-medium text-slate-600 cursor-pointer"
+            >
               Remember this device
             </label>
           </div>
@@ -121,7 +130,9 @@ export default function LoginPage() {
             ) : (
               <>
                 Sign In
-                <span className="ml-2 inline-block transition-transform group-hover:translate-x-1">→</span>
+                <span className="ml-2 inline-block transition-transform group-hover:translate-x-1">
+                  →
+                </span>
               </>
             )}
           </button>
@@ -137,7 +148,11 @@ export default function LoginPage() {
 
         <div className="flex gap-3">
           <button className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white py-2.5 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-50">
-            <img src="https://www.google.com/favicon.ico" alt="Google" className="h-4 w-4" />
+            <img
+              src="https://www.google.com/favicon.ico"
+              alt="Google"
+              className="h-4 w-4"
+            />
             Google
           </button>
           <button className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white py-2.5 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-50">
@@ -148,7 +163,10 @@ export default function LoginPage() {
 
         <div className="mt-8 text-center text-sm font-medium text-slate-500">
           New to the community?{" "}
-          <Link href="/register" className="font-bold text-[#006F8D] hover:underline">
+          <Link
+            href="/register"
+            className="font-bold text-[#006F8D] hover:underline"
+          >
             Join the Lodge
           </Link>
         </div>
