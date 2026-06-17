@@ -285,7 +285,20 @@ export default function ChatPage() {
 
   if (!authUser) return null;
 
-  const moderators = currentLodgeMembers?.filter((m: any) => m.role === "captain") || [];
+  const botModerator = {
+    _id: "bot_1",
+    role: "captain",
+    user: {
+      _id: "bot_user_1",
+      displayName: "Lodge Bot",
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix",
+      username: "lodge_bot"
+    }
+  };
+
+  const fetchedModerators = currentLodgeMembers?.filter((m: any) => m.role === "captain") || [];
+  const moderators = [botModerator, ...fetchedModerators];
+  
   const members = currentLodgeMembers?.filter((m: any) => m.role !== "captain") || [];
 
   return (
