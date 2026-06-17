@@ -307,7 +307,7 @@ export default function ChatPage() {
       <div className="w-[88px] hover:w-[260px] group transition-all duration-300 overflow-hidden bg-white flex flex-col justify-between py-6 shrink-0 z-20 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
         <div>
           <div className="px-6 mb-10 flex items-center gap-3">
-            <div className="h-10 w-10 shrink-0 bg-[#1D39C4] text-white rounded-[10px] flex items-center justify-center font-bold text-xl">
+            <div className="h-10 w-10 shrink-0 bg-[#005a73] text-white rounded-[10px] flex items-center justify-center font-bold text-xl">
               B
             </div>
             <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
@@ -323,10 +323,10 @@ export default function ChatPage() {
           <nav className="flex flex-col pr-4 gap-1">
             <button
               onClick={() => setActiveTab("chat")}
-              className={`flex items-center gap-4 py-3 px-6 rounded-r-xl font-bold transition-all relative ${activeTab === "chat" ? "bg-[#F0F5FF] text-blue-700" : "text-slate-600 hover:bg-slate-50"}`}
+              className={`flex items-center gap-4 py-3 px-6 rounded-r-xl font-bold transition-all relative ${activeTab === "chat" ? "bg-[#EAF5F4] text-[#006F8D]" : "text-slate-600 hover:bg-slate-50"}`}
             >
               {activeTab === "chat" && (
-                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-blue-600 rounded-r-full"></div>
+                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#006F8D] rounded-r-full"></div>
               )}
               <div className="shrink-0">
                 <MessageCircle size={20} strokeWidth={2} />
@@ -337,10 +337,10 @@ export default function ChatPage() {
             </button>
             <button
               onClick={() => setActiveTab("lodge")}
-              className={`flex items-center gap-4 py-3 px-6 rounded-r-xl font-bold transition-all relative ${activeTab === "lodge" ? "bg-[#F0F5FF] text-blue-700" : "text-slate-600 hover:bg-slate-50"}`}
+              className={`flex items-center gap-4 py-3 px-6 rounded-r-xl font-bold transition-all relative ${activeTab === "lodge" ? "bg-[#EAF5F4] text-[#006F8D]" : "text-slate-600 hover:bg-slate-50"}`}
             >
               {activeTab === "lodge" && (
-                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-blue-600 rounded-r-full"></div>
+                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#006F8D] rounded-r-full"></div>
               )}
               <div className="shrink-0">
                 <Building2 size={20} strokeWidth={2} />
@@ -351,7 +351,7 @@ export default function ChatPage() {
             </button>
             <button
               onClick={() => setActiveTab("explore")}
-              className={`flex items-center gap-4 py-3 px-6 rounded-r-xl font-bold transition-all ${activeTab === "explore" ? "bg-[#F0F5FF] text-blue-700 border-l-4 border-blue-500" : "text-slate-600 hover:bg-slate-50"}`}
+              className={`flex items-center gap-4 py-3 px-6 rounded-r-xl font-bold transition-all ${activeTab === "explore" ? "bg-[#EAF5F4] text-[#006F8D] border-l-4 border-blue-500" : "text-slate-600 hover:bg-slate-50"}`}
             >
               <div className="shrink-0">
                 <Compass size={20} strokeWidth={2} />
@@ -362,7 +362,7 @@ export default function ChatPage() {
             </button>
             <button
               onClick={() => setActiveTab("notifications")}
-              className={`flex items-center gap-4 py-3 px-6 rounded-r-xl font-bold transition-all relative ${activeTab === "notifications" ? "bg-[#F0F5FF] text-blue-700 border-l-4 border-blue-500" : "text-slate-600 hover:bg-slate-50"}`}
+              className={`flex items-center gap-4 py-3 px-6 rounded-r-xl font-bold transition-all relative ${activeTab === "notifications" ? "bg-[#EAF5F4] text-[#006F8D] border-l-4 border-blue-500" : "text-slate-600 hover:bg-slate-50"}`}
             >
               <div className="shrink-0">
                 <Bell size={20} strokeWidth={2} />
@@ -438,7 +438,7 @@ export default function ChatPage() {
                 title={lodge.name}
               >
                 {isSelected && (
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-[#2F54EB] rounded-r-full"></div>
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-[#006F8D] rounded-r-full"></div>
                 )}
                 {!isSelected && (
                   <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-2 bg-slate-300 rounded-r-full opacity-0 group-hover:opacity-100 group-hover:h-5 transition-all duration-300"></div>
@@ -446,8 +446,8 @@ export default function ChatPage() {
                 <div
                   className={`w-12 h-12 flex items-center justify-center font-bold text-lg overflow-hidden transition-all duration-300 ${
                     isSelected
-                      ? "rounded-[16px] bg-[#2F54EB] text-white shadow-md"
-                      : "rounded-full bg-white text-slate-500 border border-slate-200 group-hover:rounded-[16px] group-hover:bg-[#2F54EB] group-hover:text-white group-hover:border-transparent group-hover:shadow-md"
+                      ? "rounded-[16px] bg-[#006F8D] text-white shadow-md"
+                      : "rounded-full bg-white text-slate-500 border border-slate-200 group-hover:rounded-[16px] group-hover:bg-[#006F8D] group-hover:text-white group-hover:border-transparent group-hover:shadow-md"
                   }`}
                 >
                   {lodge.avatar && !lodge.avatar.includes("default") ? (
@@ -462,7 +462,7 @@ export default function ChatPage() {
           <div className="w-8 h-[2px] bg-slate-200 my-1 rounded-full shrink-0"></div>
           <button
             onClick={() => setIsLodgeModalOpen(true)}
-            className="w-12 h-12 rounded-full flex items-center justify-center border border-dashed border-slate-300 text-slate-400 hover:text-[#2F54EB] hover:border-[#2F54EB] hover:bg-blue-50 transition-all duration-300 shrink-0"
+            className="w-12 h-12 rounded-full flex items-center justify-center border border-dashed border-slate-300 text-slate-400 hover:text-[#006F8D] hover:border-[#006F8D] hover:bg-blue-50 transition-all duration-300 shrink-0"
             title="Add a Lodge"
           >
             <Plus size={24} />
@@ -505,12 +505,12 @@ export default function ChatPage() {
                         onClick={() => setSelectedUser(user)}
                         className={`w-full flex items-center gap-3 p-4 rounded-[20px] transition-all text-left ${
                           isSelected
-                            ? "bg-[#F0F5FF] shadow-sm border border-blue-200/60"
+                            ? "bg-[#EAF5F4] shadow-sm border border-blue-200/60"
                             : "bg-white border border-slate-100 hover:bg-slate-50 shadow-sm"
                         }`}
                       >
                         <div className="relative shrink-0">
-                          <div className="h-12 w-12 rounded-full bg-[#2F54EB] flex items-center justify-center font-bold text-white text-lg">
+                          <div className="h-12 w-12 rounded-full bg-[#006F8D] flex items-center justify-center font-bold text-white text-lg">
                             {user.displayName.charAt(0).toUpperCase()}
                           </div>
                           <div className="absolute bottom-0 right-0 h-3.5 w-3.5 bg-green-500 rounded-full border-2 border-white"></div>
@@ -525,7 +525,7 @@ export default function ChatPage() {
                             </span>
                           </div>
                           <p
-                            className={`text-xs truncate ${isSelected ? "text-blue-700/80 font-medium" : "text-slate-500"}`}
+                            className={`text-xs truncate ${isSelected ? "text-[#006F8D]/80 font-medium" : "text-slate-500"}`}
                           >
                             Tap to view conversation...
                           </p>
@@ -563,7 +563,7 @@ export default function ChatPage() {
                                 className="w-full h-full object-cover"
                               />
                             ) : (
-                              <div className="w-full h-full bg-[#2F54EB] flex items-center justify-center text-white font-bold">
+                              <div className="w-full h-full bg-[#006F8D] flex items-center justify-center text-white font-bold">
                                 {request.displayName?.charAt(0).toUpperCase()}
                               </div>
                             )}
@@ -580,7 +580,7 @@ export default function ChatPage() {
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => acceptPeerRequest(request._id)}
-                            className="flex-1 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1"
+                            className="flex-1 py-2 bg-blue-50 text-[#006F8D] hover:bg-blue-100 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1"
                           >
                             <Plus size={14} /> Accept
                           </button>
@@ -613,7 +613,7 @@ export default function ChatPage() {
               onClick={handleAddStoryClick}
               className="flex flex-col items-center gap-2 shrink-0 group"
             >
-              <div className="h-14 w-14 rounded-full border-2 border-dashed border-[#0099B3] flex items-center justify-center text-[#2F54EB] group-hover:bg-[#F0F5FF] transition-colors bg-white relative">
+              <div className="h-14 w-14 rounded-full border-2 border-dashed border-[#0099B3] flex items-center justify-center text-[#006F8D] group-hover:bg-[#EAF5F4] transition-colors bg-white relative">
                 <Plus size={24} />
               </div>
               <span className="text-[10px] font-bold text-slate-700">
@@ -672,7 +672,7 @@ export default function ChatPage() {
               onClick={handleAddStoryClick}
               className="flex flex-col items-center gap-2 shrink-0 group"
             >
-              <div className="h-14 w-14 rounded-full border-2 border-dashed border-[#0099B3] flex items-center justify-center text-[#2F54EB] group-hover:bg-[#F0F5FF] transition-colors bg-white relative">
+              <div className="h-14 w-14 rounded-full border-2 border-dashed border-[#0099B3] flex items-center justify-center text-[#006F8D] group-hover:bg-[#EAF5F4] transition-colors bg-white relative">
                 <Plus size={24} />
               </div>
               <span className="text-[10px] font-bold text-slate-800">
@@ -709,7 +709,7 @@ export default function ChatPage() {
           {/* CHAT HEADER */}
           <div className="h-[88px] bg-white border-b border-slate-100 flex items-center justify-between px-8 z-10 shrink-0">
             <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-full bg-[#2F54EB] flex items-center justify-center font-bold text-white text-xl">
+              <div className="h-12 w-12 rounded-full bg-[#006F8D] flex items-center justify-center font-bold text-white text-xl">
                 {selectedUser.displayName.charAt(0).toUpperCase()}
               </div>
               <div>
@@ -778,7 +778,7 @@ export default function ChatPage() {
                         })}
                       </span>
                       {isMe && (
-                        <span className="font-bold text-sm text-[#1D39C4]">
+                        <span className="font-bold text-sm text-[#005a73]">
                           You
                         </span>
                       )}
@@ -788,7 +788,7 @@ export default function ChatPage() {
                       className={`flex gap-4 max-w-[80%] ${isMe ? "justify-end" : ""}`}
                     >
                       {!isMe && (
-                        <div className="h-10 w-10 rounded-[14px] bg-[#1D39C4] flex items-center justify-center text-white shrink-0 overflow-hidden font-bold">
+                        <div className="h-10 w-10 rounded-[14px] bg-[#005a73] flex items-center justify-center text-white shrink-0 overflow-hidden font-bold">
                           {selectedUser.avatar &&
                           !selectedUser.avatar.includes("default") ? (
                             <img
@@ -852,7 +852,7 @@ export default function ChatPage() {
                   </span>
                 </div>
                 <div className="flex gap-4 max-w-[80%]">
-                  <div className="h-10 w-10 rounded-[14px] bg-[#1D39C4] flex items-center justify-center text-white shrink-0 overflow-hidden font-bold">
+                  <div className="h-10 w-10 rounded-[14px] bg-[#005a73] flex items-center justify-center text-white shrink-0 overflow-hidden font-bold">
                     {selectedUser.avatar &&
                     !selectedUser.avatar.includes("default") ? (
                       <img
@@ -910,7 +910,7 @@ export default function ChatPage() {
                 <button
                   onClick={handleSendChatMessage}
                   disabled={isSendingMessage}
-                  className="h-10 w-10 bg-[#2F54EB] hover:bg-[#1D39C4] disabled:opacity-50 disabled:cursor-not-allowed rounded-full flex items-center justify-center text-white shadow-md transition-colors"
+                  className="h-10 w-10 bg-[#006F8D] hover:bg-[#005a73] disabled:opacity-50 disabled:cursor-not-allowed rounded-full flex items-center justify-center text-white shadow-md transition-colors"
                 >
                   {isSendingMessage ? (
                     <Loader2 size={18} className="animate-spin" />
@@ -998,7 +998,7 @@ export default function ChatPage() {
                       <button className="hover:text-slate-600 transition-colors">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="17" x2="12" y2="22"></line><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"></path></svg>
                       </button>
-                      <button onClick={() => setIsMembersSidebarOpen(!isMembersSidebarOpen)} className={`transition-colors ${isMembersSidebarOpen ? "text-blue-600" : "hover:text-slate-600"}`}>
+                      <button onClick={() => setIsMembersSidebarOpen(!isMembersSidebarOpen)} className={`transition-colors ${isMembersSidebarOpen ? "text-[#006F8D]" : "hover:text-slate-600"}`}>
                         <Users size={20} />
                       </button>
                       <div className="relative ml-2">
@@ -1035,7 +1035,7 @@ export default function ChatPage() {
                     channelMessages.map((msg, index) => {
                       return (
                         <div key={msg._id || index} className={`flex w-full mt-4 hover:bg-slate-50/50 p-1 rounded-md transition-colors`}>
-                           <div className="w-10 h-10 rounded-full bg-[#1D39C4] flex items-center justify-center text-white shrink-0 overflow-hidden font-bold mt-1 cursor-pointer">
+                           <div className="w-10 h-10 rounded-full bg-[#005a73] flex items-center justify-center text-white shrink-0 overflow-hidden font-bold mt-1 cursor-pointer">
                               {msg.senderId?.avatar ? (
                                 <img src={msg.senderId.avatar} alt="Avatar" className="w-full h-full object-cover" />
                               ) : (
@@ -1096,7 +1096,7 @@ export default function ChatPage() {
             
             {/* Right Members Sidebar */}
             {isMembersSidebarOpen && (
-              <div className="w-64 bg-[#F0F5FF]/40 border-l border-slate-200 flex flex-col shrink-0 overflow-y-auto hidden lg:flex">
+              <div className="w-64 bg-[#EAF5F4]/40 border-l border-slate-200 flex flex-col shrink-0 overflow-y-auto hidden lg:flex">
                 <div className="p-4">
                   {moderators.length > 0 && (
                     <>
@@ -1107,7 +1107,7 @@ export default function ChatPage() {
                         {moderators.map((member: any) => (
                           <div key={member._id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-100 cursor-pointer transition-colors group">
                             <div className="relative shrink-0">
-                              <div className="h-9 w-9 rounded-full overflow-hidden flex items-center justify-center font-bold text-white bg-blue-500">
+                              <div className="h-9 w-9 rounded-full overflow-hidden flex items-center justify-center font-bold text-white bg-[#00BAE6]">
                                 {member.user?.avatar && !member.user.avatar.includes("default") ? (
                                   <img src={member.user.avatar} alt={member.user.displayName} className="w-full h-full object-cover" />
                                 ) : (
@@ -1117,7 +1117,7 @@ export default function ChatPage() {
                               <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 border-2 border-white rounded-full"></div>
                             </div>
                             <div className="min-w-0 flex-1">
-                              <p className="text-[13px] font-bold text-blue-700 truncate group-hover:underline">{member.user?.displayName}</p>
+                              <p className="text-[13px] font-bold text-[#006F8D] truncate group-hover:underline">{member.user?.displayName}</p>
                               <p className="text-[10px] text-slate-500 truncate">Captain</p>
                             </div>
                           </div>
@@ -1135,14 +1135,14 @@ export default function ChatPage() {
                         {members.map((member: any) => (
                           <div key={member._id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-200/50 cursor-pointer transition-colors group">
                             <div className="relative shrink-0">
-                              <div className="h-9 w-9 rounded-full overflow-hidden flex items-center justify-center font-bold text-white bg-[#1D39C4]">
+                              <div className="h-9 w-9 rounded-full overflow-hidden flex items-center justify-center font-bold text-white bg-[#005a73]">
                                 {member.user?.avatar && !member.user.avatar.includes("default") ? (
                                   <img src={member.user.avatar} alt={member.user.displayName} className="w-full h-full object-cover" />
                                 ) : (
                                   member.user?.displayName?.charAt(0).toUpperCase() || <User size={14} />
                                 )}
                               </div>
-                              <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 border-2 border-[#F0F5FF] rounded-full"></div>
+                              <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 border-2 border-[#EAF5F4] rounded-full"></div>
                             </div>
                             <div className="min-w-0 flex-1">
                               <p className="text-[13px] font-bold text-slate-700 truncate group-hover:underline">{member.user?.displayName}</p>
@@ -1178,7 +1178,7 @@ export default function ChatPage() {
             <div>
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                  <User size={20} className="text-[#2F54EB]" /> People You Might
+                  <User size={20} className="text-[#006F8D]" /> People You Might
                   Know
                 </h3>
               </div>
@@ -1201,7 +1201,7 @@ export default function ChatPage() {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full bg-[#2F54EB] flex items-center justify-center text-white font-bold">
+                          <div className="w-full h-full bg-[#006F8D] flex items-center justify-center text-white font-bold">
                             {user.displayName?.charAt(0).toUpperCase()}
                           </div>
                         )}
@@ -1216,7 +1216,7 @@ export default function ChatPage() {
                       </div>
                       <button
                         onClick={() => sendPeerRequest(user._id)}
-                        className="p-2 bg-[#F0F5FF] text-blue-700 hover:bg-blue-100 rounded-xl transition-colors shrink-0"
+                        className="p-2 bg-[#EAF5F4] text-[#006F8D] hover:bg-blue-100 rounded-xl transition-colors shrink-0"
                         title="Connect"
                       >
                         <Plus size={18} />
@@ -1231,7 +1231,7 @@ export default function ChatPage() {
             <div>
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                  <Building2 size={20} className="text-[#2F54EB]" /> Recommended
+                  <Building2 size={20} className="text-[#006F8D]" /> Recommended
                   Lodges
                 </h3>
               </div>
@@ -1429,7 +1429,7 @@ export default function ChatPage() {
               <button
                 onClick={handleSaveProfile}
                 disabled={isUpdatingProfile || !settingsDisplayName}
-                className="px-6 py-3 bg-[#1D39C4] hover:bg-[#10239E] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-bold transition-all shadow-md flex items-center gap-2"
+                className="px-6 py-3 bg-[#005a73] hover:bg-[#10239E] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-bold transition-all shadow-md flex items-center gap-2"
               >
                 {isUpdatingProfile ? (
                   <Loader2 size={18} className="animate-spin" />
@@ -1461,13 +1461,13 @@ export default function ChatPage() {
             <div className="flex border-b border-slate-100 shrink-0">
                <button 
                  onClick={() => setLodgeModalTab("discover")}
-                 className={`flex-1 py-3 text-sm font-bold transition-colors ${lodgeModalTab === "discover" ? "text-blue-600 border-b-2 border-blue-500" : "text-slate-500 hover:text-slate-700"}`}
+                 className={`flex-1 py-3 text-sm font-bold transition-colors ${lodgeModalTab === "discover" ? "text-[#006F8D] border-b-2 border-blue-500" : "text-slate-500 hover:text-slate-700"}`}
                >
                  Discover
                </button>
                <button 
                  onClick={() => setLodgeModalTab("create")}
-                 className={`flex-1 py-3 text-sm font-bold transition-colors ${lodgeModalTab === "create" ? "text-blue-600 border-b-2 border-blue-500" : "text-slate-500 hover:text-slate-700"}`}
+                 className={`flex-1 py-3 text-sm font-bold transition-colors ${lodgeModalTab === "create" ? "text-[#006F8D] border-b-2 border-blue-500" : "text-slate-500 hover:text-slate-700"}`}
                >
                  Create Lodge
                </button>
@@ -1490,7 +1490,7 @@ export default function ChatPage() {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <Building2 size={32} className="text-[#2F54EB]" />
+                          <Building2 size={32} className="text-[#006F8D]" />
                         )}
                         <input
                           type="file"
@@ -1537,7 +1537,7 @@ export default function ChatPage() {
                     <button
                       onClick={handleCreateLodge}
                       disabled={isCreating || !lodgeName}
-                      className="px-6 py-3 bg-[#1D39C4] hover:bg-[#10239E] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-bold transition-all shadow-md flex items-center gap-2"
+                      className="px-6 py-3 bg-[#005a73] hover:bg-[#10239E] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-bold transition-all shadow-md flex items-center gap-2"
                     >
                       {isCreating ? (
                         <Loader2 size={18} className="animate-spin" />
@@ -1590,7 +1590,7 @@ export default function ChatPage() {
                               setIsLodgeModalOpen(false);
                             }}
                             disabled={isJoining}
-                            className="w-full py-2 bg-slate-50 hover:bg-[#F0F5FF] text-blue-700 rounded-xl text-xs font-bold transition-colors border border-slate-100 hover:border-blue-200"
+                            className="w-full py-2 bg-slate-50 hover:bg-[#EAF5F4] text-[#006F8D] rounded-xl text-xs font-bold transition-colors border border-slate-100 hover:border-blue-200"
                           >
                             Join Lodge
                           </button>
@@ -1634,7 +1634,7 @@ export default function ChatPage() {
                   />
                 ) : (
                   <>
-                    <Plus size={36} className="text-[#2F54EB] mb-3" />
+                    <Plus size={36} className="text-[#006F8D] mb-3" />
                     <p className="text-sm font-bold text-slate-700">
                       Add Image or Video
                     </p>
@@ -1670,7 +1670,7 @@ export default function ChatPage() {
               <button
                 onClick={handlePostStory}
                 disabled={isCreatingStatus || (!storyText && !storyFile)}
-                className="px-6 py-3 bg-[#1D39C4] hover:bg-[#10239E] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-bold transition-all shadow-md flex items-center gap-2"
+                className="px-6 py-3 bg-[#005a73] hover:bg-[#10239E] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-bold transition-all shadow-md flex items-center gap-2"
               >
                 {isCreatingStatus ? (
                   <Loader2 size={18} className="animate-spin" />
