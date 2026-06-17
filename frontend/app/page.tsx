@@ -72,6 +72,7 @@ export default function ChatPage() {
     publicLodges,
     myLodges,
     currentLodgeChannels,
+    currentLodgeMembers,
     selectedLodge,
     selectedChannel,
     getPublicLodges,
@@ -283,6 +284,9 @@ export default function ChatPage() {
   };
 
   if (!authUser) return null;
+
+  const moderators = currentLodgeMembers?.filter((m: any) => m.role === "captain") || [];
+  const members = currentLodgeMembers?.filter((m: any) => m.role !== "captain") || [];
 
   return (
     <div className="flex h-screen bg-white text-slate-800 font-sans overflow-hidden">
@@ -1081,89 +1085,61 @@ export default function ChatPage() {
             {isMembersSidebarOpen && (
               <div className="w-64 bg-[#F0F5FF]/40 border-l border-slate-200 flex flex-col shrink-0 overflow-y-auto hidden lg:flex">
                 <div className="p-4">
-                  <h4 className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider mb-4">
-                    Moderators — 1
-                  </h4>
-                  <div className="flex items-center gap-3 mb-6 p-2 rounded-lg hover:bg-slate-100 cursor-pointer transition-colors group">
-                    <div className="relative shrink-0">
-                      <div className="h-9 w-9 rounded-full overflow-hidden">
-                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="Felix_AI" className="w-full h-full object-cover bg-blue-500" />
+                  {moderators.length > 0 && (
+                    <>
+                      <h4 className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider mb-4">
+                        Moderators — {moderators.length}
+                      </h4>
+                      <div className="space-y-1 mb-6">
+                        {moderators.map((member: any) => (
+                          <div key={member._id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-100 cursor-pointer transition-colors group">
+                            <div className="relative shrink-0">
+                              <div className="h-9 w-9 rounded-full overflow-hidden flex items-center justify-center font-bold text-white bg-blue-500">
+                                {member.user?.avatar && !member.user.avatar.includes("default") ? (
+                                  <img src={member.user.avatar} alt={member.user.displayName} className="w-full h-full object-cover" />
+                                ) : (
+                                  member.user?.displayName?.charAt(0).toUpperCase() || <User size={14} />
+                                )}
+                              </div>
+                              <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 border-2 border-white rounded-full"></div>
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-[13px] font-bold text-blue-700 truncate group-hover:underline">{member.user?.displayName}</p>
+                              <p className="text-[10px] text-slate-500 truncate">Captain</p>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                      <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 border-2 border-white rounded-full"></div>
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-[13px] font-bold text-blue-700 truncate group-hover:underline">Felix_AI</p>
-                      <p className="text-[10px] text-slate-500 truncate">Training weights...</p>
-                    </div>
-                  </div>
+                    </>
+                  )}
 
-                  <h4 className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider mb-4">
-                    Online — 3
-                  </h4>
-                  <div className="space-y-1 mb-6">
-                    <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-200/50 cursor-pointer transition-colors group">
-                      <div className="relative shrink-0">
-                        <div className="h-9 w-9 rounded-full overflow-hidden">
-                          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah" alt="Sarah Chen" className="w-full h-full object-cover bg-pink-100" />
-                        </div>
-                        <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 border-2 border-[#F0F5FF] rounded-full"></div>
+                  {members.length > 0 && (
+                    <>
+                      <h4 className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider mb-4">
+                        Members — {members.length}
+                      </h4>
+                      <div className="space-y-1 mb-6">
+                        {members.map((member: any) => (
+                          <div key={member._id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-200/50 cursor-pointer transition-colors group">
+                            <div className="relative shrink-0">
+                              <div className="h-9 w-9 rounded-full overflow-hidden flex items-center justify-center font-bold text-white bg-[#1D39C4]">
+                                {member.user?.avatar && !member.user.avatar.includes("default") ? (
+                                  <img src={member.user.avatar} alt={member.user.displayName} className="w-full h-full object-cover" />
+                                ) : (
+                                  member.user?.displayName?.charAt(0).toUpperCase() || <User size={14} />
+                                )}
+                              </div>
+                              <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 border-2 border-[#F0F5FF] rounded-full"></div>
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-[13px] font-bold text-slate-700 truncate group-hover:underline">{member.user?.displayName}</p>
+                              <p className="text-[10px] text-slate-500 truncate">Member</p>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-[13px] font-bold text-slate-700 truncate group-hover:underline">Sarah Chen</p>
-                        <p className="text-[10px] text-slate-500 truncate">Reading benchmarks</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-200/50 cursor-pointer transition-colors group">
-                      <div className="relative shrink-0">
-                        <div className="h-9 w-9 rounded-full overflow-hidden">
-                          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Marcus" alt="Marcus_Studios" className="w-full h-full object-cover bg-blue-100" />
-                        </div>
-                        <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 border-2 border-[#F0F5FF] rounded-full"></div>
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-[13px] font-bold text-slate-700 truncate group-hover:underline">Marcus_Studios</p>
-                        <p className="text-[10px] text-slate-500 truncate">Working on figs</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-200/50 cursor-pointer transition-colors group">
-                      <div className="relative shrink-0">
-                        <div className="h-9 w-9 rounded-full overflow-hidden">
-                          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Krono" alt="krono" className="w-full h-full object-cover bg-yellow-100" />
-                        </div>
-                        <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 border-2 border-[#F0F5FF] rounded-full"></div>
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-[13px] font-bold text-slate-700 truncate group-hover:underline">krono</p>
-                        <p className="text-[10px] text-slate-500 truncate">Active</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <h4 className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider mb-4">
-                    Offline — 38
-                  </h4>
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-200/50 cursor-pointer transition-colors group opacity-60">
-                      <div className="relative shrink-0">
-                        <div className="h-9 w-9 rounded-full overflow-hidden grayscale">
-                          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Alex" alt="Alex_Researcher" className="w-full h-full object-cover bg-slate-200" />
-                        </div>
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-[13px] font-bold text-slate-500 truncate group-hover:underline">Alex_Researcher</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-200/50 cursor-pointer transition-colors group opacity-60">
-                      <div className="relative shrink-0">
-                        <div className="h-9 w-9 rounded-full overflow-hidden grayscale">
-                          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Prof" alt="Prof_Higgins" className="w-full h-full object-cover bg-slate-200" />
-                        </div>
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-[13px] font-bold text-slate-500 truncate group-hover:underline">Prof_Higgins</p>
-                      </div>
-                    </div>
-                  </div>
+                    </>
+                  )}
                 </div>
               </div>
             )}

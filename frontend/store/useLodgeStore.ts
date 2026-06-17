@@ -7,6 +7,7 @@ interface LodgeState {
   publicLodges: any[];
   myLodges: any[];
   currentLodgeChannels: any[];
+  currentLodgeMembers: any[];
   selectedLodge: any | null;
   selectedChannel: any | null;
   isLoadingLodges: boolean;
@@ -17,6 +18,7 @@ interface LodgeState {
   getMyLodges: () => Promise<void>;
   joinLodge: (lodgeId: string) => Promise<boolean>;
   getLodgeChannels: (lodgeId: string) => Promise<void>;
+  getLodgeMembers: (lodgeId: string) => Promise<void>;
   createLodge: (data: FormData) => Promise<boolean>;
   setSelectedLodge: (lodge: any | null) => void;
   setSelectedChannel: (channel: any | null) => void;
@@ -34,6 +36,7 @@ export const useLodgeStore = create<LodgeState>((set, get) => ({
   publicLodges: [],
   myLodges: [],
   currentLodgeChannels: [],
+  currentLodgeMembers: [],
   selectedLodge: null,
   selectedChannel: null,
   isLoadingLodges: false,
@@ -93,6 +96,15 @@ export const useLodgeStore = create<LodgeState>((set, get) => ({
     }
   },
 
+  getLodgeMembers: async (lodgeId: string) => {
+    try {
+      const response = await axiosInstance.get(`/lodges/${lodgeId}/members`);
+      set({ currentLodgeMembers: response.data.data });
+    } catch (error: any) {
+      console.error("Failed to load members", error);
+    }
+  },
+
   createLodge: async (data: FormData) => {
     set({ isCreating: true });
     try {
@@ -114,8 +126,9 @@ export const useLodgeStore = create<LodgeState>((set, get) => ({
     if (lodge) {
       // Automatically fetch channels when a lodge is selected
       get().getLodgeChannels(lodge._id);
+      get().getLodgeMembers(lodge._id);
     } else {
-      set({ currentLodgeChannels: [], selectedChannel: null });
+      set({ currentLodgeChannels: [], currentLodgeMembers: [], selectedChannel: null });
     }
   },
   
