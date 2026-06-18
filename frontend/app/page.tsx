@@ -156,6 +156,7 @@ export default function ChatPage() {
 
   // Settings Profile State
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [activeSettingsTab, setActiveSettingsTab] = useState<"account" | "profiles" | "data_privacy" | "appearance" | "language">("account");
   const [settingsDisplayName, setSettingsDisplayName] = useState("");
   const [settingsBio, setSettingsBio] = useState("");
   const [settingsAvatarFile, setSettingsAvatarFile] = useState<File | null>(
@@ -1487,136 +1488,113 @@ export default function ChatPage() {
 
       {/* Settings Modal */}
       {isSettingsModalOpen && (
-        <div className="fixed inset-0 bg-[#1e2532]/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-[24px] w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
-            <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
-              <h2 className="text-lg font-extrabold text-slate-900">
-                Profile Settings
-              </h2>
-              <button
-                onClick={() => setIsSettingsModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 transition-colors"
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 lg:p-10 animate-in fade-in zoom-in duration-200">
+          <div className="w-full max-w-6xl h-[85vh] bg-[#313338] rounded-2xl shadow-2xl flex overflow-hidden relative">
+            
+            {/* Left Sidebar */}
+            <div className="w-[280px] bg-[#2b2d31] h-full flex flex-col py-10 px-6 overflow-y-auto shrink-0 border-r border-[#1e1f22]">
+              <div className="w-full">
+                <div className="text-[12px] font-extrabold text-[#949ba4] uppercase tracking-wider mb-1.5 px-2.5">
+                User Settings
+              </div>
+              <button 
+                onClick={() => setActiveSettingsTab("account")}
+                className={`w-full text-left px-2.5 py-[6px] rounded-[4px] text-[15px] font-medium transition-colors mb-0.5 ${activeSettingsTab === "account" ? "bg-[#404249] text-slate-200" : "text-[#b5bac1] hover:bg-[#35373c] hover:text-slate-200"}`}
               >
-                <X size={24} />
+                Account
               </button>
-            </div>
-
-            <div className="w-full bg-white relative">
-              {/* Banner Area */}
-              <div
-                className="h-32 w-full bg-slate-200 relative group cursor-pointer overflow-hidden"
-                onClick={() => bannerInputRef.current?.click()}
+              <button 
+                onClick={() => setActiveSettingsTab("profiles")}
+                className={`w-full text-left px-2.5 py-[6px] rounded-[4px] text-[15px] font-medium transition-colors mb-0.5 ${activeSettingsTab === "profiles" ? "bg-[#404249] text-slate-200" : "text-[#b5bac1] hover:bg-[#35373c] hover:text-slate-200"}`}
               >
-                {settingsBannerPreview ? (
-                  <img
-                    src={settingsBannerPreview}
-                    alt="Banner"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gradient-to-r from-teal-400 to-blue-500"></div>
-                )}
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">
-                    Change Banner
-                  </span>
-                </div>
-                <input
-                  type="file"
-                  ref={bannerInputRef}
-                  className="hidden"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      setSettingsBannerFile(file);
-                      const reader = new FileReader();
-                      reader.onload = () =>
-                        setSettingsBannerPreview(reader.result as string);
-                      reader.readAsDataURL(file);
-                    }
-                  }}
-                />
-              </div>
-
-              {/* Avatar Area (Overlapping) */}
-              <div className="absolute left-6 top-20 flex items-end">
-                <div
-                  className="h-20 w-20 rounded-full bg-white border-4 border-white shadow-md relative group cursor-pointer overflow-hidden"
-                  onClick={() => avatarInputRef.current?.click()}
-                >
-                  <img
-                    src={
-                      settingsAvatarPreview ||
-                      `https://ui-avatars.com/api/?name=${authUser?.displayName}&background=random`
-                    }
-                    alt="Avatar"
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <Plus size={20} className="text-white" />
-                  </div>
-                  <input
-                    type="file"
-                    ref={avatarInputRef}
-                    className="hidden"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        setSettingsAvatarFile(file);
-                        const reader = new FileReader();
-                        reader.onload = () =>
-                          setSettingsAvatarPreview(reader.result as string);
-                        reader.readAsDataURL(file);
-                      }
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="p-6 pt-12 space-y-5">
-              {/* Name */}
-              <div>
-                <label className="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">
-                  Display Name
-                </label>
-                <input
-                  type="text"
-                  value={settingsDisplayName}
-                  onChange={(e) => setSettingsDisplayName(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 focus:outline-none focus:ring-2 focus:ring-[#0099B3] text-sm font-medium"
-                />
-              </div>
-
-              {/* Bio */}
-              <div>
-                <label className="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">
-                  Bio
-                </label>
-                <textarea
-                  value={settingsBio}
-                  onChange={(e) => setSettingsBio(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 h-20 resize-none focus:outline-none focus:ring-2 focus:ring-[#0099B3] text-sm font-medium"
-                />
-              </div>
-            </div>
-
-            <div className="p-5 bg-slate-50 border-t border-slate-100 flex justify-end">
-              <button
-                onClick={handleSaveProfile}
-                disabled={isUpdatingProfile || !settingsDisplayName}
-                className="px-6 py-3 bg-[#005a73] hover:bg-[#10239E] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-bold transition-all shadow-md flex items-center gap-2"
+                Profiles
+              </button>
+              <button 
+                onClick={() => setActiveSettingsTab("data_privacy")}
+                className={`w-full text-left px-2.5 py-[6px] rounded-[4px] text-[15px] font-medium transition-colors mb-0.5 ${activeSettingsTab === "data_privacy" ? "bg-[#404249] text-slate-200" : "text-[#b5bac1] hover:bg-[#35373c] hover:text-slate-200"}`}
               >
-                {isUpdatingProfile ? (
-                  <Loader2 size={18} className="animate-spin" />
-                ) : (
-                  "Save Changes"
-                )}
+                Data & Privacy
+              </button>
+              
+              <div className="w-full h-[1px] bg-[#3f4147] my-2"></div>
+              
+              <div className="text-[12px] font-extrabold text-[#949ba4] uppercase tracking-wider mb-1.5 px-2.5">
+                App Settings
+              </div>
+              <button 
+                onClick={() => setActiveSettingsTab("appearance")}
+                className={`w-full text-left px-2.5 py-[6px] rounded-[4px] text-[15px] font-medium transition-colors mb-0.5 ${activeSettingsTab === "appearance" ? "bg-[#404249] text-slate-200" : "text-[#b5bac1] hover:bg-[#35373c] hover:text-slate-200"}`}
+              >
+                Appearance
+              </button>
+              <button 
+                onClick={() => setActiveSettingsTab("language")}
+                className={`w-full text-left px-2.5 py-[6px] rounded-[4px] text-[15px] font-medium transition-colors mb-0.5 ${activeSettingsTab === "language" ? "bg-[#404249] text-slate-200" : "text-[#b5bac1] hover:bg-[#35373c] hover:text-slate-200"}`}
+              >
+                Language
+              </button>
+
+              <div className="w-full h-[1px] bg-[#3f4147] my-2"></div>
+              
+              <button 
+                onClick={() => {
+                  setIsSettingsModalOpen(false);
+                  logout();
+                }}
+                className="w-full text-left px-2.5 py-[6px] rounded-[4px] text-[15px] font-medium transition-colors mb-0.5 text-[#f23f43] hover:bg-[#35373c]"
+              >
+                Log Out
               </button>
             </div>
           </div>
+
+          {/* Main Content Pane */}
+          <div className="flex-1 h-full bg-[#313338] relative flex justify-start">
+            <div className="w-full max-w-[740px] px-10 py-14 overflow-y-auto">
+              
+              {/* Close Button Overlay */}
+              <div className="absolute top-14 right-[10%] flex flex-col items-center gap-1.5 group cursor-pointer" onClick={() => setIsSettingsModalOpen(false)}>
+                <div className="h-9 w-9 rounded-full border-2 border-[#80848e] flex items-center justify-center text-[#80848e] group-hover:bg-[#404249] group-hover:text-slate-200 transition-colors">
+                  <X size={18} strokeWidth={2.5} />
+                </div>
+                <span className="text-[13px] font-semibold text-[#80848e]">ESC</span>
+              </div>
+
+              {activeSettingsTab === "account" && (
+                <div>
+                  <h2 className="text-[20px] font-bold text-slate-100 mb-6">My Account</h2>
+                  <p className="text-slate-300">Account info goes here</p>
+                </div>
+              )}
+
+              {activeSettingsTab === "profiles" && (
+                <div>
+                  <h2 className="text-[20px] font-bold text-slate-100 mb-6">Profiles</h2>
+                  <p className="text-slate-300">Profile editing goes here</p>
+                </div>
+              )}
+
+              {activeSettingsTab === "data_privacy" && (
+                <div>
+                  <h2 className="text-[20px] font-bold text-slate-100 mb-6">Data & Privacy</h2>
+                </div>
+              )}
+
+              {activeSettingsTab === "appearance" && (
+                <div>
+                  <h2 className="text-[20px] font-bold text-slate-100 mb-6">Appearance</h2>
+                </div>
+              )}
+
+              {activeSettingsTab === "language" && (
+                <div>
+                  <h2 className="text-[20px] font-bold text-slate-100 mb-6">Language</h2>
+                </div>
+              )}
+
+            </div>
+          </div>
+        </div>
         </div>
       )}
 
