@@ -134,7 +134,7 @@ export default function RegisterPage() {
           <div className="mb-8 text-center flex flex-col items-center">
             {/* Logo */}
             <div className="flex items-center gap-2 mb-6">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#005a73] text-white font-bold text-lg">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#3B82F6] text-white font-bold text-lg">
                 B
               </div>
               <span className="text-xl font-bold text-slate-800">Bind</span>
@@ -167,7 +167,7 @@ export default function RegisterPage() {
                   }
                   onFocus={() => setFocusedField("name")}
                   onBlur={() => setFocusedField(null)}
-                  className="block w-full border-b-2 border-slate-300 bg-transparent py-2 px-1 text-[15px] text-slate-900 transition-colors placeholder:text-slate-400 focus:border-[#005a73] focus:outline-none"
+                  className="block w-full border-b-2 border-slate-300 bg-transparent py-2 px-1 text-[15px] text-slate-900 transition-colors placeholder:text-slate-400 focus:border-[#3B82F6] focus:outline-none"
                   placeholder="Enter your full name"
                 />
               </div>
@@ -185,7 +185,7 @@ export default function RegisterPage() {
                   }
                   onFocus={() => setFocusedField("email")}
                   onBlur={() => setFocusedField(null)}
-                  className="block w-full border-b-2 border-slate-300 bg-transparent py-2 px-1 text-[15px] text-slate-900 transition-colors placeholder:text-slate-400 focus:border-[#005a73] focus:outline-none"
+                  className="block w-full border-b-2 border-slate-300 bg-transparent py-2 px-1 text-[15px] text-slate-900 transition-colors placeholder:text-slate-400 focus:border-[#3B82F6] focus:outline-none"
                   placeholder="name@university.edu"
                 />
               </div>
@@ -204,13 +204,13 @@ export default function RegisterPage() {
                     }
                     onFocus={() => setFocusedField("password")}
                     onBlur={() => setFocusedField(null)}
-                    className="block w-full border-b-2 border-slate-300 bg-transparent py-2 pl-1 pr-10 text-[15px] text-slate-900 transition-colors placeholder:text-slate-400 focus:border-[#005a73] focus:outline-none"
+                    className="block w-full border-b-2 border-slate-300 bg-transparent py-2 pl-1 pr-10 text-[15px] text-slate-900 transition-colors placeholder:text-slate-400 focus:border-[#3B82F6] focus:outline-none"
                     placeholder="Min. 8 characters"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 flex items-center pr-2 text-[#005a73] hover:text-[#004255] transition-colors"
+                    className="absolute inset-y-0 right-0 flex items-center pr-2 text-[#3B82F6] hover:text-[#004255] transition-colors"
                   >
                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
@@ -219,7 +219,7 @@ export default function RegisterPage() {
 
               <button
                 type="submit"
-                className="mt-8 w-full flex items-center justify-center rounded-full bg-[#005a73] py-3.5 text-[15px] font-bold text-white transition-all hover:bg-[#004255] active:scale-[0.98]"
+                className="mt-8 w-full flex items-center justify-center rounded-full bg-[#3B82F6] py-3.5 text-[15px] font-bold text-white transition-all hover:bg-[#004255] active:scale-[0.98]"
               >
                 Continue
               </button>
@@ -258,7 +258,7 @@ export default function RegisterPage() {
               <div className="flex flex-col items-center mb-6">
                 <label className="cursor-pointer relative group">
                   <div
-                    className={`h-20 w-20 rounded-full border-[3px] flex items-center justify-center overflow-hidden transition-all ${avatarPreview ? "border-[#005a73]" : "border-slate-200 group-hover:border-[#005a73] bg-slate-50"}`}
+                    className={`h-20 w-20 rounded-full border-[3px] flex items-center justify-center overflow-hidden transition-all ${avatarPreview ? "border-[#3B82F6]" : "border-slate-200 group-hover:border-[#3B82F6] bg-slate-50"}`}
                   >
                     {avatarPreview ? (
                       <img
@@ -269,11 +269,11 @@ export default function RegisterPage() {
                     ) : (
                       <User
                         size={32}
-                        className="text-slate-300 group-hover:text-[#005a73] transition-colors"
+                        className="text-slate-300 group-hover:text-[#3B82F6] transition-colors"
                       />
                     )}
                   </div>
-                  <div className="absolute bottom-0 right-0 h-6 w-6 bg-[#005a73] text-white rounded-full flex items-center justify-center border-2 border-white shadow-sm">
+                  <div className="absolute bottom-0 right-0 h-6 w-6 bg-[#3B82F6] text-white rounded-full flex items-center justify-center border-2 border-white shadow-sm">
                     <Upload size={10} />
                   </div>
                   <input
@@ -315,7 +315,7 @@ export default function RegisterPage() {
                         ? "border-green-400 focus:border-green-500"
                         : usernameAvailable === false
                           ? "border-red-400 focus:border-red-500"
-                          : "border-slate-300 focus:border-[#005a73]"
+                          : "border-slate-300 focus:border-[#3B82F6]"
                     }`}
                     placeholder="Scholar_Lodge_24"
                   />
@@ -345,7 +345,7 @@ export default function RegisterPage() {
                   }
                   onFocus={() => setFocusedField("email")} // Just to trigger some looking behavior
                   onBlur={() => setFocusedField(null)}
-                  className="block w-full border-b-2 border-slate-300 bg-transparent py-2 px-1 text-[15px] text-slate-900 transition-colors placeholder:text-slate-400 focus:border-[#005a73] focus:outline-none h-14 resize-none"
+                  className="block w-full border-b-2 border-slate-300 bg-transparent py-2 px-1 text-[15px] text-slate-900 transition-colors placeholder:text-slate-400 focus:border-[#3B82F6] focus:outline-none h-14 resize-none"
                   placeholder="Your research interests..."
                 />
               </div>
@@ -360,7 +360,7 @@ export default function RegisterPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, institute: e.target.value })
                   }
-                  className="block w-full border-b-2 border-slate-300 bg-transparent py-2 px-1 text-[15px] text-slate-900 transition-colors placeholder:text-slate-400 focus:border-[#005a73] focus:outline-none"
+                  className="block w-full border-b-2 border-slate-300 bg-transparent py-2 px-1 text-[15px] text-slate-900 transition-colors placeholder:text-slate-400 focus:border-[#3B82F6] focus:outline-none"
                   placeholder="e.g. MIT, Stanford"
                 />
               </div>
@@ -375,7 +375,7 @@ export default function RegisterPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, specialization: e.target.value })
                   }
-                  className="block w-full border-b-2 border-slate-300 bg-transparent py-2 px-1 text-[15px] text-slate-900 transition-colors placeholder:text-slate-400 focus:border-[#005a73] focus:outline-none"
+                  className="block w-full border-b-2 border-slate-300 bg-transparent py-2 px-1 text-[15px] text-slate-900 transition-colors placeholder:text-slate-400 focus:border-[#3B82F6] focus:outline-none"
                   placeholder="e.g. Machine Learning"
                 />
               </div>
@@ -384,7 +384,7 @@ export default function RegisterPage() {
                 <button
                   type="submit"
                   disabled={isRegistering || usernameAvailable === false}
-                  className="w-full flex items-center justify-center rounded-full bg-[#005a73] py-3.5 text-[15px] font-bold text-white transition-all hover:bg-[#004255] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
+                  className="w-full flex items-center justify-center rounded-full bg-[#3B82F6] py-3.5 text-[15px] font-bold text-white transition-all hover:bg-[#004255] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   {isRegistering ? (
                     <Loader2 size={20} className="animate-spin" />

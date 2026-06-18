@@ -61,7 +61,7 @@ export default function LoginPage() {
           <div className="mb-10 text-center flex flex-col items-center">
             {/* Logo */}
             <div className="flex items-center gap-2 mb-6">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#005a73] text-white font-bold text-lg">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#3B82F6] text-white font-bold text-lg">
                 B
               </div>
               <span className="text-xl font-bold text-slate-800">Bind</span>
@@ -81,7 +81,7 @@ export default function LoginPage() {
               <input
                 type="email"
                 required
-                className="block w-full border-b-2 border-slate-300 bg-transparent py-2 px-1 text-[15px] text-slate-900 transition-colors placeholder:text-slate-400 focus:border-[#005a73] focus:outline-none"
+                className="block w-full border-b-2 border-slate-300 bg-transparent py-2 px-1 text-[15px] text-slate-900 transition-colors placeholder:text-slate-400 focus:border-[#3B82F6] focus:outline-none"
                 placeholder="name@university.edu"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -99,7 +99,7 @@ export default function LoginPage() {
                 <input
                   type={showPassword ? "text" : "password"}
                   required
-                  className="block w-full border-b-2 border-slate-300 bg-transparent py-2 pl-1 pr-10 text-[15px] text-slate-900 transition-colors placeholder:text-slate-400 focus:border-[#005a73] focus:outline-none"
+                  className="block w-full border-b-2 border-slate-300 bg-transparent py-2 pl-1 pr-10 text-[15px] text-slate-900 transition-colors placeholder:text-slate-400 focus:border-[#3B82F6] focus:outline-none"
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -109,7 +109,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 flex items-center pr-2 text-[#005a73] hover:text-[#004255] transition-colors"
+                  className="absolute inset-y-0 right-0 flex items-center pr-2 text-[#3B82F6] hover:text-[#004255] transition-colors"
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
@@ -122,7 +122,7 @@ export default function LoginPage() {
                 <input
                   id="remember-me"
                   type="checkbox"
-                  className="h-4 w-4 rounded border-slate-300 text-[#005a73] focus:ring-[#005a73]"
+                  className="h-4 w-4 rounded border-slate-300 text-[#3B82F6] focus:ring-[#3B82F6]"
                 />
                 <label
                   htmlFor="remember-me"
@@ -133,7 +133,7 @@ export default function LoginPage() {
               </div>
               <Link
                 href="#"
-                className="text-sm font-bold text-[#005a73] hover:underline"
+                className="text-sm font-bold text-[#3B82F6] hover:underline"
               >
                 Forgot password?
               </Link>
@@ -149,7 +149,7 @@ export default function LoginPage() {
                   setTimeout(() => setHasError(false), 500); // short reset
                 }
               }}
-              className="mt-6 w-full flex items-center justify-center rounded-full bg-[#005a73] py-3.5 text-[15px] font-bold text-white transition-all hover:bg-[#004255] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
+              className="mt-6 w-full flex items-center justify-center rounded-full bg-[#3B82F6] py-3.5 text-[15px] font-bold text-white transition-all hover:bg-[#004255] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {isLoggingIn ? (
                 <Loader2 size={20} className="animate-spin" />
