@@ -27,6 +27,7 @@ import {
   Loader2,
   LogOutIcon,
   X,
+  ChevronRight,
 } from "lucide-react";
 
 export default function ChatPage() {
@@ -1561,9 +1562,76 @@ export default function ChatPage() {
               </div>
 
               {activeSettingsTab === "account" && (
-                <div>
+                <div className="max-w-[600px]">
                   <h2 className="text-[20px] font-bold text-slate-100 mb-6">My Account</h2>
-                  <p className="text-slate-300">Account info goes here</p>
+                  
+                  {/* Account Info Card */}
+                  <div className="bg-[#2b2d31] rounded-xl p-5 mb-6">
+                    <h3 className="text-[12px] font-bold text-[#b5bac1] uppercase tracking-wider mb-4">Account Info</h3>
+                    
+                    <div className="flex items-center justify-between py-3 border-b border-[#3f4147] last:border-0">
+                      <div className="flex-1">
+                        <div className="text-[13px] font-bold text-[#b5bac1] uppercase mb-1">Username</div>
+                        <div className="text-[16px] font-medium text-slate-100">{authUser?.username}</div>
+                      </div>
+                      <button className="px-4 py-2 bg-[#4e5058] hover:bg-[#6d6f78] text-white text-[14px] font-medium rounded-[4px] transition-colors shrink-0 ml-4">Edit</button>
+                    </div>
+
+                    <div className="flex items-center justify-between py-3 border-b border-[#3f4147] last:border-0">
+                      <div className="flex-1">
+                        <div className="text-[13px] font-bold text-[#b5bac1] uppercase mb-1">Email</div>
+                        <div className="text-[16px] font-medium text-slate-100 flex items-center gap-2">
+                          ***********@gmail.com 
+                          <span className="text-[#00a8fc] hover:underline cursor-pointer text-[13px] font-normal">Reveal</span>
+                        </div>
+                      </div>
+                      <button className="px-4 py-2 bg-[#4e5058] hover:bg-[#6d6f78] text-white text-[14px] font-medium rounded-[4px] transition-colors shrink-0 ml-4">Edit</button>
+                    </div>
+
+                    <div className="flex items-center justify-between py-3 border-b border-[#3f4147] last:border-0">
+                      <div className="flex-1">
+                        <div className="text-[13px] font-bold text-[#b5bac1] uppercase mb-1">Phone Number</div>
+                        <div className="text-[16px] font-medium text-slate-100">You haven't added a phone number yet.</div>
+                      </div>
+                      <button className="px-4 py-2 bg-[#4e5058] hover:bg-[#6d6f78] text-white text-[14px] font-medium rounded-[4px] transition-colors shrink-0 ml-4">Add</button>
+                    </div>
+                  </div>
+
+                  {/* Password & Security Card */}
+                  <div className="bg-[#2b2d31] rounded-xl p-5 mb-6">
+                    <h3 className="text-[12px] font-bold text-[#b5bac1] uppercase tracking-wider mb-4">Password & Security</h3>
+                    
+                    <div className="flex items-center justify-between py-3 border-b border-[#3f4147] last:border-0">
+                      <div className="text-[16px] font-medium text-slate-100">Password</div>
+                      <button className="px-4 py-2 bg-[#4e5058] hover:bg-[#6d6f78] text-white text-[14px] font-medium rounded-[4px] transition-colors">Edit</button>
+                    </div>
+
+                    <div className="flex items-center justify-between py-4 border-b border-[#3f4147] last:border-0 cursor-pointer group">
+                      <div className="text-[16px] font-medium text-slate-100">Multi-Factor Authentication</div>
+                      <div className="flex items-center gap-2 text-[#b5bac1] group-hover:text-slate-200 transition-colors">
+                        <span className="text-[15px] font-medium">Set up</span>
+                        <ChevronRight size={18} />
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between py-4 border-b border-[#3f4147] last:border-0 cursor-pointer group">
+                      <div className="text-[16px] font-medium text-slate-100">Logged-in Devices</div>
+                      <div className="flex items-center gap-2 text-[#b5bac1] group-hover:text-slate-200 transition-colors">
+                        <span className="text-[15px] font-medium">1 device</span>
+                        <ChevronRight size={18} />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Account Standing Card */}
+                  <div className="bg-[#2b2d31] rounded-xl p-5 mb-6">
+                    <h3 className="text-[12px] font-bold text-[#b5bac1] uppercase tracking-wider mb-4">Account Standing</h3>
+                    <div className="py-1">
+                      <div className="text-[15px] font-medium text-[#23a559] bg-[#23a559]/10 px-4 py-3 rounded-md border border-[#23a559]/20">
+                        Your account is currently in good standing.
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
 
