@@ -1636,9 +1636,122 @@ export default function ChatPage() {
               )}
 
               {activeSettingsTab === "profiles" && (
-                <div>
+                <div className="max-w-[600px]">
                   <h2 className="text-[20px] font-bold text-slate-100 mb-6">Profiles</h2>
-                  <p className="text-slate-300">Profile editing goes here</p>
+
+                  <div className="bg-[#2b2d31] rounded-xl overflow-hidden mb-6 border border-[#1e1f22]">
+                    {/* Banner Area */}
+                    <div
+                      className="h-[120px] w-full bg-[#1e1f22] relative group cursor-pointer overflow-hidden"
+                      onClick={() => bannerInputRef.current?.click()}
+                    >
+                      {settingsBannerPreview ? (
+                        <img
+                          src={settingsBannerPreview}
+                          alt="Banner"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-r from-teal-500 to-blue-600"></div>
+                      )}
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <span className="text-white font-bold text-[13px] uppercase tracking-wider">Change Banner</span>
+                      </div>
+                      <input
+                        type="file"
+                        ref={bannerInputRef}
+                        className="hidden"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setSettingsBannerFile(file);
+                            const reader = new FileReader();
+                            reader.onload = () => setSettingsBannerPreview(reader.result as string);
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                      />
+                    </div>
+
+                    {/* Avatar Area */}
+                    <div className="relative px-6 pb-6">
+                      <div className="absolute -top-12 flex items-end">
+                        <div
+                          className="h-[100px] w-[100px] rounded-full bg-[#2b2d31] border-[6px] border-[#2b2d31] shadow-lg relative group cursor-pointer overflow-hidden"
+                          onClick={() => avatarInputRef.current?.click()}
+                        >
+                          <img
+                            src={
+                              settingsAvatarPreview ||
+                              `https://ui-avatars.com/api/?name=${authUser?.displayName}&background=random`
+                            }
+                            alt="Avatar"
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <Plus size={24} className="text-white" />
+                          </div>
+                          <input
+                            type="file"
+                            ref={avatarInputRef}
+                            className="hidden"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                setSettingsAvatarFile(file);
+                                const reader = new FileReader();
+                                reader.onload = () => setSettingsAvatarPreview(reader.result as string);
+                                reader.readAsDataURL(file);
+                              }
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="pt-16 space-y-5">
+                        {/* Name */}
+                        <div>
+                          <label className="block text-[12px] font-bold text-[#b5bac1] uppercase tracking-wider mb-2">
+                            Display Name
+                          </label>
+                          <input
+                            type="text"
+                            value={settingsDisplayName}
+                            onChange={(e) => setSettingsDisplayName(e.target.value)}
+                            className="w-full bg-[#1e1f22] border-none rounded-[4px] p-2.5 text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#00a8fc] text-[15px]"
+                          />
+                        </div>
+
+                        {/* Bio */}
+                        <div>
+                          <label className="block text-[12px] font-bold text-[#b5bac1] uppercase tracking-wider mb-2">
+                            About Me
+                          </label>
+                          <textarea
+                            value={settingsBio}
+                            onChange={(e) => setSettingsBio(e.target.value)}
+                            className="w-full bg-[#1e1f22] border-none rounded-[4px] p-2.5 h-24 resize-none text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#00a8fc] text-[15px]"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-start pt-2">
+                    <button
+                      onClick={handleSaveProfile}
+                      disabled={isUpdatingProfile || !settingsDisplayName}
+                      className="px-6 py-2 bg-[#5865f2] hover:bg-[#4752c4] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-[4px] font-medium transition-colors flex items-center gap-2"
+                    >
+                      {isUpdatingProfile ? (
+                        <Loader2 size={18} className="animate-spin" />
+                      ) : (
+                        "Save Changes"
+                      )}
+                    </button>
+                  </div>
                 </div>
               )}
 
