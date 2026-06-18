@@ -1629,7 +1629,7 @@ export default function ChatPage() {
                             Phone Number
                           </div>
                           <div className="text-[16px] font-medium text-slate-900">
-                            You haven't added a phone number yet.
+                            You haven&apos;t added a phone number yet.
                           </div>
                         </div>
                         <button className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-[14px] font-medium rounded-[4px] transition-colors shrink-0 ml-4">
