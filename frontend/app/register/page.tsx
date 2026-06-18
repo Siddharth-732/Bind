@@ -5,16 +5,16 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   User,
-  Mail,
-  Lock,
   Upload,
   CheckCircle,
   XCircle,
   Loader2,
-  GraduationCap,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { axiosInstance } from "../../lib/axios";
 import toast from "react-hot-toast";
+import InteractiveIllustration from "../../components/InteractiveIllustration";
 
 export default function RegisterPage() {
   const { register, isRegistering } = useAuthStore();
@@ -31,6 +31,7 @@ export default function RegisterPage() {
     specialization: "",
   });
 
+  const [showPassword, setShowPassword] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
@@ -38,6 +39,12 @@ export default function RegisterPage() {
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(
     null,
   );
+
+  // For the interactive illustration
+  const [focusedField, setFocusedField] = useState<
+    "email" | "password" | "name" | null
+  >(null);
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
     if (formData.username.length < 3) {
@@ -75,6 +82,8 @@ export default function RegisterPage() {
   const handleNextStep = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.displayName || !formData.email || !formData.password) {
+      setHasError(true);
+      setTimeout(() => setHasError(false), 500);
       return toast.error("Please fill in all basic details.");
     }
     setStep(2);
@@ -83,6 +92,8 @@ export default function RegisterPage() {
   const handleFinalSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.username || usernameAvailable === false) {
+      setHasError(true);
+      setTimeout(() => setHasError(false), 500);
       return toast.error("Please choose a valid username.");
     }
 
@@ -100,167 +111,139 @@ export default function RegisterPage() {
       await register(submitData);
       router.push("/");
     } catch (error) {
+      setHasError(true);
+      setTimeout(() => setHasError(false), 500);
       console.error("Registration failed");
     }
   };
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-teal-50 to-emerald-100 p-4 font-sans overflow-hidden">
-      {/* Animated Background Elements */}
-      <div
-        className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-200/40 rounded-full blur-3xl animate-pulse"
-        style={{ animationDuration: "8s" }}
-      />
-      <div
-        className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-emerald-200/40 rounded-full blur-3xl animate-pulse"
-        style={{ animationDuration: "10s" }}
-      />
+    <div className="min-h-screen w-full flex flex-col md:flex-row bg-white font-sans">
+      {/* Left Column: Interactive Illustration */}
+      <div className="w-full md:w-1/2 bg-[#E5E7EB] hidden md:flex flex-col items-center justify-center relative overflow-hidden">
+        <InteractiveIllustration
+          focusedField={focusedField}
+          hasError={hasError}
+        />
+      </div>
 
-      <div className="relative z-10 w-full max-w-[420px]">
-        {/* Step Indicator Top */}
-        <div className="flex flex-col items-center justify-center mb-6">
-          <span className="text-[10px] font-bold tracking-widest text-[#006F8D] uppercase mb-3">
-            Step {step} of 2
-          </span>
-          <div className="flex gap-2 w-48 h-1.5 bg-slate-200/50 rounded-full overflow-hidden">
-            <div
-              className={`h-full bg-[#006F8D] rounded-full transition-all duration-500 ease-out`}
-              style={{ width: step === 1 ? "50%" : "100%" }}
-            />
-          </div>
-          <h2 className="mt-4 text-xl font-bold text-slate-900">
-            {step === 1 ? "Create Account" : "Complete your profile"}
-          </h2>
-          {step === 2 && (
-            <p className="text-xs font-medium text-slate-500 mt-1">
-              Introduce yourself to the Lodge community.
-            </p>
-          )}
-        </div>
-
-        <div className="rounded-3xl bg-white/80 backdrop-blur-xl p-8 shadow-[0_8px_40px_rgba(0,0,0,0.04)] border border-white">
-          {step === 1 && (
-            <div className="mb-6 flex justify-center animate-in fade-in zoom-in duration-500">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#00BAE6] text-white shadow-md">
-                <GraduationCap size={24} />
+      {/* Right Column: Register Form */}
+      <div className="w-full md:w-1/2 flex items-center justify-center p-8 bg-slate-50 md:bg-white relative overflow-y-auto">
+        <div className="w-full max-w-[400px] bg-white md:bg-transparent rounded-2xl md:rounded-none p-8 md:p-0 shadow-xl md:shadow-none border border-slate-100 md:border-none my-8">
+          {/* Header */}
+          <div className="mb-8 text-center flex flex-col items-center">
+            {/* Logo */}
+            <div className="flex items-center gap-2 mb-6">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#005a73] text-white font-bold text-lg">
+                L
               </div>
+              <span className="text-xl font-bold text-slate-800">Lodge</span>
             </div>
-          )}
+
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900 mb-2">
+              {step === 1 ? "Create an account" : "Complete your profile"}
+            </h1>
+            <p className="text-sm font-medium text-slate-500">
+              {step === 1 ? "Step 1 of 2" : "Step 2 of 2"}
+            </p>
+          </div>
 
           {/* ================= STEP 1: BASIC INFO ================= */}
           {step === 1 && (
             <form
               onSubmit={handleNextStep}
-              className="space-y-4 animate-in fade-in slide-in-from-left-4 duration-500"
+              className="space-y-5 animate-in fade-in slide-in-from-left-4 duration-500"
             >
               <div>
-                <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                <label className="mb-2 block text-sm font-bold text-slate-700">
                   Full Name
                 </label>
-                <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400 group-focus-within:text-[#006F8D] transition-colors">
-                    <User size={16} />
-                  </div>
-                  <input
-                    type="text"
-                    required
-                    value={formData.displayName}
-                    onChange={(e) =>
-                      setFormData({ ...formData, displayName: e.target.value })
-                    }
-                    className="block w-full rounded-xl border border-slate-200 bg-white/50 py-3 pl-10 pr-4 text-sm text-slate-900 transition-all placeholder:text-slate-400 focus:border-[#006F8D] focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#006F8D]/10"
-                    placeholder="Enter your full name"
-                  />
-                </div>
+                <input
+                  type="text"
+                  required
+                  value={formData.displayName}
+                  onChange={(e) =>
+                    setFormData({ ...formData, displayName: e.target.value })
+                  }
+                  onFocus={() => setFocusedField("name")}
+                  onBlur={() => setFocusedField(null)}
+                  className="block w-full border-b-2 border-slate-300 bg-transparent py-2 px-1 text-[15px] text-slate-900 transition-colors placeholder:text-slate-400 focus:border-[#005a73] focus:outline-none"
+                  placeholder="Enter your full name"
+                />
               </div>
 
               <div>
-                <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                  Academic Email
+                <label className="mb-2 block text-sm font-bold text-slate-700">
+                  Email
                 </label>
-                <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400 group-focus-within:text-[#006F8D] transition-colors">
-                    <Mail size={16} />
-                  </div>
-                  <input
-                    type="email"
-                    required
-                    value={formData.email}
-                    onChange={(e) =>
-                      setFormData({ ...formData, email: e.target.value })
-                    }
-                    className="block w-full rounded-xl border border-slate-200 bg-white/50 py-3 pl-10 pr-4 text-sm text-slate-900 transition-all placeholder:text-slate-400 focus:border-[#006F8D] focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#006F8D]/10"
-                    placeholder="name@university.edu"
-                  />
-                </div>
+                <input
+                  type="email"
+                  required
+                  value={formData.email}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
+                  onFocus={() => setFocusedField("email")}
+                  onBlur={() => setFocusedField(null)}
+                  className="block w-full border-b-2 border-slate-300 bg-transparent py-2 px-1 text-[15px] text-slate-900 transition-colors placeholder:text-slate-400 focus:border-[#005a73] focus:outline-none"
+                  placeholder="name@university.edu"
+                />
               </div>
 
               <div>
-                <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                <label className="mb-2 block text-sm font-bold text-slate-700">
                   Password
                 </label>
-                <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400 group-focus-within:text-[#006F8D] transition-colors">
-                    <Lock size={16} />
-                  </div>
+                <div className="relative">
                   <input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     required
                     value={formData.password}
                     onChange={(e) =>
                       setFormData({ ...formData, password: e.target.value })
                     }
-                    className="block w-full rounded-xl border border-slate-200 bg-white/50 py-3 pl-10 pr-4 text-sm text-slate-900 transition-all placeholder:text-slate-400 focus:border-[#006F8D] focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#006F8D]/10"
+                    onFocus={() => setFocusedField("password")}
+                    onBlur={() => setFocusedField(null)}
+                    className="block w-full border-b-2 border-slate-300 bg-transparent py-2 pl-1 pr-10 text-[15px] text-slate-900 transition-colors placeholder:text-slate-400 focus:border-[#005a73] focus:outline-none"
                     placeholder="Min. 8 characters"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 flex items-center pr-2 text-[#005a73] hover:text-[#004255] transition-colors"
+                  >
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
                 </div>
               </div>
 
               <button
                 type="submit"
-                className="mt-6 w-full flex items-center justify-center rounded-xl bg-[#006F8D] py-3.5 text-sm font-bold text-white shadow-md transition-all hover:bg-[#005a73] active:scale-[0.98] group"
+                className="mt-8 w-full flex items-center justify-center rounded-full bg-[#005a73] py-3.5 text-[15px] font-bold text-white transition-all hover:bg-[#004255] active:scale-[0.98]"
               >
-                Next: Profile Setup{" "}
-                <span className="ml-2 transition-transform group-hover:translate-x-1">
-                  →
-                </span>
+                Continue
               </button>
 
-              <div className="my-6 flex items-center">
-                <div className="flex-grow border-t border-slate-200"></div>
-                <span className="mx-4 text-[9px] font-bold uppercase tracking-wider text-slate-400">
-                  Or register with
-                </span>
-                <div className="flex-grow border-t border-slate-200"></div>
-              </div>
+              {/* Social Registration */}
+              <button
+                type="button"
+                className="mt-4 flex w-full items-center justify-center gap-3 rounded-full bg-[#F3F4F6] py-3.5 text-[15px] font-bold text-slate-700 transition-colors hover:bg-[#E5E7EB]"
+              >
+                <img
+                  src="https://www.google.com/favicon.ico"
+                  alt="Google"
+                  className="h-5 w-5"
+                />
+                Sign up with Google
+              </button>
 
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white py-2.5 text-xs font-bold text-slate-600 transition-colors hover:bg-slate-50"
-                >
-                  <img
-                    src="https://www.google.com/favicon.ico"
-                    alt="Google"
-                    className="h-3.5 w-3.5"
-                  />{" "}
-                  Google
-                </button>
-                <button
-                  type="button"
-                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white py-2.5 text-xs font-bold text-slate-600 transition-colors hover:bg-slate-50"
-                >
-                  <Mail size={14} className="text-slate-500" /> SAML
-                </button>
-              </div>
-
-              <div className="mt-6 text-center text-xs font-medium text-slate-500">
+              <div className="mt-8 text-center text-sm text-slate-600">
                 Already have an account?{" "}
                 <Link
                   href="/login"
-                  className="font-bold text-[#006F8D] hover:underline"
+                  className="font-bold text-slate-900 hover:underline"
                 >
-                  Sign in
+                  Log in
                 </Link>
               </div>
             </form>
@@ -272,10 +255,10 @@ export default function RegisterPage() {
               onSubmit={handleFinalSubmit}
               className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-500"
             >
-              <div className="flex flex-col items-center mb-2">
+              <div className="flex flex-col items-center mb-6">
                 <label className="cursor-pointer relative group">
                   <div
-                    className={`h-20 w-20 rounded-full border-[3px] flex items-center justify-center overflow-hidden transition-all ${avatarPreview ? "border-[#006F8D]" : "border-slate-200 group-hover:border-[#006F8D] bg-slate-50"}`}
+                    className={`h-20 w-20 rounded-full border-[3px] flex items-center justify-center overflow-hidden transition-all ${avatarPreview ? "border-[#005a73]" : "border-slate-200 group-hover:border-[#005a73] bg-slate-50"}`}
                   >
                     {avatarPreview ? (
                       <img
@@ -286,11 +269,11 @@ export default function RegisterPage() {
                     ) : (
                       <User
                         size={32}
-                        className="text-slate-300 group-hover:text-[#006F8D] transition-colors"
+                        className="text-slate-300 group-hover:text-[#005a73] transition-colors"
                       />
                     )}
                   </div>
-                  <div className="absolute bottom-0 right-0 h-6 w-6 bg-[#006F8D] text-white rounded-full flex items-center justify-center border-2 border-white shadow-sm">
+                  <div className="absolute bottom-0 right-0 h-6 w-6 bg-[#005a73] text-white rounded-full flex items-center justify-center border-2 border-white shadow-sm">
                     <Upload size={10} />
                   </div>
                   <input
@@ -300,17 +283,17 @@ export default function RegisterPage() {
                     className="hidden"
                   />
                 </label>
-                <span className="mt-3 text-[9px] font-bold uppercase tracking-widest text-[#00BAE6]">
+                <span className="mt-3 text-[11px] font-bold uppercase tracking-widest text-slate-500">
                   Upload Photo
                 </span>
               </div>
 
               <div>
-                <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                <label className="mb-2 block text-sm font-bold text-slate-700">
                   Username
                 </label>
-                <div className="relative group">
-                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">
+                <div className="relative">
+                  <span className="absolute left-1 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">
                     @
                   </span>
                   <input
@@ -325,32 +308,34 @@ export default function RegisterPage() {
                           .replace(/\s/g, ""),
                       })
                     }
-                    className={`block w-full rounded-xl border bg-white/50 py-3 pl-8 pr-10 text-sm text-slate-900 transition-all focus:bg-white focus:outline-none focus:ring-4 ${
+                    onFocus={() => setFocusedField("name")}
+                    onBlur={() => setFocusedField(null)}
+                    className={`block w-full border-b-2 bg-transparent py-2 pl-6 pr-10 text-[15px] text-slate-900 transition-colors focus:outline-none ${
                       usernameAvailable === true
-                        ? "border-green-400 focus:ring-green-400/10 focus:border-green-500"
+                        ? "border-green-400 focus:border-green-500"
                         : usernameAvailable === false
-                          ? "border-red-400 focus:ring-red-400/10 focus:border-red-500"
-                          : "border-slate-200 focus:ring-[#006F8D]/10 focus:border-[#006F8D]"
+                          ? "border-red-400 focus:border-red-500"
+                          : "border-slate-300 focus:border-[#005a73]"
                     }`}
                     placeholder="Scholar_Lodge_24"
                   />
-                  <div className="absolute right-3.5 top-1/2 -translate-y-1/2">
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2">
                     {isCheckingUsername ? (
                       <Loader2
-                        size={16}
+                        size={18}
                         className="animate-spin text-slate-400"
                       />
                     ) : usernameAvailable === true ? (
-                      <CheckCircle size={16} className="text-green-500" />
+                      <CheckCircle size={18} className="text-green-500" />
                     ) : usernameAvailable === false ? (
-                      <XCircle size={16} className="text-red-500" />
+                      <XCircle size={18} className="text-red-500" />
                     ) : null}
                   </div>
                 </div>
               </div>
 
               <div>
-                <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                <label className="mb-2 block text-sm font-bold text-slate-700">
                   Bio
                 </label>
                 <textarea
@@ -358,13 +343,15 @@ export default function RegisterPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, bio: e.target.value })
                   }
-                  className="block w-full rounded-xl border border-slate-200 bg-white/50 py-3 px-4 h-20 resize-none text-sm text-slate-900 transition-all placeholder:text-slate-400 focus:border-[#006F8D] focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#006F8D]/10"
-                  placeholder="Tell us about your research interests or academic focus..."
+                  onFocus={() => setFocusedField("email")} // Just to trigger some looking behavior
+                  onBlur={() => setFocusedField(null)}
+                  className="block w-full border-b-2 border-slate-300 bg-transparent py-2 px-1 text-[15px] text-slate-900 transition-colors placeholder:text-slate-400 focus:border-[#005a73] focus:outline-none h-14 resize-none"
+                  placeholder="Your research interests..."
                 />
               </div>
 
               <div>
-                <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                <label className="mb-2 block text-sm font-bold text-slate-700">
                   Institute / University
                 </label>
                 <input
@@ -373,14 +360,14 @@ export default function RegisterPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, institute: e.target.value })
                   }
-                  className="block w-full rounded-xl border border-slate-200 bg-white/50 py-3 px-4 text-sm text-slate-900 transition-all placeholder:text-slate-400 focus:border-[#006F8D] focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#006F8D]/10"
-                  placeholder="e.g. MIT, Stanford, Independent"
+                  className="block w-full border-b-2 border-slate-300 bg-transparent py-2 px-1 text-[15px] text-slate-900 transition-colors placeholder:text-slate-400 focus:border-[#005a73] focus:outline-none"
+                  placeholder="e.g. MIT, Stanford"
                 />
               </div>
 
               <div>
-                <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                  Specialization / Domain
+                <label className="mb-2 block text-sm font-bold text-slate-700">
+                  Specialization
                 </label>
                 <input
                   type="text"
@@ -388,45 +375,30 @@ export default function RegisterPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, specialization: e.target.value })
                   }
-                  className="block w-full rounded-xl border border-slate-200 bg-white/50 py-3 px-4 text-sm text-slate-900 transition-all placeholder:text-slate-400 focus:border-[#006F8D] focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#006F8D]/10"
-                  placeholder="e.g. Machine Learning, Quantum Physics"
+                  className="block w-full border-b-2 border-slate-300 bg-transparent py-2 px-1 text-[15px] text-slate-900 transition-colors placeholder:text-slate-400 focus:border-[#005a73] focus:outline-none"
+                  placeholder="e.g. Machine Learning"
                 />
               </div>
 
-              <div className="pt-2">
+              <div className="pt-6">
                 <button
                   type="submit"
                   disabled={isRegistering || usernameAvailable === false}
-                  className="w-full flex items-center justify-center rounded-xl bg-[#006F8D] py-3.5 text-sm font-bold text-white shadow-md transition-all hover:bg-[#005a73] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed group"
+                  className="w-full flex items-center justify-center rounded-full bg-[#005a73] py-3.5 text-[15px] font-bold text-white transition-all hover:bg-[#004255] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   {isRegistering ? (
-                    <Loader2 size={18} className="animate-spin" />
+                    <Loader2 size={20} className="animate-spin" />
                   ) : (
-                    <>
-                      Create account{" "}
-                      <span className="ml-2 transition-transform group-hover:translate-x-1">
-                        →
-                      </span>
-                    </>
+                    "Create Account"
                   )}
                 </button>
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="mt-4 w-full text-xs font-bold text-slate-500 hover:text-slate-700"
+                  className="mt-6 w-full text-sm font-bold text-slate-500 hover:text-slate-700"
                 >
                   ← Back to basics
                 </button>
-              </div>
-
-              <div className="mt-6 text-center text-xs font-medium text-slate-500">
-                Already have an account?{" "}
-                <Link
-                  href="/login"
-                  className="font-bold text-[#006F8D] hover:underline"
-                >
-                  Log in
-                </Link>
               </div>
             </form>
           )}
