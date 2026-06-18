@@ -118,11 +118,11 @@ export default function InteractiveIllustration({
   };
 
   return (
-    <div className="w-full h-full flex items-center justify-center bg-[#E5E7EB] overflow-hidden">
+    <div className="w-full h-full flex items-center justify-center bg-[#B8F0FF] overflow-hidden">
       <motion.div
         className="relative w-[400px] h-[400px] scale-[1.25] md:scale-[1.4]"
         initial={false}
-        animate={hasError ? { x: [-10, 10, -10, 10, -5, 5, 0] } : { x: 0 }}
+        animate={hasError ? { x: [-5, 10, -5, 5, -5, 5, 0] } : { x: 0 }}
         transition={{ duration: 0.5 }}
       >
         <svg
@@ -180,46 +180,60 @@ export default function InteractiveIllustration({
 
           {/* Yellow Shape (Right, front) */}
           <g transform="translate(220, 190)">
-            <path
-              d="M 0 50 A 50 50 0 0 1 100 50 L 100 110 L 0 110 Z"
-              fill="#F7CA18"
-            />
-            <Eye x={30} y={40} eyebrowTilt={1} />
-            {/* Long Beak (Chuck style) - morphs to worried mouth */}
-            <motion.path
+            <motion.g
               initial={false}
-              animate={{
-                d: isWorried
-                  ? "M 50 54 Q 60 46 70 54 T 90 54"
-                  : "M 50 50 L 100 50 L 50 56 Z",
-                fill: isWorried ? "none" : "#E67E22",
-                stroke: isWorried ? "#111" : "none",
-                strokeWidth: isWorried ? 3 : 0,
-              }}
+              animate={{ scaleY: isWorried ? 1.05 : 1 }}
               transition={springConfig}
-            />
-          </g>
-
-          {/* Red Semicircle (Bottom Left, front) */}
-          <g transform="translate(40, 200)">
-            <path d="M 0 100 A 100 100 0 0 1 200 100 Z" fill="#E23636" />
-            <g transform="translate(100, 50)">
-              <Eye x={0} y={0} eyebrowTilt={1} />
-              <Eye x={24} y={0} eyebrowTilt={-1} />
-              {/* Beak Morph */}
+              style={{ originX: 0.5, originY: 1 }}
+            >
+              <path
+                d="M 0 50 A 50 50 0 0 1 100 50 L 100 110 L 0 110 Z"
+                fill="#F7CA18"
+              />
+              <Eye x={30} y={40} eyebrowTilt={1} />
+              {/* Long Beak (Chuck style) - morphs to worried mouth */}
               <motion.path
                 initial={false}
                 animate={{
                   d: isWorried
-                    ? "M 5 18 Q 12 10 19 18"
-                    : "M 5 15 L 12 22 L 19 15 Z",
-                  fill: isWorried ? "none" : "#F1C40F",
+                    ? "M 50 54 Q 60 46 70 54 T 90 54"
+                    : "M 50 50 L 100 50 L 50 56 Z",
+                  fill: isWorried ? "none" : "#E67E22",
                   stroke: isWorried ? "#111" : "none",
-                  strokeWidth: isWorried ? 2 : 0,
+                  strokeWidth: isWorried ? 3 : 0,
                 }}
                 transition={springConfig}
               />
-            </g>
+            </motion.g>
+          </g>
+
+          {/* Red Semicircle (Bottom Left, front) */}
+          <g transform="translate(40, 200)">
+            <motion.g
+              initial={false}
+              animate={{ scaleY: isWorried ? 0.9 : 1 }}
+              transition={springConfig}
+              style={{ originX: 0.5, originY: 1 }}
+            >
+              <path d="M 0 100 A 100 100 0 0 1 200 100 Z" fill="#E23636" />
+              <g transform="translate(100, 50)">
+                <Eye x={0} y={0} eyebrowTilt={1} />
+                <Eye x={24} y={0} eyebrowTilt={-1} />
+                {/* Beak Morph */}
+                <motion.path
+                  initial={false}
+                  animate={{
+                    d: isWorried
+                      ? "M 5 18 Q 12 10 19 18"
+                      : "M 5 15 L 12 22 L 19 15 Z",
+                    fill: isWorried ? "none" : "#F1C40F",
+                    stroke: isWorried ? "#111" : "none",
+                    strokeWidth: isWorried ? 2 : 0,
+                  }}
+                  transition={springConfig}
+                />
+              </g>
+            </motion.g>
           </g>
         </svg>
       </motion.div>

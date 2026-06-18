@@ -120,7 +120,7 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen w-full flex flex-col md:flex-row bg-white font-sans">
       {/* Left Column: Interactive Illustration */}
-      <div className="w-full md:w-1/2 bg-[#E5E7EB] hidden md:flex flex-col items-center justify-center relative overflow-hidden">
+      <div className="w-full md:w-1/2 bg-[#B8F0FF] hidden md:flex flex-col items-center justify-center relative overflow-hidden">
         <InteractiveIllustration
           focusedField={focusedField}
           hasError={hasError}
@@ -135,9 +135,9 @@ export default function RegisterPage() {
             {/* Logo */}
             <div className="flex items-center gap-2 mb-6">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#005a73] text-white font-bold text-lg">
-                L
+                B
               </div>
-              <span className="text-xl font-bold text-slate-800">Lodge</span>
+              <span className="text-xl font-bold text-slate-800">Bind</span>
             </div>
 
             <h1 className="text-3xl font-bold tracking-tight text-slate-900 mb-2">

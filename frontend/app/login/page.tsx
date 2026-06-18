@@ -11,9 +11,11 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  
+
   // Track focus for illustration
-  const [focusedField, setFocusedField] = useState<"email" | "password" | null>(null);
+  const [focusedField, setFocusedField] = useState<"email" | "password" | null>(
+    null,
+  );
   const [hasError, setHasError] = useState(false);
 
   const { login, authUser, isLoggingIn } = useAuthStore();
@@ -28,11 +30,11 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setHasError(false);
-    
+
     try {
       // login action from zustand
       await login({ email, password });
-      
+
       // If login throws an error or fails, the catch block will run
       // Actually zustand might not throw, but handle errors internally via toast.
       // We will assume that if we are still on this page after await and authUser is null,
@@ -44,30 +46,27 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen w-full flex flex-col md:flex-row bg-white font-sans">
-      
       {/* Left Column: Interactive Illustration */}
-      <div className="w-full md:w-1/2 bg-[#E5E7EB] hidden md:flex flex-col items-center justify-center relative overflow-hidden">
-         <InteractiveIllustration 
-           focusedField={focusedField} 
-           hasError={hasError} 
-           typingLength={focusedField === "email" ? email.length : focusedField === "password" ? password.length : 0}
-         />
+      <div className="w-full md:w-1/2 bg-[#B8F0FF] hidden md:flex flex-col items-center justify-center relative overflow-hidden">
+        <InteractiveIllustration
+          focusedField={focusedField}
+          hasError={hasError}
+        />
       </div>
 
       {/* Right Column: Login Form */}
       <div className="w-full md:w-1/2 flex items-center justify-center p-8 bg-slate-50 md:bg-white relative">
         <div className="w-full max-w-[400px] bg-white md:bg-transparent rounded-2xl md:rounded-none p-8 md:p-0 shadow-xl md:shadow-none border border-slate-100 md:border-none">
-          
           {/* Header */}
           <div className="mb-10 text-center flex flex-col items-center">
             {/* Logo */}
             <div className="flex items-center gap-2 mb-6">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#005a73] text-white font-bold text-lg">
-                L
+                B
               </div>
-              <span className="text-xl font-bold text-slate-800">Lodge</span>
+              <span className="text-xl font-bold text-slate-800">Bind</span>
             </div>
-            
+
             <h1 className="text-3xl font-bold tracking-tight text-slate-900 mb-2">
               Welcome back!
             </h1>
