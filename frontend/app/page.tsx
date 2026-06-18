@@ -27,6 +27,8 @@ import {
   Loader2,
   LogOutIcon,
   X,
+  ChevronRight,
+  ArrowRight,
 } from "lucide-react";
 
 export default function ChatPage() {
@@ -149,13 +151,18 @@ export default function ChatPage() {
   const [storyPreview, setStoryPreview] = useState<string | null>(null);
 
   // Active Story Viewing
-  const [viewingStatus, setViewingStatus] = useState<import("../store/useStatusStore").Status | null>(null);
+  const [viewingStatus, setViewingStatus] = useState<
+    import("../store/useStatusStore").Status | null
+  >(null);
 
   // Members Sidebar State
   const [isMembersSidebarOpen, setIsMembersSidebarOpen] = useState(true);
 
   // Settings Profile State
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [activeSettingsTab, setActiveSettingsTab] = useState<
+    "account" | "profiles" | "data_privacy" | "appearance" | "language"
+  >("account");
   const [settingsDisplayName, setSettingsDisplayName] = useState("");
   const [settingsBio, setSettingsBio] = useState("");
   const [settingsAvatarFile, setSettingsAvatarFile] = useState<File | null>(
@@ -1142,10 +1149,13 @@ export default function ChatPage() {
                                 </span>
                               )}
                               <span className="text-[10px] font-bold text-slate-500">
-                                {new Date(msg.createdAt).toLocaleTimeString([], {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })}
+                                {new Date(msg.createdAt).toLocaleTimeString(
+                                  [],
+                                  {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  },
+                                )}
                               </span>
                               {isMe && (
                                 <span className="font-bold text-sm text-[#005a73]">
@@ -1194,9 +1204,9 @@ export default function ChatPage() {
                                       className="w-full h-full object-cover"
                                     />
                                   ) : (
-                                    authUser?.displayName?.charAt(0).toUpperCase() || (
-                                      <User size={20} />
-                                    )
+                                    authUser?.displayName
+                                      ?.charAt(0)
+                                      .toUpperCase() || <User size={20} />
                                   )}
                                 </div>
                               )}
@@ -1254,38 +1264,42 @@ export default function ChatPage() {
                         Moderators — {moderators.length}
                       </h4>
                       <div className="space-y-1 mb-6">
-                        {moderators.map((member: import("../store/useLodgeStore").LodgeMember) => (
-                          <div
-                            key={member._id}
-                            className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-100 cursor-pointer transition-colors group"
-                          >
-                            <div className="relative shrink-0">
-                              <div className="h-9 w-9 rounded-full overflow-hidden flex items-center justify-center font-bold text-white bg-[#00BAE6]">
-                                {member.user?.avatar &&
-                                !member.user.avatar.includes("default") ? (
-                                  <img
-                                    src={member.user.avatar}
-                                    alt={member.user.displayName}
-                                    className="w-full h-full object-cover"
-                                  />
-                                ) : (
-                                  member.user?.displayName
-                                    ?.charAt(0)
-                                    .toUpperCase() || <User size={14} />
-                                )}
+                        {moderators.map(
+                          (
+                            member: import("../store/useLodgeStore").LodgeMember,
+                          ) => (
+                            <div
+                              key={member._id}
+                              className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-100 cursor-pointer transition-colors group"
+                            >
+                              <div className="relative shrink-0">
+                                <div className="h-9 w-9 rounded-full overflow-hidden flex items-center justify-center font-bold text-white bg-[#00BAE6]">
+                                  {member.user?.avatar &&
+                                  !member.user.avatar.includes("default") ? (
+                                    <img
+                                      src={member.user.avatar}
+                                      alt={member.user.displayName}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  ) : (
+                                    member.user?.displayName
+                                      ?.charAt(0)
+                                      .toUpperCase() || <User size={14} />
+                                  )}
+                                </div>
+                                <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 border-2 border-white rounded-full"></div>
                               </div>
-                              <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 border-2 border-white rounded-full"></div>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-[13px] font-bold text-[#006F8D] truncate group-hover:underline">
+                                  {member.user?.displayName}
+                                </p>
+                                <p className="text-[10px] text-slate-500 truncate">
+                                  Captain
+                                </p>
+                              </div>
                             </div>
-                            <div className="min-w-0 flex-1">
-                              <p className="text-[13px] font-bold text-[#006F8D] truncate group-hover:underline">
-                                {member.user?.displayName}
-                              </p>
-                              <p className="text-[10px] text-slate-500 truncate">
-                                Captain
-                              </p>
-                            </div>
-                          </div>
-                        ))}
+                          ),
+                        )}
                       </div>
                     </>
                   )}
@@ -1296,38 +1310,42 @@ export default function ChatPage() {
                         Members — {members.length}
                       </h4>
                       <div className="space-y-1 mb-6">
-                        {members.map((member: import("../store/useLodgeStore").LodgeMember) => (
-                          <div
-                            key={member._id}
-                            className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-200/50 cursor-pointer transition-colors group"
-                          >
-                            <div className="relative shrink-0">
-                              <div className="h-9 w-9 rounded-full overflow-hidden flex items-center justify-center font-bold text-white bg-[#005a73]">
-                                {member.user?.avatar &&
-                                !member.user.avatar.includes("default") ? (
-                                  <img
-                                    src={member.user.avatar}
-                                    alt={member.user.displayName}
-                                    className="w-full h-full object-cover"
-                                  />
-                                ) : (
-                                  member.user?.displayName
-                                    ?.charAt(0)
-                                    .toUpperCase() || <User size={14} />
-                                )}
+                        {members.map(
+                          (
+                            member: import("../store/useLodgeStore").LodgeMember,
+                          ) => (
+                            <div
+                              key={member._id}
+                              className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-200/50 cursor-pointer transition-colors group"
+                            >
+                              <div className="relative shrink-0">
+                                <div className="h-9 w-9 rounded-full overflow-hidden flex items-center justify-center font-bold text-white bg-[#005a73]">
+                                  {member.user?.avatar &&
+                                  !member.user.avatar.includes("default") ? (
+                                    <img
+                                      src={member.user.avatar}
+                                      alt={member.user.displayName}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  ) : (
+                                    member.user?.displayName
+                                      ?.charAt(0)
+                                      .toUpperCase() || <User size={14} />
+                                  )}
+                                </div>
+                                <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 border-2 border-[#EAF5F4] rounded-full"></div>
                               </div>
-                              <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 border-2 border-[#EAF5F4] rounded-full"></div>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-[13px] font-bold text-slate-700 truncate group-hover:underline">
+                                  {member.user?.displayName}
+                                </p>
+                                <p className="text-[10px] text-slate-500 truncate">
+                                  Member
+                                </p>
+                              </div>
                             </div>
-                            <div className="min-w-0 flex-1">
-                              <p className="text-[13px] font-bold text-slate-700 truncate group-hover:underline">
-                                {member.user?.displayName}
-                              </p>
-                              <p className="text-[10px] text-slate-500 truncate">
-                                Member
-                              </p>
-                            </div>
-                          </div>
-                        ))}
+                          ),
+                        )}
                       </div>
                     </>
                   )}
@@ -1487,134 +1505,619 @@ export default function ChatPage() {
 
       {/* Settings Modal */}
       {isSettingsModalOpen && (
-        <div className="fixed inset-0 bg-[#1e2532]/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-[24px] w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
-            <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
-              <h2 className="text-lg font-extrabold text-slate-900">
-                Profile Settings
-              </h2>
-              <button
-                onClick={() => setIsSettingsModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 transition-colors"
-              >
-                <X size={24} />
-              </button>
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 lg:p-10 animate-in fade-in zoom-in duration-200">
+          <div className="w-full max-w-6xl h-[85vh] bg-white rounded-2xl shadow-2xl flex overflow-hidden relative">
+            {/* Left Sidebar */}
+            <div className="w-[280px] bg-slate-50 border border-slate-200 h-full flex flex-col py-10 px-6 overflow-y-auto shrink-0 border-r border-slate-200">
+              <div className="w-full">
+                <div className="text-[12px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5 px-2.5">
+                  User Settings
+                </div>
+                <button
+                  onClick={() => setActiveSettingsTab("account")}
+                  className={`w-full text-left px-2.5 py-[6px] rounded-[4px] text-[15px] font-medium transition-colors mb-0.5 ${activeSettingsTab === "account" ? "bg-slate-200 text-slate-800" : "text-slate-500 hover:bg-slate-100 hover:text-slate-800"}`}
+                >
+                  Account
+                </button>
+                <button
+                  onClick={() => setActiveSettingsTab("profiles")}
+                  className={`w-full text-left px-2.5 py-[6px] rounded-[4px] text-[15px] font-medium transition-colors mb-0.5 ${activeSettingsTab === "profiles" ? "bg-slate-200 text-slate-800" : "text-slate-500 hover:bg-slate-100 hover:text-slate-800"}`}
+                >
+                  Profiles
+                </button>
+                <button
+                  onClick={() => setActiveSettingsTab("data_privacy")}
+                  className={`w-full text-left px-2.5 py-[6px] rounded-[4px] text-[15px] font-medium transition-colors mb-0.5 ${activeSettingsTab === "data_privacy" ? "bg-slate-200 text-slate-800" : "text-slate-500 hover:bg-slate-100 hover:text-slate-800"}`}
+                >
+                  Data & Privacy
+                </button>
+
+                <div className="w-full h-[1px] bg-[#3f4147] my-2"></div>
+
+                <div className="text-[12px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5 px-2.5">
+                  App Settings
+                </div>
+                <button
+                  onClick={() => setActiveSettingsTab("appearance")}
+                  className={`w-full text-left px-2.5 py-[6px] rounded-[4px] text-[15px] font-medium transition-colors mb-0.5 ${activeSettingsTab === "appearance" ? "bg-slate-200 text-slate-800" : "text-slate-500 hover:bg-slate-100 hover:text-slate-800"}`}
+                >
+                  Appearance
+                </button>
+                <button
+                  onClick={() => setActiveSettingsTab("language")}
+                  className={`w-full text-left px-2.5 py-[6px] rounded-[4px] text-[15px] font-medium transition-colors mb-0.5 ${activeSettingsTab === "language" ? "bg-slate-200 text-slate-800" : "text-slate-500 hover:bg-slate-100 hover:text-slate-800"}`}
+                >
+                  General Preferences
+                </button>
+
+                <div className="w-full h-[1px] bg-[#3f4147] my-2"></div>
+
+                <button
+                  onClick={() => {
+                    setIsSettingsModalOpen(false);
+                    logout();
+                  }}
+                  className="w-full text-left px-2.5 py-[6px] rounded-[4px] text-[15px] font-medium transition-colors mb-0.5 text-[#f23f43] hover:bg-slate-100"
+                >
+                  Log Out
+                </button>
+              </div>
             </div>
 
-            <div className="w-full bg-white relative">
-              {/* Banner Area */}
-              <div
-                className="h-32 w-full bg-slate-200 relative group cursor-pointer overflow-hidden"
-                onClick={() => bannerInputRef.current?.click()}
-              >
-                {settingsBannerPreview ? (
-                  <img
-                    src={settingsBannerPreview}
-                    alt="Banner"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gradient-to-r from-teal-400 to-blue-500"></div>
-                )}
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">
-                    Change Banner
+            {/* Main Content Pane */}
+            <div className="flex-1 h-full bg-white relative flex justify-start">
+              <div className="w-full max-w-[740px] px-10 py-14 overflow-y-auto">
+                {/* Close Button Overlay */}
+                <div
+                  className="absolute top-5 right-[5%] flex flex-col items-center gap-1.5 group cursor-pointer"
+                  onClick={() => setIsSettingsModalOpen(false)}
+                >
+                  <div className="h-9 w-9 rounded-full border-2 border-slate-300 flex items-center justify-center text-slate-400 group-hover:bg-slate-200 group-hover:text-slate-800 transition-colors">
+                    <X size={18} strokeWidth={2.5} />
+                  </div>
+                  <span className="text-[13px] font-semibold text-slate-400">
+                    ESC
                   </span>
                 </div>
-                <input
-                  type="file"
-                  ref={bannerInputRef}
-                  className="hidden"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      setSettingsBannerFile(file);
-                      const reader = new FileReader();
-                      reader.onload = () =>
-                        setSettingsBannerPreview(reader.result as string);
-                      reader.readAsDataURL(file);
-                    }
-                  }}
-                />
-              </div>
 
-              {/* Avatar Area (Overlapping) */}
-              <div className="absolute left-6 top-20 flex items-end">
-                <div
-                  className="h-20 w-20 rounded-full bg-white border-4 border-white shadow-md relative group cursor-pointer overflow-hidden"
-                  onClick={() => avatarInputRef.current?.click()}
-                >
-                  <img
-                    src={
-                      settingsAvatarPreview ||
-                      `https://ui-avatars.com/api/?name=${authUser?.displayName}&background=random`
-                    }
-                    alt="Avatar"
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <Plus size={20} className="text-white" />
+                {activeSettingsTab === "account" && (
+                  <div className="max-w-[600px]">
+                    <h2 className="text-[20px] font-bold text-slate-900 mb-6">
+                      My Account
+                    </h2>
+
+                    {/* Account Info Card */}
+                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 mb-6">
+                      <h3 className="text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-4">
+                        Account Info
+                      </h3>
+
+                      <div className="flex items-center justify-between py-3 border-b border-slate-200 last:border-0">
+                        <div className="flex-1">
+                          <div className="text-[13px] font-bold text-slate-500 uppercase mb-1">
+                            Username
+                          </div>
+                          <div className="text-[16px] font-medium text-slate-900">
+                            {authUser?.username}
+                          </div>
+                        </div>
+                        <button className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-[14px] font-medium rounded-[4px] transition-colors shrink-0 ml-4">
+                          Edit
+                        </button>
+                      </div>
+
+                      <div className="flex items-center justify-between py-3 border-b border-slate-200 last:border-0">
+                        <div className="flex-1">
+                          <div className="text-[13px] font-bold text-slate-500 uppercase mb-1">
+                            Email
+                          </div>
+                          <div className="text-[16px] font-medium text-slate-900 flex items-center gap-2">
+                            ***********@gmail.com
+                            <span className="text-[#00a8fc] hover:underline cursor-pointer text-[13px] font-normal">
+                              Reveal
+                            </span>
+                          </div>
+                        </div>
+                        <button className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-[14px] font-medium rounded-[4px] transition-colors shrink-0 ml-4">
+                          Edit
+                        </button>
+                      </div>
+
+                      <div className="flex items-center justify-between py-3 border-b border-slate-200 last:border-0">
+                        <div className="flex-1">
+                          <div className="text-[13px] font-bold text-slate-500 uppercase mb-1">
+                            Phone Number
+                          </div>
+                          <div className="text-[16px] font-medium text-slate-900">
+                            You haven&apos;t added a phone number yet.
+                          </div>
+                        </div>
+                        <button className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-[14px] font-medium rounded-[4px] transition-colors shrink-0 ml-4">
+                          Add
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Password & Security Card */}
+                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 mb-6">
+                      <h3 className="text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-4">
+                        Password & Security
+                      </h3>
+
+                      <div className="flex items-center justify-between py-3 border-b border-slate-200 last:border-0">
+                        <div className="text-[16px] font-medium text-slate-900">
+                          Password
+                        </div>
+                        <button className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-[14px] font-medium rounded-[4px] transition-colors">
+                          Edit
+                        </button>
+                      </div>
+
+                      <div className="flex items-center justify-between py-4 border-b border-slate-200 last:border-0 cursor-pointer group">
+                        <div className="text-[16px] font-medium text-slate-900">
+                          Multi-Factor Authentication
+                        </div>
+                        <div className="flex items-center gap-2 text-slate-500 group-hover:text-slate-800 transition-colors">
+                          <span className="text-[15px] font-medium">
+                            Set up
+                          </span>
+                          <ChevronRight size={18} />
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between py-4 border-b border-slate-200 last:border-0 cursor-pointer group">
+                        <div className="text-[16px] font-medium text-slate-900">
+                          Logged-in Devices
+                        </div>
+                        <div className="flex items-center gap-2 text-slate-500 group-hover:text-slate-800 transition-colors">
+                          <span className="text-[15px] font-medium">
+                            1 device
+                          </span>
+                          <ChevronRight size={18} />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Account Standing Card */}
+                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 mb-6">
+                      <h3 className="text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-4">
+                        Account Standing
+                      </h3>
+                      <div className="py-1">
+                        <div className="text-[15px] font-medium text-[#23a559] bg-[#23a559]/10 px-4 py-3 rounded-md border border-[#23a559]/20">
+                          Your account is currently in good standing.
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <input
-                    type="file"
-                    ref={avatarInputRef}
-                    className="hidden"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        setSettingsAvatarFile(file);
-                        const reader = new FileReader();
-                        reader.onload = () =>
-                          setSettingsAvatarPreview(reader.result as string);
-                        reader.readAsDataURL(file);
-                      }
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="p-6 pt-12 space-y-5">
-              {/* Name */}
-              <div>
-                <label className="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">
-                  Display Name
-                </label>
-                <input
-                  type="text"
-                  value={settingsDisplayName}
-                  onChange={(e) => setSettingsDisplayName(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 focus:outline-none focus:ring-2 focus:ring-[#0099B3] text-sm font-medium"
-                />
-              </div>
-
-              {/* Bio */}
-              <div>
-                <label className="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">
-                  Bio
-                </label>
-                <textarea
-                  value={settingsBio}
-                  onChange={(e) => setSettingsBio(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 h-20 resize-none focus:outline-none focus:ring-2 focus:ring-[#0099B3] text-sm font-medium"
-                />
-              </div>
-            </div>
-
-            <div className="p-5 bg-slate-50 border-t border-slate-100 flex justify-end">
-              <button
-                onClick={handleSaveProfile}
-                disabled={isUpdatingProfile || !settingsDisplayName}
-                className="px-6 py-3 bg-[#005a73] hover:bg-[#10239E] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-bold transition-all shadow-md flex items-center gap-2"
-              >
-                {isUpdatingProfile ? (
-                  <Loader2 size={18} className="animate-spin" />
-                ) : (
-                  "Save Changes"
                 )}
-              </button>
+
+                {activeSettingsTab === "profiles" && (
+                  <div className="max-w-[600px]">
+                    <h2 className="text-[20px] font-bold text-slate-900 mb-6">
+                      Profiles
+                    </h2>
+
+                    <div className="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden mb-6 border border-slate-200">
+                      {/* Banner Area */}
+                      <div
+                        className="h-[120px] w-full bg-white border border-slate-200 relative group cursor-pointer overflow-hidden"
+                        onClick={() => bannerInputRef.current?.click()}
+                      >
+                        {settingsBannerPreview ? (
+                          <img
+                            src={settingsBannerPreview}
+                            alt="Banner"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-r from-teal-500 to-blue-600"></div>
+                        )}
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <span className="text-white font-bold text-[13px] uppercase tracking-wider">
+                            Change Banner
+                          </span>
+                        </div>
+                        <input
+                          type="file"
+                          ref={bannerInputRef}
+                          className="hidden"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              setSettingsBannerFile(file);
+                              const reader = new FileReader();
+                              reader.onload = () =>
+                                setSettingsBannerPreview(
+                                  reader.result as string,
+                                );
+                              reader.readAsDataURL(file);
+                            }
+                          }}
+                        />
+                      </div>
+
+                      {/* Avatar Area */}
+                      <div className="relative px-6 pb-6">
+                        <div className="absolute -top-12 flex items-end">
+                          <div
+                            className="h-[100px] w-[100px] rounded-full bg-slate-50 border border-slate-200 border-[6px] border-[#2b2d31] shadow-lg relative group cursor-pointer overflow-hidden"
+                            onClick={() => avatarInputRef.current?.click()}
+                          >
+                            <img
+                              src={
+                                settingsAvatarPreview ||
+                                `https://ui-avatars.com/api/?name=${authUser?.displayName}&background=random`
+                              }
+                              alt="Avatar"
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                              <Plus size={24} className="text-white" />
+                            </div>
+                            <input
+                              type="file"
+                              ref={avatarInputRef}
+                              className="hidden"
+                              accept="image/*"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  setSettingsAvatarFile(file);
+                                  const reader = new FileReader();
+                                  reader.onload = () =>
+                                    setSettingsAvatarPreview(
+                                      reader.result as string,
+                                    );
+                                  reader.readAsDataURL(file);
+                                }
+                              }}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="pt-16 space-y-5">
+                          {/* Name */}
+                          <div>
+                            <label className="block text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-2">
+                              Display Name
+                            </label>
+                            <input
+                              type="text"
+                              value={settingsDisplayName}
+                              onChange={(e) =>
+                                setSettingsDisplayName(e.target.value)
+                              }
+                              className="w-full bg-white border border-slate-200 border-none rounded-[4px] p-2.5 text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#00a8fc] text-[15px]"
+                            />
+                          </div>
+
+                          {/* Bio */}
+                          <div>
+                            <label className="block text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-2">
+                              About Me
+                            </label>
+                            <textarea
+                              value={settingsBio}
+                              onChange={(e) => setSettingsBio(e.target.value)}
+                              className="w-full bg-white border border-slate-200 border-none rounded-[4px] p-2.5 h-24 resize-none text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#00a8fc] text-[15px]"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-start pt-2">
+                      <button
+                        onClick={handleSaveProfile}
+                        disabled={isUpdatingProfile || !settingsDisplayName}
+                        className="px-6 py-2 bg-[#5865f2] hover:bg-[#4752c4] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-[4px] font-medium transition-colors flex items-center gap-2"
+                      >
+                        {isUpdatingProfile ? (
+                          <Loader2 size={18} className="animate-spin" />
+                        ) : (
+                          "Save Changes"
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {activeSettingsTab === "data_privacy" && (
+                  <div className="max-w-[600px]">
+                    <h2 className="text-[20px] font-bold text-slate-900 mb-6">
+                      Data & Privacy
+                    </h2>
+
+                    <div className="mb-8">
+                      <h3 className="text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-4">
+                        How We Use Your Data
+                      </h3>
+
+                      <div className="flex items-start justify-between py-4 border-b border-slate-200">
+                        <div className="pr-8">
+                          <div className="text-[16px] font-medium text-slate-900 mb-1">
+                            Use data to improve Talk
+                          </div>
+                          <div className="text-[14px] text-slate-500">
+                            This setting allows us to use and process
+                            information about how you navigate and use Talk for
+                            analytical purposes.
+                          </div>
+                        </div>
+                        <div className="w-10 h-6 shrink-0 bg-[#23a559] rounded-full relative cursor-pointer mt-1">
+                          <div className="w-4 h-4 bg-white rounded-full absolute top-1 right-1 shadow-sm"></div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start justify-between py-4 border-b border-slate-200">
+                        <div className="pr-8">
+                          <div className="text-[16px] font-medium text-slate-900 mb-1">
+                            Use data to customize my experience
+                          </div>
+                          <div className="text-[14px] text-slate-500">
+                            This setting allows us to use information to
+                            customize your experience on Talk.
+                          </div>
+                        </div>
+                        <div className="w-10 h-6 shrink-0 bg-[#23a559] rounded-full relative cursor-pointer mt-1">
+                          <div className="w-4 h-4 bg-white rounded-full absolute top-1 right-1 shadow-sm"></div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start justify-between py-4 border-b border-slate-200">
+                        <div className="pr-8">
+                          <div className="text-[16px] font-medium text-slate-900 mb-1">
+                            Allow direct messages from server members
+                          </div>
+                          <div className="text-[14px] text-slate-500">
+                            This setting is applied when you join a new server.
+                            It does not affect your existing servers.
+                          </div>
+                        </div>
+                        <div className="w-10 h-6 shrink-0 bg-[#23a559] rounded-full relative cursor-pointer mt-1">
+                          <div className="w-4 h-4 bg-white rounded-full absolute top-1 right-1 shadow-sm"></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-4">
+                        Request Data
+                      </h3>
+                      <div className="text-[14px] text-slate-500 mb-4">
+                        You can request a copy of your personal data. It may
+                        take up to 30 days to process your request.
+                      </div>
+                      <button className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-[14px] font-medium rounded-[4px] transition-colors">
+                        Request all of my data
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {activeSettingsTab === "appearance" && (
+                  <div className="max-w-[600px]">
+                    <h2 className="text-[20px] font-bold text-slate-900 mb-6">
+                      Appearance
+                    </h2>
+
+                    <div className="mb-8">
+                      <h3 className="text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-4">
+                        Theme
+                      </h3>
+                      <div className="flex gap-4">
+                        <div className="flex-1 bg-white border border-slate-200 border-2 border-[#5865f2] rounded-[8px] p-4 cursor-pointer relative">
+                          <div className="absolute top-2 right-2 w-5 h-5 bg-[#5865f2] rounded-full flex items-center justify-center">
+                            <div className="w-2 h-2 bg-white rounded-full"></div>
+                          </div>
+                          <div className="w-full h-[60px] bg-white rounded-md mb-3 flex items-center px-3">
+                            <div className="w-6 h-6 rounded-full bg-slate-50 border border-slate-200 shrink-0 mr-3"></div>
+                            <div className="flex-1 space-y-1.5">
+                              <div className="w-16 h-2 bg-slate-50 border border-slate-200 rounded-full"></div>
+                              <div className="w-full h-2 bg-slate-50 border border-slate-200 rounded-full"></div>
+                            </div>
+                          </div>
+                          <div className="text-[14px] font-bold text-slate-800 text-center">
+                            Dark
+                          </div>
+                        </div>
+
+                        <div className="flex-1 bg-white border-2 border-transparent rounded-[8px] p-4 cursor-pointer relative">
+                          <div className="w-full h-[60px] bg-[#f2f3f5] rounded-md mb-3 flex items-center px-3">
+                            <div className="w-6 h-6 rounded-full bg-white shrink-0 mr-3 shadow-sm"></div>
+                            <div className="flex-1 space-y-1.5">
+                              <div className="w-16 h-2 bg-white shadow-sm rounded-full"></div>
+                              <div className="w-full h-2 bg-white shadow-sm rounded-full"></div>
+                            </div>
+                          </div>
+                          <div className="text-[14px] font-bold text-slate-600 text-center">
+                            Light
+                          </div>
+                        </div>
+
+                        <div className="flex-1 bg-gradient-to-br from-[#1e1f22] to-[#e3e5e8] border-2 border-transparent rounded-[8px] p-4 cursor-pointer relative">
+                          <div className="w-full h-[60px] flex rounded-md mb-3 overflow-hidden">
+                            <div className="flex-1 bg-white h-full flex items-center px-2">
+                              <div className="w-4 h-4 rounded-full bg-slate-50 border border-slate-200"></div>
+                            </div>
+                            <div className="flex-1 bg-[#f2f3f5] h-full flex items-center px-2">
+                              <div className="w-4 h-4 rounded-full bg-white shadow-sm"></div>
+                            </div>
+                          </div>
+                          <div className="text-[14px] font-bold text-slate-300 text-center">
+                            Sync
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-4">
+                        Message Display
+                      </h3>
+                      <div className="space-y-2">
+                        <label className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-slate-100 transition-colors">
+                          <div className="w-5 h-5 rounded-full border-2 border-[#5865f2] flex items-center justify-center shrink-0">
+                            <div className="w-2.5 h-2.5 bg-[#5865f2] rounded-full"></div>
+                          </div>
+                          <span className="text-[15px] font-medium text-slate-900">
+                            Cozy{" "}
+                            <span className="text-slate-500 font-normal text-[13px] ml-1">
+                              Modern, beautiful, and easy on your eyes.
+                            </span>
+                          </span>
+                        </label>
+                        <label className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-slate-100 transition-colors">
+                          <div className="w-5 h-5 rounded-full border-2 border-slate-300 shrink-0"></div>
+                          <span className="text-[15px] font-medium text-slate-900">
+                            Compact{" "}
+                            <span className="text-slate-500 font-normal text-[13px] ml-1">
+                              Fit as many messages on screen as possible.
+                            </span>
+                          </span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {activeSettingsTab === "language" && (
+                  <div className="max-w-[600px] pb-10">
+                    <h2 className="text-[20px] font-bold text-slate-900 mb-6">
+                      General Preferences
+                    </h2>
+
+                    {/* Language Card */}
+                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 mb-6">
+                      <h3 className="text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-4">
+                        Language
+                      </h3>
+                      <div className="text-[14px] text-slate-500 mb-6">
+                        Select the language you want to use Talk in.
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between p-3 rounded bg-slate-200 cursor-pointer">
+                          <div>
+                            <div className="text-[15px] font-medium text-slate-900">
+                              English (US)
+                            </div>
+                            <div className="text-[13px] text-slate-500">
+                              English (US)
+                            </div>
+                          </div>
+                          <div className="w-5 h-5 rounded-full border-2 border-[#5865f2] flex items-center justify-center shrink-0">
+                            <div className="w-2.5 h-2.5 bg-[#5865f2] rounded-full"></div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between p-3 rounded hover:bg-slate-100 cursor-pointer transition-colors">
+                          <div>
+                            <div className="text-[15px] font-medium text-slate-900">
+                              English (UK)
+                            </div>
+                            <div className="text-[13px] text-slate-500">
+                              English (UK)
+                            </div>
+                          </div>
+                          <div className="w-5 h-5 rounded-full border-2 border-slate-300 shrink-0"></div>
+                        </div>
+
+                        <div className="flex items-center justify-between p-3 rounded hover:bg-slate-100 cursor-pointer transition-colors">
+                          <div>
+                            <div className="text-[15px] font-medium text-slate-900">
+                              Español
+                            </div>
+                            <div className="text-[13px] text-slate-500">
+                              Spanish
+                            </div>
+                          </div>
+                          <div className="w-5 h-5 rounded-full border-2 border-slate-300 shrink-0"></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Other Preferences Card */}
+                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 mb-6">
+                      <h3 className="text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-4">
+                        Other Preferences
+                      </h3>
+
+                      <div className="flex items-center justify-between py-4 border-b border-slate-200 last:border-0 cursor-pointer group">
+                        <span className="text-[16px] font-medium text-slate-900">
+                          Autoplay videos
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[15px] font-medium text-slate-500 group-hover:text-slate-800 transition-colors">
+                            On
+                          </span>
+                          <ArrowRight
+                            size={18}
+                            className="text-slate-500 group-hover:text-slate-800 transition-colors"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between py-4 border-b border-slate-200 last:border-0 cursor-pointer group">
+                        <span className="text-[16px] font-medium text-slate-900">
+                          Sound effects
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[15px] font-medium text-slate-500 group-hover:text-slate-800 transition-colors">
+                            On
+                          </span>
+                          <ArrowRight
+                            size={18}
+                            className="text-slate-500 group-hover:text-slate-800 transition-colors"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between py-4 border-b border-slate-200 last:border-0 cursor-pointer group">
+                        <span className="text-[16px] font-medium text-slate-900">
+                          Showing profile photos
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[15px] font-medium text-slate-500 group-hover:text-slate-800 transition-colors">
+                            All Talk members
+                          </span>
+                          <ArrowRight
+                            size={18}
+                            className="text-slate-500 group-hover:text-slate-800 transition-colors"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between py-4 border-b border-slate-200 last:border-0 cursor-pointer group">
+                        <span className="text-[16px] font-medium text-slate-900">
+                          Preferred feed view
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[15px] font-medium text-slate-500 group-hover:text-slate-800 transition-colors">
+                            Most relevant posts (Recommended)
+                          </span>
+                          <ArrowRight
+                            size={18}
+                            className="text-slate-500 group-hover:text-slate-800 transition-colors"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between py-4 border-b border-slate-200 last:border-0 cursor-pointer group">
+                        <span className="text-[16px] font-medium text-slate-900">
+                          People you unfollowed
+                        </span>
+                        <ArrowRight
+                          size={18}
+                          className="text-slate-500 group-hover:text-slate-800 transition-colors"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
