@@ -125,7 +125,7 @@ export const useLodgeStore = create<LodgeState>((set, get) => ({
       set({ currentLodgeChannels: channels });
       // Auto-select the first text channel (usually 'general')
       if (channels.length > 0) {
-        set({ selectedChannel: channels[0] });
+        get().setSelectedChannel(channels[0]);
       }
     } catch (error: unknown) {
       console.error("Failed to load channels", error);
