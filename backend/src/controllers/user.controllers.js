@@ -43,7 +43,7 @@ export const registerUser = async (req, res) => {
       displayName,
       email,
       password,
-      avatar: avatarUrl || "https://default-avatar-url.com/avatar.png",
+      avatar: avatarUrl || avatar || "https://default-avatar-url.com/avatar.png",
       username: username.toLowerCase(),
       bio: bio || "",
       institute: institute || "Independent Researcher",
