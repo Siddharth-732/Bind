@@ -1126,39 +1126,80 @@ export default function ChatPage() {
                       </div>
                     ) : (
                       channelMessages.map((msg, index) => {
+                        const isMe = msg.senderId?._id === authUser?._id;
+
                         return (
                           <div
                             key={msg._id || index}
-                            className={`flex w-full mt-4 hover:bg-slate-50/50 p-1 rounded-md transition-colors`}
+                            className={`flex flex-col mb-6 w-full ${isMe ? "items-end" : "items-start"}`}
                           >
-                            <div className="w-10 h-10 rounded-full bg-[#005a73] flex items-center justify-center text-white shrink-0 overflow-hidden font-bold mt-1 cursor-pointer">
-                              {msg.senderId?.avatar ? (
-                                <img
-                                  src={msg.senderId.avatar}
-                                  alt="Avatar"
-                                  className="w-full h-full object-cover"
-                                />
-                              ) : (
-                                msg.senderId?.displayName
-                                  ?.charAt(0)
-                                  .toUpperCase() || <User size={20} />
+                            <div
+                              className={`flex items-center gap-2 mb-2 ${isMe ? "mr-14" : "ml-14"}`}
+                            >
+                              {!isMe && (
+                                <span className="font-bold text-sm text-slate-900">
+                                  {msg.senderId?.displayName || "Unknown"}
+                                </span>
+                              )}
+                              <span className="text-[10px] font-bold text-slate-500">
+                                {new Date(msg.createdAt).toLocaleTimeString([], {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
+                              </span>
+                              {isMe && (
+                                <span className="font-bold text-sm text-[#005a73]">
+                                  You
+                                </span>
                               )}
                             </div>
-                            <div className="ml-4 flex flex-col min-w-0">
-                              <div className="flex items-baseline gap-2">
-                                <span className="font-bold text-[15px] text-slate-900 hover:underline cursor-pointer">
-                                  {msg.senderId?.displayName}
-                                </span>
-                                <span className="text-[11px] font-medium text-slate-500">
-                                  {new Date(msg.createdAt).toLocaleTimeString(
-                                    [],
-                                    { hour: "2-digit", minute: "2-digit" },
+
+                            <div
+                              className={`flex gap-4 max-w-[80%] ${isMe ? "justify-end" : ""}`}
+                            >
+                              {!isMe && (
+                                <div className="h-10 w-10 rounded-[14px] bg-[#005a73] flex items-center justify-center text-white shrink-0 overflow-hidden font-bold">
+                                  {msg.senderId?.avatar &&
+                                  !msg.senderId.avatar.includes("default") ? (
+                                    <img
+                                      src={msg.senderId.avatar}
+                                      alt="Avatar"
+                                      className="w-full h-full object-cover"
+                                    />
+                                  ) : (
+                                    msg.senderId?.displayName
+                                      ?.charAt(0)
+                                      .toUpperCase() || <User size={20} />
                                   )}
-                                </span>
-                              </div>
-                              <div className="text-[15px] text-slate-800 mt-0.5 leading-relaxed break-words whitespace-pre-wrap">
+                                </div>
+                              )}
+
+                              <div
+                                className={`px-5 py-4 text-[15px] leading-relaxed transition-all duration-500 ${
+                                  !isMe
+                                    ? "bg-white border border-slate-200 text-slate-700 rounded-[20px] rounded-tl-sm shadow-sm"
+                                    : "bg-[#E6EAFC] text-slate-800 rounded-[20px] rounded-tr-sm border border-transparent"
+                                }`}
+                              >
                                 {msg.content}
                               </div>
+
+                              {isMe && (
+                                <div className="h-10 w-10 rounded-[14px] bg-slate-800 flex items-center justify-center text-white shrink-0 overflow-hidden font-bold">
+                                  {authUser?.avatar &&
+                                  !authUser.avatar.includes("default") ? (
+                                    <img
+                                      src={authUser.avatar}
+                                      alt="Me"
+                                      className="w-full h-full object-cover"
+                                    />
+                                  ) : (
+                                    authUser?.displayName?.charAt(0).toUpperCase() || (
+                                      <User size={20} />
+                                    )
+                                  )}
+                                </div>
+                              )}
                             </div>
                           </div>
                         );
