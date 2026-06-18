@@ -28,6 +28,7 @@ import {
   LogOutIcon,
   X,
   ChevronRight,
+  ArrowRight,
 } from "lucide-react";
 
 export default function ChatPage() {
@@ -1532,7 +1533,7 @@ export default function ChatPage() {
                 onClick={() => setActiveSettingsTab("language")}
                 className={`w-full text-left px-2.5 py-[6px] rounded-[4px] text-[15px] font-medium transition-colors mb-0.5 ${activeSettingsTab === "language" ? "bg-[#404249] text-slate-200" : "text-[#b5bac1] hover:bg-[#35373c] hover:text-slate-200"}`}
               >
-                Language
+                General Preferences
               </button>
 
               <div className="w-full h-[1px] bg-[#3f4147] my-2"></div>
@@ -1756,20 +1757,196 @@ export default function ChatPage() {
               )}
 
               {activeSettingsTab === "data_privacy" && (
-                <div>
+                <div className="max-w-[600px]">
                   <h2 className="text-[20px] font-bold text-slate-100 mb-6">Data & Privacy</h2>
+                  
+                  <div className="mb-8">
+                    <h3 className="text-[12px] font-bold text-[#b5bac1] uppercase tracking-wider mb-4">How We Use Your Data</h3>
+                    
+                    <div className="flex items-start justify-between py-4 border-b border-[#3f4147]">
+                      <div className="pr-8">
+                        <div className="text-[16px] font-medium text-slate-100 mb-1">Use data to improve Talk</div>
+                        <div className="text-[14px] text-[#b5bac1]">This setting allows us to use and process information about how you navigate and use Talk for analytical purposes.</div>
+                      </div>
+                      <div className="w-10 h-6 shrink-0 bg-[#23a559] rounded-full relative cursor-pointer mt-1">
+                        <div className="w-4 h-4 bg-white rounded-full absolute top-1 right-1 shadow-sm"></div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start justify-between py-4 border-b border-[#3f4147]">
+                      <div className="pr-8">
+                        <div className="text-[16px] font-medium text-slate-100 mb-1">Use data to customize my experience</div>
+                        <div className="text-[14px] text-[#b5bac1]">This setting allows us to use information to customize your experience on Talk.</div>
+                      </div>
+                      <div className="w-10 h-6 shrink-0 bg-[#23a559] rounded-full relative cursor-pointer mt-1">
+                        <div className="w-4 h-4 bg-white rounded-full absolute top-1 right-1 shadow-sm"></div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start justify-between py-4 border-b border-[#3f4147]">
+                      <div className="pr-8">
+                        <div className="text-[16px] font-medium text-slate-100 mb-1">Allow direct messages from server members</div>
+                        <div className="text-[14px] text-[#b5bac1]">This setting is applied when you join a new server. It does not affect your existing servers.</div>
+                      </div>
+                      <div className="w-10 h-6 shrink-0 bg-[#23a559] rounded-full relative cursor-pointer mt-1">
+                        <div className="w-4 h-4 bg-white rounded-full absolute top-1 right-1 shadow-sm"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-[12px] font-bold text-[#b5bac1] uppercase tracking-wider mb-4">Request Data</h3>
+                    <div className="text-[14px] text-[#b5bac1] mb-4">You can request a copy of your personal data. It may take up to 30 days to process your request.</div>
+                    <button className="px-4 py-2 bg-[#4e5058] hover:bg-[#6d6f78] text-white text-[14px] font-medium rounded-[4px] transition-colors">Request all of my data</button>
+                  </div>
                 </div>
               )}
 
               {activeSettingsTab === "appearance" && (
-                <div>
+                <div className="max-w-[600px]">
                   <h2 className="text-[20px] font-bold text-slate-100 mb-6">Appearance</h2>
+                  
+                  <div className="mb-8">
+                    <h3 className="text-[12px] font-bold text-[#b5bac1] uppercase tracking-wider mb-4">Theme</h3>
+                    <div className="flex gap-4">
+                      <div className="flex-1 bg-[#1e1f22] border-2 border-[#5865f2] rounded-[8px] p-4 cursor-pointer relative">
+                        <div className="absolute top-2 right-2 w-5 h-5 bg-[#5865f2] rounded-full flex items-center justify-center">
+                          <div className="w-2 h-2 bg-white rounded-full"></div>
+                        </div>
+                        <div className="w-full h-[60px] bg-[#313338] rounded-md mb-3 flex items-center px-3">
+                          <div className="w-6 h-6 rounded-full bg-[#2b2d31] shrink-0 mr-3"></div>
+                          <div className="flex-1 space-y-1.5">
+                            <div className="w-16 h-2 bg-[#2b2d31] rounded-full"></div>
+                            <div className="w-full h-2 bg-[#2b2d31] rounded-full"></div>
+                          </div>
+                        </div>
+                        <div className="text-[14px] font-bold text-slate-200 text-center">Dark</div>
+                      </div>
+                      
+                      <div className="flex-1 bg-white border-2 border-transparent rounded-[8px] p-4 cursor-pointer relative">
+                        <div className="w-full h-[60px] bg-[#f2f3f5] rounded-md mb-3 flex items-center px-3">
+                          <div className="w-6 h-6 rounded-full bg-white shrink-0 mr-3 shadow-sm"></div>
+                          <div className="flex-1 space-y-1.5">
+                            <div className="w-16 h-2 bg-white shadow-sm rounded-full"></div>
+                            <div className="w-full h-2 bg-white shadow-sm rounded-full"></div>
+                          </div>
+                        </div>
+                        <div className="text-[14px] font-bold text-slate-600 text-center">Light</div>
+                      </div>
+
+                      <div className="flex-1 bg-gradient-to-br from-[#1e1f22] to-[#e3e5e8] border-2 border-transparent rounded-[8px] p-4 cursor-pointer relative">
+                        <div className="w-full h-[60px] flex rounded-md mb-3 overflow-hidden">
+                           <div className="flex-1 bg-[#313338] h-full flex items-center px-2">
+                             <div className="w-4 h-4 rounded-full bg-[#2b2d31]"></div>
+                           </div>
+                           <div className="flex-1 bg-[#f2f3f5] h-full flex items-center px-2">
+                             <div className="w-4 h-4 rounded-full bg-white shadow-sm"></div>
+                           </div>
+                        </div>
+                        <div className="text-[14px] font-bold text-slate-300 text-center">Sync</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-[12px] font-bold text-[#b5bac1] uppercase tracking-wider mb-4">Message Display</h3>
+                    <div className="space-y-2">
+                      <label className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-[#35373c] transition-colors">
+                        <div className="w-5 h-5 rounded-full border-2 border-[#5865f2] flex items-center justify-center shrink-0">
+                           <div className="w-2.5 h-2.5 bg-[#5865f2] rounded-full"></div>
+                        </div>
+                        <span className="text-[15px] font-medium text-slate-100">Cozy <span className="text-[#b5bac1] font-normal text-[13px] ml-1">Modern, beautiful, and easy on your eyes.</span></span>
+                      </label>
+                      <label className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-[#35373c] transition-colors">
+                        <div className="w-5 h-5 rounded-full border-2 border-[#80848e] shrink-0"></div>
+                        <span className="text-[15px] font-medium text-slate-100">Compact <span className="text-[#b5bac1] font-normal text-[13px] ml-1">Fit as many messages on screen as possible.</span></span>
+                      </label>
+                    </div>
+                  </div>
                 </div>
               )}
 
               {activeSettingsTab === "language" && (
-                <div>
-                  <h2 className="text-[20px] font-bold text-slate-100 mb-6">Language</h2>
+                <div className="max-w-[600px] pb-10">
+                  <h2 className="text-[20px] font-bold text-slate-100 mb-6">General Preferences</h2>
+                  
+                  {/* Language Card */}
+                  <div className="bg-[#2b2d31] rounded-xl p-5 mb-6">
+                    <h3 className="text-[12px] font-bold text-[#b5bac1] uppercase tracking-wider mb-4">Language</h3>
+                    <div className="text-[14px] text-[#b5bac1] mb-6">
+                      Select the language you want to use Talk in.
+                    </div>
+                    
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between p-3 rounded bg-[#404249] cursor-pointer">
+                        <div>
+                          <div className="text-[15px] font-medium text-slate-100">English (US)</div>
+                          <div className="text-[13px] text-[#b5bac1]">English (US)</div>
+                        </div>
+                        <div className="w-5 h-5 rounded-full border-2 border-[#5865f2] flex items-center justify-center shrink-0">
+                          <div className="w-2.5 h-2.5 bg-[#5865f2] rounded-full"></div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between p-3 rounded hover:bg-[#35373c] cursor-pointer transition-colors">
+                        <div>
+                          <div className="text-[15px] font-medium text-slate-100">English (UK)</div>
+                          <div className="text-[13px] text-[#b5bac1]">English (UK)</div>
+                        </div>
+                        <div className="w-5 h-5 rounded-full border-2 border-[#80848e] shrink-0"></div>
+                      </div>
+
+                      <div className="flex items-center justify-between p-3 rounded hover:bg-[#35373c] cursor-pointer transition-colors">
+                        <div>
+                          <div className="text-[15px] font-medium text-slate-100">Español</div>
+                          <div className="text-[13px] text-[#b5bac1]">Spanish</div>
+                        </div>
+                        <div className="w-5 h-5 rounded-full border-2 border-[#80848e] shrink-0"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Other Preferences Card */}
+                  <div className="bg-[#2b2d31] rounded-xl p-5 mb-6">
+                    <h3 className="text-[12px] font-bold text-[#b5bac1] uppercase tracking-wider mb-4">Other Preferences</h3>
+                    
+                    <div className="flex items-center justify-between py-4 border-b border-[#3f4147] last:border-0 cursor-pointer group">
+                      <span className="text-[16px] font-medium text-slate-100">Autoplay videos</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[15px] font-medium text-[#b5bac1] group-hover:text-slate-200 transition-colors">On</span>
+                        <ArrowRight size={18} className="text-[#b5bac1] group-hover:text-slate-200 transition-colors" />
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between py-4 border-b border-[#3f4147] last:border-0 cursor-pointer group">
+                      <span className="text-[16px] font-medium text-slate-100">Sound effects</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[15px] font-medium text-[#b5bac1] group-hover:text-slate-200 transition-colors">On</span>
+                        <ArrowRight size={18} className="text-[#b5bac1] group-hover:text-slate-200 transition-colors" />
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between py-4 border-b border-[#3f4147] last:border-0 cursor-pointer group">
+                      <span className="text-[16px] font-medium text-slate-100">Showing profile photos</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[15px] font-medium text-[#b5bac1] group-hover:text-slate-200 transition-colors">All Talk members</span>
+                        <ArrowRight size={18} className="text-[#b5bac1] group-hover:text-slate-200 transition-colors" />
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between py-4 border-b border-[#3f4147] last:border-0 cursor-pointer group">
+                      <span className="text-[16px] font-medium text-slate-100">Preferred feed view</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[15px] font-medium text-[#b5bac1] group-hover:text-slate-200 transition-colors">Most relevant posts (Recommended)</span>
+                        <ArrowRight size={18} className="text-[#b5bac1] group-hover:text-slate-200 transition-colors" />
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between py-4 border-b border-[#3f4147] last:border-0 cursor-pointer group">
+                      <span className="text-[16px] font-medium text-slate-100">People you unfollowed</span>
+                      <ArrowRight size={18} className="text-[#b5bac1] group-hover:text-slate-200 transition-colors" />
+                    </div>
+                  </div>
                 </div>
               )}
 
