@@ -110,7 +110,7 @@ export default function ChatPage() {
   const [activeTab, setActiveTab] = useState<
     "chat" | "lodge" | "explore" | "notifications"
   >("chat");
-  const [defaultLodgeChannel, setDefaultLodgeChannel] = useState("jam-info");
+  const [defaultLodgeChannel, setDefaultLodgeChannel] = useState("Lodge Info");
 
   // Channel Messaging State
   const [channelMessageText, setChannelMessageText] = useState("");
@@ -1121,11 +1121,11 @@ export default function ChatPage() {
                       </span>
                     </div>
                     <button
-                      onClick={() => setDefaultLodgeChannel("jam-info")}
-                      className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-[15px] font-medium transition-colors ${defaultLodgeChannel === "jam-info" ? "bg-blue-50 text-blue-600" : "hover:bg-slate-200/50 hover:text-slate-800"}`}
+                      onClick={() => setDefaultLodgeChannel("Lodge Info")}
+                      className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-[15px] font-medium transition-colors ${defaultLodgeChannel === "Lodge Info" ? "bg-blue-50 text-blue-600" : "hover:bg-slate-200/50 hover:text-slate-800"}`}
                     >
                       <span className="text-xl shrink-0">🌞</span>
-                      <span className="truncate">jam-info</span>
+                      <span className="truncate">Lodge Info</span>
                     </button>
                   </div>
 
@@ -1386,39 +1386,38 @@ export default function ChatPage() {
               ) : (
                 <div className="flex-1 flex flex-col items-center justify-center text-slate-800 bg-white h-full p-8">
                   {/* Mock content based on defaultLodgeChannel */}
-                  {defaultLodgeChannel === "jam-info" && (
+                  {defaultLodgeChannel === "Lodge Info" && (
                     <div className="max-w-2xl text-center space-y-6">
                       <div className="w-24 h-24 bg-[#3B82F6] rounded-3xl flex items-center justify-center mx-auto shadow-lg mb-8">
                         <span className="text-5xl">🌞</span>
                       </div>
                       <h2 className="text-4xl font-extrabold text-slate-900">
-                        Welcome to Bind!
+                        Welcome to the Lodge Space!
                       </h2>
                       <p className="text-slate-600 text-lg leading-relaxed font-medium">
-                        This is your global campus. Connect with peers from
-                        around the world, join lodges, and collaborate on your
-                        academic journey.
+                        A Lodge is a dedicated community hub designed for you and your peers to connect, collaborate, and share ideas. Whether you are studying together, building a project, or just hanging out, Lodges give you the structured environment you need to thrive.
                       </p>
                       <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 text-left mt-8 shadow-sm">
                         <h4 className="text-slate-900 font-bold mb-3 flex items-center gap-2">
-                          <Info size={18} className="text-[#3B82F6]" /> About
-                          this Lodge
+                          <Info size={18} className="text-[#3B82F6]" /> Getting Started
                         </h4>
                         <p className="text-slate-600 text-sm leading-relaxed mb-4">
-                          This default space serves as your hub for global
-                          announcements and introductions. Check the channels on
-                          the left to navigate:
+                          We've set up a few template channels to show you how a Lodge is organized. Take a look around:
                         </p>
-                        <ul className="text-slate-600 text-sm space-y-2 list-disc pl-5">
+                        <ul className="text-slate-600 text-sm space-y-3 list-disc pl-5">
                           <li>
                             <strong className="text-slate-900">
                               # announcements
                             </strong>
-                            : Updates from the developers
+                            : Check out how server owners can broadcast important updates to all members.
                           </li>
                           <li>
                             <strong className="text-slate-900"># roles</strong>:
-                            Pick your specialization
+                            Discover how Lodge hierarchies work, from Captain down to Junior members.
+                          </li>
+                          <li>
+                            <strong className="text-slate-900"># general</strong>:
+                            Where the day-to-day casual chat happens.
                           </li>
                         </ul>
                       </div>
@@ -1514,7 +1513,7 @@ export default function ChatPage() {
                     </div>
                   )}
                   {/* Default fallback for other channels */}
-                  {!["jam-info", "announcements", "roles"].includes(
+                  {!["Lodge Info", "announcements", "roles"].includes(
                     defaultLodgeChannel,
                   ) && (
                     <div className="w-full max-w-3xl h-full flex flex-col justify-center items-center text-center pb-8">
