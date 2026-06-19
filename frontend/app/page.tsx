@@ -4,6 +4,7 @@ import { useChatStore } from "../store/useChatStore";
 import { useLodgeStore } from "../store/useLodgeStore";
 import { useStatusStore } from "../store/useStatusStore";
 import { useConnectionStore } from "../store/useConnectionStore";
+import { usePostStore } from "../store/usePostStore";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 import {
@@ -29,6 +30,9 @@ import {
   X,
   ChevronRight,
   ArrowRight,
+  Heart,
+  Image as ImageIcon,
+  Tag,
 } from "lucide-react";
 
 export default function ChatPage() {
@@ -84,6 +88,16 @@ export default function ChatPage() {
 
   // STATUS STORE
   const { statuses, createStatus, isCreatingStatus } = useStatusStore();
+  
+  // POST STORE
+  const {
+    posts,
+    isLoadingPosts,
+    isCreatingPost,
+    getGlobalFeed,
+    createPost,
+    toggleLike,
+  } = usePostStore();
 
   const router = useRouter();
 
@@ -99,16 +113,38 @@ export default function ChatPage() {
   const [chatMessageText, setChatMessageText] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  // Post Creation State
+  const [postContent, setPostContent] = useState("");
+  const [postImage, setPostImage] = useState<File | null>(null);
+  const [postTags, setPostTags] = useState("");
+  const postImageInputRef = useRef<HTMLInputElement>(null);
 
+  const handleCreatePost = async () => {
+    if (!postContent.trim()) return;
+    const formData = new FormData();
+    formData.append("content", postContent);
+    if (postImage) formData.append("image", postImage);
+    if (postTags) formData.append("tags", postTags);
+    
+    const success = await createPost(formData);
+    if (success) {
+      setPostContent("");
+      setPostImage(null);
+      setPostTags("");
+    }
+  };
+
+  // Trigger Explore Search Debounced & Fetch Global Feed
   useEffect(() => {
     if (activeTab === "explore") {
+      getGlobalFeed();
       const timer = setTimeout(() => {
         useConnectionStore.getState().getDiscoverUsers(searchQuery);
         useLodgeStore.getState().getPublicLodges(searchQuery);
       }, 300);
       return () => clearTimeout(timer);
     }
-  }, [searchQuery, activeTab]);
+  }, [searchQuery, activeTab, getGlobalFeed]);
 
   const handleChatInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setChatMessageText(e.target.value);
@@ -1390,17 +1426,139 @@ export default function ChatPage() {
               </div>
             </div>
 
-            {/* Feed Area (Placeholder) */}
-            <div className="flex-1 overflow-y-auto p-6 bg-slate-50/50 flex flex-col items-center justify-center text-center">
-              <div className="h-24 w-24 bg-slate-100 rounded-full flex items-center justify-center text-slate-300 mb-6">
-                <Compass size={40} />
+            {/* Feed Area */}
+            <div className="flex-1 overflow-y-auto bg-slate-50/50 flex flex-col custom-scrollbar relative">
+              {/* Create Post Box */}
+              <div className="p-6 bg-white border-b border-slate-200">
+                <div className="flex gap-4">
+                  <div className="w-10 h-10 rounded-full bg-[#3B82F6] flex items-center justify-center text-white font-bold shrink-0">
+                    {authUser?.displayName?.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex-1">
+                    <textarea
+                      placeholder="What's on your mind?"
+                      value={postContent}
+                      onChange={(e) => setPostContent(e.target.value)}
+                      className="w-full bg-transparent resize-none outline-none text-slate-800 placeholder:text-slate-400 min-h-[60px]"
+                    />
+                    
+                    {postImage && (
+                      <div className="relative inline-block mt-2">
+                        <img src={URL.createObjectURL(postImage)} alt="Preview" className="h-32 rounded-xl object-cover" />
+                        <button onClick={() => setPostImage(null)} className="absolute top-2 right-2 bg-slate-900/50 text-white rounded-full p-1 hover:bg-slate-900/80">
+                          <X size={14} />
+                        </button>
+                      </div>
+                    )}
+                    
+                    <div className="flex items-center gap-2 mt-2">
+                      <Tag size={16} className="text-slate-400" />
+                      <input
+                        type="text"
+                        placeholder="Tags (comma separated, e.g. AI, Engineering)"
+                        value={postTags}
+                        onChange={(e) => setPostTags(e.target.value)}
+                        className="flex-1 bg-slate-100 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-1 focus:ring-blue-400"
+                      />
+                    </div>
+                    
+                    <div className="flex items-center justify-between mt-4">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          ref={postImageInputRef}
+                          className="hidden"
+                          onChange={(e) => {
+                            if (e.target.files?.[0]) setPostImage(e.target.files[0]);
+                          }}
+                        />
+                        <button
+                          onClick={() => postImageInputRef.current?.click()}
+                          className="p-2 text-slate-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
+                          title="Add Image"
+                        >
+                          <ImageIcon size={20} />
+                        </button>
+                      </div>
+                      <button
+                        onClick={handleCreatePost}
+                        disabled={isCreatingPost || !postContent.trim()}
+                        className="px-6 py-2 bg-[#3B82F6] text-white font-bold rounded-full hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                      >
+                        {isCreatingPost ? <Loader2 className="animate-spin" size={16} /> : "Post"}
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <h3 className="text-2xl font-bold text-slate-800">Bind Feed</h3>
-              <p className="text-slate-500 mt-2 max-w-md font-medium">
-                The global feed is under construction. Soon, you&apos;ll be able
-                to see posts, resources, and updates from peers all over the
-                world right here!
-              </p>
+
+              {/* Posts Feed */}
+              <div className="p-6 space-y-6">
+                {isLoadingPosts ? (
+                  <div className="flex justify-center p-8">
+                    <Loader2 className="animate-spin text-blue-500" size={32} />
+                  </div>
+                ) : posts.length === 0 ? (
+                  <div className="text-center p-12 text-slate-500">
+                    <p className="font-medium">No posts yet.</p>
+                    <p className="text-sm">Be the first to share something!</p>
+                  </div>
+                ) : (
+                  posts.map((post) => {
+                    const hasLiked = post.likes.includes(authUser?._id || "");
+                    return (
+                      <div key={post._id} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="h-10 w-10 rounded-full bg-slate-200 overflow-hidden shrink-0">
+                            {post.author?.avatar ? (
+                              <img src={post.author.avatar} alt="avatar" className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full bg-[#3B82F6] flex items-center justify-center text-white font-bold">
+                                {post.author?.displayName?.charAt(0).toUpperCase()}
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-bold text-slate-900">{post.author?.displayName}</p>
+                            <p className="text-xs text-slate-500">
+                              {new Date(post.createdAt).toLocaleDateString()} at {new Date(post.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                            </p>
+                          </div>
+                        </div>
+                        
+                        <p className="text-slate-800 mb-4 whitespace-pre-wrap">{post.content}</p>
+                        
+                        {post.image && (
+                          <div className="mb-4 rounded-xl overflow-hidden border border-slate-100">
+                            <img src={post.image} alt="Post attachment" className="w-full max-h-[400px] object-cover" />
+                          </div>
+                        )}
+                        
+                        {post.tags && post.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mb-4">
+                            {post.tags.map((tag, idx) => (
+                              <span key={idx} className="px-2 py-1 bg-slate-100 text-slate-600 text-xs font-medium rounded-md">
+                                #{tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        
+                        <div className="flex items-center gap-6 pt-4 border-t border-slate-100">
+                          <button
+                            onClick={() => toggleLike(post._id)}
+                            className={`flex items-center gap-2 text-sm font-bold transition-colors ${hasLiked ? "text-red-500" : "text-slate-500 hover:text-red-500"}`}
+                          >
+                            <Heart size={18} className={hasLiked ? "fill-red-500" : ""} />
+                            {post.likes.length > 0 && <span>{post.likes.length}</span>}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
             </div>
           </div>
 

@@ -26,7 +26,9 @@ export default function ProfilePage() {
   const params = useParams();
   const username = params.username as string;
   const [activeTab, setActiveTab] = useState("posts");
-  const [profileData, setProfileData] = useState<import("../../../store/useAuthStore").AuthUser | null>(null);
+  const [profileData, setProfileData] = useState<
+    import("../../../store/useAuthStore").AuthUser | null
+  >(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -62,7 +64,7 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] font-sans pb-20">
       {/* 1. Header Area (Banner & Avatar) */}
-      <div className="relative w-full h-[280px] bg-slate-200">
+      <div className="relative w-full h-[160px] bg-slate-200">
         {profileData.banner ? (
           <img
             src={profileData.banner}
@@ -128,10 +130,6 @@ export default function ProfilePage() {
               Scholarly Highlights
             </h3>
             <div className="flex flex-col gap-3">
-              <div className="inline-flex items-center gap-2 bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-full w-fit">
-                <Award size={14} className="text-indigo-500" />
-                <span className="text-xs font-bold">Top Contributor</span>
-              </div>
               <div className="inline-flex items-center gap-2 bg-teal-50 text-teal-700 px-3 py-1.5 rounded-full w-fit">
                 <FlaskConical size={14} className="text-teal-500" />
                 <span className="text-xs font-bold">
@@ -390,17 +388,6 @@ export default function ProfilePage() {
             </div>
           )}
         </div>
-      </div>
-
-      {/* Floating Action Button (Mocked Chat) */}
-      <div className="fixed bottom-8 right-8 z-50">
-        <button
-          type="button"
-          aria-label="Open chat"
-          className="w-14 h-14 bg-[#4F46E5] hover:bg-[#4338CA] rounded-full shadow-lg flex items-center justify-center text-white hover:scale-105 transition-transform"
-        >
-          <MessageSquare size={24} />
-        </button>
       </div>
     </div>
   );
