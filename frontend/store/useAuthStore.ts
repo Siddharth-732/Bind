@@ -25,7 +25,7 @@ interface AuthState {
   isRegistering: boolean;
   isUpdatingProfile: boolean;
   socket: Socket | null;
-  login: (data: Record<string, unknown> | FormData) => Promise<void>;
+  login: (data: Record<string, unknown> | FormData) => Promise<boolean>;
   register: (data: Record<string, unknown> | FormData) => Promise<void>;
   logout: () => Promise<void>;
   connectSocket: () => void;
@@ -51,9 +51,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const response = await axiosInstance.post("/users/login", data);
       set({ authUser: response.data.user });
       toast.success("Logged in successfully!");
+      return true;
     } catch (error: unknown) {
       const axiosError = error as AxiosError<{ message: string }>;
       toast.error(axiosError.response?.data?.message || "Failed to log in");
+      return false;
     } finally {
       set({ isLoggingIn: false });
     }

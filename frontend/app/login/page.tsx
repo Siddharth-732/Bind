@@ -31,16 +31,24 @@ export default function LoginPage() {
     e.preventDefault();
     setHasError(false);
 
+    if (!email || password.length < 6) {
+      setHasError(true);
+      setTimeout(() => setHasError(false), 500); // short reset
+      return;
+    }
+
     try {
       // login action from zustand
-      await login({ email, password });
+      const success = await login({ email, password });
 
-      // If login throws an error or fails, the catch block will run
-      // Actually zustand might not throw, but handle errors internally via toast.
-      // We will assume that if we are still on this page after await and authUser is null,
-      // it might have failed. Let's just trigger a small shake anyway if authUser is null.
+      // If login throws an error or fails, trigger a shake
+      if (!success) {
+        setHasError(true);
+        setTimeout(() => setHasError(false), 500); // short reset
+      }
     } catch (err) {
       setHasError(true);
+      setTimeout(() => setHasError(false), 500); // short reset
     }
   };
 
@@ -142,13 +150,6 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoggingIn}
-              onClick={() => {
-                // If they try to login with empty fields or short password, trigger error
-                if (!email || password.length < 6) {
-                  setHasError(true);
-                  setTimeout(() => setHasError(false), 500); // short reset
-                }
-              }}
               className="mt-6 w-full flex items-center justify-center rounded-full bg-[#3B82F6] py-3.5 text-[15px] font-bold text-white transition-all hover:bg-[#004255] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {isLoggingIn ? (
