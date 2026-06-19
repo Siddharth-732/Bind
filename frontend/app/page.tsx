@@ -468,7 +468,7 @@ export default function ChatPage() {
             <Plus size={24} />
           </button>
         </div>
-      ) : (
+      ) : activeTab === "explore" ? null : (
         <div className="w-[320px] bg-[#F4F7F9] border-l border-r border-slate-200 flex flex-col shrink-0 z-10">
           <div className="p-6 pb-4">
             <h2 className="text-2xl font-extrabold text-slate-900 mb-6">
@@ -504,46 +504,51 @@ export default function ChatPage() {
                   </p>
                 ) : (
                   peers
-                    .filter((user) =>
-                      user.displayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                      user.username.toLowerCase().includes(searchQuery.toLowerCase())
+                    .filter(
+                      (user) =>
+                        user.displayName
+                          .toLowerCase()
+                          .includes(searchQuery.toLowerCase()) ||
+                        user.username
+                          .toLowerCase()
+                          .includes(searchQuery.toLowerCase()),
                     )
                     .map((user) => {
                       const isSelected = selectedUser?._id === user._id;
-                    return (
-                      <button
-                        key={user._id}
-                        onClick={() => setSelectedUser(user)}
-                        className={`w-full flex items-center gap-3 p-4 rounded-[20px] transition-all text-left ${
-                          isSelected
-                            ? "bg-[#EFF6FF] shadow-sm border border-blue-200/60"
-                            : "bg-white border border-slate-100 hover:bg-slate-50 shadow-sm"
-                        }`}
-                      >
-                        <div className="relative shrink-0">
-                          <div className="h-12 w-12 rounded-full bg-[#3B82F6] flex items-center justify-center font-bold text-white text-lg">
-                            {user.displayName.charAt(0).toUpperCase()}
+                      return (
+                        <button
+                          key={user._id}
+                          onClick={() => setSelectedUser(user)}
+                          className={`w-full flex items-center gap-3 p-4 rounded-[20px] transition-all text-left ${
+                            isSelected
+                              ? "bg-[#EFF6FF] shadow-sm border border-blue-200/60"
+                              : "bg-white border border-slate-100 hover:bg-slate-50 shadow-sm"
+                          }`}
+                        >
+                          <div className="relative shrink-0">
+                            <div className="h-12 w-12 rounded-full bg-[#3B82F6] flex items-center justify-center font-bold text-white text-lg">
+                              {user.displayName.charAt(0).toUpperCase()}
+                            </div>
+                            <div className="absolute bottom-0 right-0 h-3.5 w-3.5 bg-green-500 rounded-full border-2 border-white"></div>
                           </div>
-                          <div className="absolute bottom-0 right-0 h-3.5 w-3.5 bg-green-500 rounded-full border-2 border-white"></div>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex justify-between items-center mb-0.5">
-                            <p className="text-sm font-bold text-slate-900 truncate pr-2">
-                              {user.displayName}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex justify-between items-center mb-0.5">
+                              <p className="text-sm font-bold text-slate-900 truncate pr-2">
+                                {user.displayName}
+                              </p>
+                              <span className="text-[10px] font-bold text-slate-500 shrink-0">
+                                10:42 AM
+                              </span>
+                            </div>
+                            <p
+                              className={`text-xs truncate ${isSelected ? "text-[#3B82F6]/80 font-medium" : "text-slate-500"}`}
+                            >
+                              Tap to view conversation...
                             </p>
-                            <span className="text-[10px] font-bold text-slate-500 shrink-0">
-                              10:42 AM
-                            </span>
                           </div>
-                          <p
-                            className={`text-xs truncate ${isSelected ? "text-[#3B82F6]/80 font-medium" : "text-slate-500"}`}
-                          >
-                            Tap to view conversation...
-                          </p>
-                        </div>
-                      </button>
-                    );
-                  })
+                        </button>
+                      );
+                    })
                 )}
               </div>
             )}
@@ -663,7 +668,7 @@ export default function ChatPage() {
               <MessageSquare size={40} />
             </div>
             <h3 className="text-2xl font-bold text-slate-800">
-              Your Academic Nexus
+              Your Academic Townhall
             </h3>
             <p className="text-slate-500 mt-2 max-w-md font-medium">
               Select a peer from the sidebar to continue the conversation, share
@@ -1362,27 +1367,51 @@ export default function ChatPage() {
 
       {/* State 4: EXPLORE is active */}
       {activeTab === "explore" && (
-        <div className="flex-1 overflow-y-auto bg-slate-50 p-8">
-          <div className="max-w-5xl mx-auto space-y-12">
-            {/* Header */}
-            <div>
-              <h2 className="text-3xl font-extrabold text-slate-900">
-                Explore Nexus
+        <div className="flex-1 flex bg-white relative overflow-hidden">
+          {/* Main Content (Center) */}
+          <div className="flex-1 flex flex-col min-w-0 border-r border-slate-200">
+            {/* Header / Search Area */}
+            <div className="p-6 border-b border-slate-200 bg-white sticky top-0 z-10">
+              <h2 className="text-2xl font-extrabold text-slate-900 mb-4">
+                Explore Bind
               </h2>
-              <p className="text-slate-500 font-medium mt-2">
-                Discover new peers, lodges, and see what everyone is up to.
-              </p>
+              <div className="relative">
+                <Search
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                  size={18}
+                />
+                <input
+                  type="text"
+                  placeholder="Search peers and lodges..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-slate-100 border-none rounded-full py-3 pl-12 pr-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-inner placeholder:text-slate-500"
+                />
+              </div>
             </div>
 
-            {/* People You Might Know */}
-            <div>
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                  <User size={20} className="text-[#3B82F6]" /> People You Might
-                  Know
-                </h3>
+            {/* Feed Area (Placeholder) */}
+            <div className="flex-1 overflow-y-auto p-6 bg-slate-50/50 flex flex-col items-center justify-center text-center">
+              <div className="h-24 w-24 bg-slate-100 rounded-full flex items-center justify-center text-slate-300 mb-6">
+                <Compass size={40} />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <h3 className="text-2xl font-bold text-slate-800">Bind Feed</h3>
+              <p className="text-slate-500 mt-2 max-w-md font-medium">
+                The global feed is under construction. Soon, you'll be able to
+                see posts, resources, and updates from peers all over the world
+                right here!
+              </p>
+            </div>
+          </div>
+
+          {/* Right Sidebar */}
+          <div className="w-[350px] flex flex-col bg-slate-50 shrink-0 overflow-y-auto custom-scrollbar">
+            {/* Discover Peers */}
+            <div className="p-6 border-b border-slate-200">
+              <h3 className="text-sm font-extrabold text-slate-900 mb-4 uppercase tracking-wider flex items-center gap-2">
+                <User size={16} className="text-[#3B82F6]" /> Recommended Peers
+              </h3>
+              <div className="space-y-4">
                 {discoverUsers.length === 0 ? (
                   <p className="text-sm text-slate-400">
                     No new users to discover right now.
@@ -1391,9 +1420,9 @@ export default function ChatPage() {
                   discoverUsers.map((user) => (
                     <div
                       key={user._id}
-                      className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow"
+                      className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex items-center gap-3 hover:shadow-md transition-shadow"
                     >
-                      <div className="h-12 w-12 rounded-full bg-slate-200 overflow-hidden shrink-0">
+                      <div className="h-10 w-10 rounded-full bg-slate-200 overflow-hidden shrink-0">
                         {user.avatar && !user.avatar.includes("default") ? (
                           <img
                             src={user.avatar}
@@ -1401,25 +1430,25 @@ export default function ChatPage() {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full bg-[#3B82F6] flex items-center justify-center text-white font-bold">
+                          <div className="w-full h-full bg-[#3B82F6] flex items-center justify-center text-white font-bold text-sm">
                             {user.displayName?.charAt(0).toUpperCase()}
                           </div>
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-bold text-slate-900 truncate">
+                        <p className="font-bold text-sm text-slate-900 truncate">
                           {user.displayName}
                         </p>
-                        <p className="text-xs text-slate-500 truncate">
+                        <p className="text-[11px] font-medium text-slate-500 truncate">
                           {user.bio || "Student at Nexus"}
                         </p>
                       </div>
                       <button
                         onClick={() => sendPeerRequest(user._id)}
-                        className="p-2 bg-[#EFF6FF] text-[#3B82F6] hover:bg-blue-100 rounded-xl transition-colors shrink-0"
+                        className="p-1.5 bg-[#EFF6FF] text-[#3B82F6] hover:bg-blue-100 rounded-lg transition-colors shrink-0"
                         title="Connect"
                       >
-                        <Plus size={18} />
+                        <Plus size={16} />
                       </button>
                     </div>
                   ))
@@ -1427,15 +1456,13 @@ export default function ChatPage() {
               </div>
             </div>
 
-            {/* Recommended Lodges */}
-            <div>
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                  <Building2 size={20} className="text-[#3B82F6]" /> Recommended
-                  Lodges
-                </h3>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* Discover Lodges */}
+            <div className="p-6">
+              <h3 className="text-sm font-extrabold text-slate-900 mb-4 uppercase tracking-wider flex items-center gap-2">
+                <Building2 size={16} className="text-[#3B82F6]" /> Recommended
+                Lodges
+              </h3>
+              <div className="space-y-4">
                 {publicLodges.length === 0 ? (
                   <p className="text-sm text-slate-400">
                     No public lodges available.
@@ -1444,41 +1471,37 @@ export default function ChatPage() {
                   publicLodges.map((lodge) => (
                     <div
                       key={lodge._id}
-                      className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col gap-4 hover:shadow-md transition-shadow"
+                      className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex items-center gap-3 hover:shadow-md transition-shadow"
                     >
-                      <div className="flex items-center gap-4">
-                        <div className="h-12 w-12 rounded-xl bg-slate-200 overflow-hidden shrink-0">
-                          {lodge.avatar ? (
-                            <img
-                              src={lodge.avatar}
-                              alt="lodge"
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-indigo-500 flex items-center justify-center text-white font-bold">
-                              {lodge.name.charAt(0).toUpperCase()}
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-bold text-slate-900 truncate">
-                            {lodge.name}
-                          </p>
-                          <p className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
-                            <Users size={12} /> {lodge.members?.length || 1}{" "}
-                            Members
-                          </p>
-                        </div>
+                      <div className="h-10 w-10 rounded-lg bg-slate-200 overflow-hidden shrink-0">
+                        {lodge.avatar ? (
+                          <img
+                            src={lodge.avatar}
+                            alt="lodge"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-indigo-500 flex items-center justify-center text-white font-bold text-sm">
+                            {lodge.name.charAt(0).toUpperCase()}
+                          </div>
+                        )}
                       </div>
-                      <p className="text-xs text-slate-600 line-clamp-2">
-                        {lodge.description}
-                      </p>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-bold text-sm text-slate-900 truncate">
+                          {lodge.name}
+                        </p>
+                        <p className="text-[11px] font-medium text-slate-500 flex items-center gap-1">
+                          <Users size={10} /> {lodge.members?.length || 1}{" "}
+                          Members
+                        </p>
+                      </div>
                       <button
                         onClick={() => joinLodge(lodge._id)}
                         disabled={isJoining}
-                        className="w-full py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl text-sm font-bold transition-colors"
+                        className="p-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-lg transition-colors shrink-0"
+                        title="Join"
                       >
-                        Join Lodge
+                        <Plus size={16} />
                       </button>
                     </div>
                   ))
