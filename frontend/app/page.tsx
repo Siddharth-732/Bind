@@ -6,6 +6,7 @@ import { useStatusStore } from "../store/useStatusStore";
 import { useConnectionStore } from "../store/useConnectionStore";
 import { usePostStore } from "../store/usePostStore";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
 import {
   MessageCircle,
@@ -33,6 +34,7 @@ import {
   Heart,
   Image as ImageIcon,
   Tag,
+  UserPlus,
 } from "lucide-react";
 
 export default function ChatPage() {
@@ -1563,50 +1565,44 @@ export default function ChatPage() {
           </div>
 
           {/* Right Sidebar */}
-          <div className="w-[350px] flex flex-col bg-slate-50 shrink-0 overflow-y-auto custom-scrollbar">
-            {/* Discover Peers */}
-            <div className="p-6 border-b border-slate-200">
-              <h3 className="text-sm font-extrabold text-slate-900 mb-4 uppercase tracking-wider flex items-center gap-2">
-                <User size={16} className="text-[#3B82F6]" /> Recommended Peers
-              </h3>
-              <div className="space-y-4">
+          <div className="w-[380px] flex flex-col bg-slate-50 shrink-0 overflow-y-auto custom-scrollbar p-6">
+            
+            {/* Connect with Peers Container */}
+            <div className="bg-white rounded-[24px] border border-slate-200 p-6 shadow-sm mb-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="font-extrabold text-slate-900 text-lg">Connect with Peers</h3>
+                <button className="text-[#3B82F6] font-bold text-sm hover:underline">View all</button>
+              </div>
+              
+              <div className="space-y-5">
                 {discoverUsers.length === 0 ? (
-                  <p className="text-sm text-slate-400">
-                    No new users to discover right now.
-                  </p>
+                  <p className="text-sm text-slate-400">No new users to discover right now.</p>
                 ) : (
                   discoverUsers.map((user) => (
-                    <div
-                      key={user._id}
-                      className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex items-center gap-3 hover:shadow-md transition-shadow"
-                    >
-                      <div className="h-10 w-10 rounded-full bg-slate-200 overflow-hidden shrink-0">
-                        {user.avatar && !user.avatar.includes("default") ? (
-                          <img
-                            src={user.avatar}
-                            alt="avatar"
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-[#3B82F6] flex items-center justify-center text-white font-bold text-sm">
-                            {user.displayName?.charAt(0).toUpperCase()}
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-bold text-sm text-slate-900 truncate">
-                          {user.displayName}
-                        </p>
-                        <p className="text-[11px] font-medium text-slate-500 truncate">
-                          {user.bio || "Student at Nexus"}
-                        </p>
-                      </div>
+                    <div key={user._id} className="flex items-center justify-between">
+                      <Link href={`/profile/${user.username}`} className="flex items-center gap-3 min-w-0 hover:opacity-80 transition-opacity">
+                        <div className="h-10 w-10 rounded-full bg-slate-200 overflow-hidden shrink-0">
+                          {user.avatar && !user.avatar.includes("default") ? (
+                            <img src={user.avatar} alt="avatar" className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full bg-[#3B82F6] flex items-center justify-center text-white font-bold text-sm">
+                              {user.displayName?.charAt(0).toUpperCase()}
+                            </div>
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-bold text-sm text-slate-900 truncate">{user.displayName}</p>
+                          <p className="text-[12px] font-medium text-slate-500 truncate">
+                            {user.specialization || "Student"} • Recommended
+                          </p>
+                        </div>
+                      </Link>
                       <button
                         onClick={() => sendPeerRequest(user._id)}
-                        className="p-1.5 bg-[#EFF6FF] text-[#3B82F6] hover:bg-blue-100 rounded-lg transition-colors shrink-0"
+                        className="w-10 h-10 rounded-full border border-blue-200 text-[#3B82F6] flex items-center justify-center shrink-0 hover:bg-blue-50 transition-colors ml-2"
                         title="Connect"
                       >
-                        <Plus size={16} />
+                        <UserPlus size={18} />
                       </button>
                     </div>
                   ))
@@ -1614,58 +1610,49 @@ export default function ChatPage() {
               </div>
             </div>
 
-            {/* Discover Lodges */}
-            <div className="p-6">
-              <h3 className="text-sm font-extrabold text-slate-900 mb-4 uppercase tracking-wider flex items-center gap-2">
-                <Building2 size={16} className="text-[#3B82F6]" /> Recommended
-                Lodges
-              </h3>
-              <div className="space-y-4">
+            {/* Popular Lodges Container */}
+            <div className="bg-white rounded-[24px] border border-slate-200 p-6 shadow-sm">
+              <h3 className="font-extrabold text-slate-900 text-lg mb-6">Popular Lodges</h3>
+              
+              <div className="space-y-6">
                 {publicLodges.length === 0 ? (
-                  <p className="text-sm text-slate-400">
-                    No public lodges available.
-                  </p>
+                  <p className="text-sm text-slate-400">No public lodges available.</p>
                 ) : (
-                  publicLodges.map((lodge) => (
-                    <div
-                      key={lodge._id}
-                      className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex items-center gap-3 hover:shadow-md transition-shadow"
-                    >
-                      <div className="h-10 w-10 rounded-lg bg-slate-200 overflow-hidden shrink-0">
-                        {lodge.avatar ? (
-                          <img
-                            src={lodge.avatar}
-                            alt="lodge"
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-indigo-500 flex items-center justify-center text-white font-bold text-sm">
-                            {lodge.name.charAt(0).toUpperCase()}
+                  publicLodges.slice(0, 3).map((lodge, index) => {
+                    const isEven = index % 2 === 0;
+                    const iconBg = isEven ? "bg-[#EFF6FF]" : "bg-[#FFF7ED]";
+                    const iconColor = isEven ? "text-[#3B82F6]" : "text-[#F97316]";
+                    const progressBg = isEven ? "bg-[#3B82F6]" : "text-[#F97316]"; // using text color hex
+                    const progressClass = isEven ? "bg-[#3B82F6]" : "bg-[#F97316]";
+                    const progressWidth = isEven ? "75%" : "100%";
+                    
+                    return (
+                      <div key={lodge._id}>
+                        <div className="flex items-center gap-4 mb-3">
+                          <div className={`w-12 h-12 rounded-[16px] flex items-center justify-center shrink-0 ${iconBg} ${iconColor}`}>
+                            <Users size={24} />
                           </div>
-                        )}
+                          <div className="min-w-0 flex-1">
+                            <p className="font-bold text-sm text-slate-900 truncate">{lodge.name}</p>
+                            <p className="text-[12px] font-medium text-slate-500 truncate">
+                              {lodge.members?.length || 1} members • Recommended
+                            </p>
+                          </div>
+                        </div>
+                        <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden">
+                          <div className={`h-full ${progressClass}`} style={{ width: progressWidth }}></div>
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-bold text-sm text-slate-900 truncate">
-                          {lodge.name}
-                        </p>
-                        <p className="text-[11px] font-medium text-slate-500 flex items-center gap-1">
-                          <Users size={10} /> {lodge.members?.length || 1}{" "}
-                          Members
-                        </p>
-                      </div>
-                      <button
-                        onClick={() => joinLodge(lodge._id)}
-                        disabled={isJoining}
-                        className="p-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-lg transition-colors shrink-0"
-                        title="Join"
-                      >
-                        <Plus size={16} />
-                      </button>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
+              
+              <button className="w-full py-3 mt-6 rounded-[16px] border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-colors">
+                Browse Lodges
+              </button>
             </div>
+
           </div>
         </div>
       )}
