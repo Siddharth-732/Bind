@@ -11,19 +11,20 @@ import {
   Bookmark,
   Heart,
   MessageSquare,
-  MoreHorizontal,
-  Award,
   FlaskConical,
   GraduationCap,
   ChevronRight,
   Share2,
   BookOpen,
   Loader2,
+  ArrowLeft,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { axiosInstance } from "../../../lib/axios";
 
 export default function ProfilePage() {
   const params = useParams();
+  const router = useRouter();
   const username = params.username as string;
   const [activeTab, setActiveTab] = useState("posts");
   const [profileData, setProfileData] = useState<
@@ -65,6 +66,14 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-[#F8FAFC] font-sans pb-20">
       {/* 1. Header Area (Banner & Avatar) */}
       <div className="relative w-full h-[160px] bg-slate-200">
+        {/* Back Button */}
+        <button
+          onClick={() => router.back()}
+          className="absolute top-6 left-6 md:left-12 z-10 w-10 h-10 bg-black/30 hover:bg-black/50 backdrop-blur-md rounded-full flex items-center justify-center text-white transition-all shadow-sm"
+        >
+          <ArrowLeft size={20} />
+        </button>
+
         {profileData.banner ? (
           <img
             src={profileData.banner}
@@ -106,18 +115,7 @@ export default function ProfilePage() {
             @{profileData.username}
           </p>
         </div>
-        <div className="flex items-center gap-3 mt-2 md:mt-4">
-          <button className="bg-[#4F46E5] hover:bg-[#4338CA] text-white px-8 py-2 rounded-[10px] font-bold text-sm transition-colors shadow-sm">
-            Follow
-          </button>
-          <button
-            type="button"
-            aria-label="Open profile options"
-            className="p-2 border border-slate-200 text-slate-600 rounded-[10px] hover:bg-slate-50 transition-colors bg-white shadow-sm"
-          >
-            <MoreHorizontal size={20} />
-          </button>
-        </div>
+        <div className="flex items-center gap-3 mt-2 md:mt-4"></div>
       </div>
 
       {/* 3. Main Grid Layout */}
