@@ -25,6 +25,7 @@ interface AuthState {
   isRegistering: boolean;
   isUpdatingProfile: boolean;
   socket: Socket | null;
+  onlineUsers: string[];
   login: (data: Record<string, unknown> | FormData) => Promise<boolean>;
   register: (data: Record<string, unknown> | FormData) => Promise<void>;
   logout: () => Promise<void>;
@@ -43,6 +44,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isLoggingIn: false,
   isRegistering: false,
   isUpdatingProfile: false,
+  onlineUsers: [],
 
   login: async (data) => {
     set({ isLoggingIn: true });
@@ -174,13 +176,17 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     newSocket.connect();
     set({ socket: newSocket });
     console.log("🔌 Socket connected!");
+
+    newSocket.on("getOnlineUsers", (userIds: string[]) => {
+      set({ onlineUsers: userIds });
+    });
   },
 
   disconnectSocket: () => {
     const { socket } = get();
     if (socket?.connected) {
       socket.disconnect();
-      set({ socket: null });
+      set({ socket: null, onlineUsers: [] });
       console.log("🔌 Socket disconnected!");
     }
   },

@@ -48,6 +48,7 @@ export default function ChatPage() {
     updateUserAvatar,
     updateUserBanner,
     isUpdatingProfile,
+    onlineUsers,
   } = useAuthStore();
   const {
     selectedUser,
@@ -575,7 +576,9 @@ export default function ChatPage() {
                                 user.displayName.charAt(0).toUpperCase()
                               )}
                             </div>
-                            <div className="absolute bottom-0 right-0 h-3.5 w-3.5 bg-green-500 rounded-full border-2 border-white"></div>
+                            {onlineUsers.includes(user._id) && (
+                              <div className="absolute bottom-0 right-0 h-3.5 w-3.5 bg-green-500 rounded-full border-2 border-white"></div>
+                            )}
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex justify-between items-center mb-0.5">
@@ -783,7 +786,7 @@ export default function ChatPage() {
                   {selectedUser.displayName}
                 </h3>
                 <p className="text-[11px] font-bold text-slate-500">
-                  Active Now
+                  {onlineUsers.includes(selectedUser._id) ? "Active Now" : "Offline"}
                 </p>
               </div>
             </div>
