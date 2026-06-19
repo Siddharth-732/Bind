@@ -568,8 +568,12 @@ export default function ChatPage() {
                           }`}
                         >
                           <div className="relative shrink-0">
-                            <div className="h-12 w-12 rounded-full bg-[#3B82F6] flex items-center justify-center font-bold text-white text-lg">
-                              {user.displayName.charAt(0).toUpperCase()}
+                            <div className="h-12 w-12 rounded-full bg-[#3B82F6] flex items-center justify-center font-bold text-white text-lg overflow-hidden">
+                              {user.avatar && !user.avatar.includes("default") ? (
+                                <img src={user.avatar} alt="avatar" className="w-full h-full object-cover" />
+                              ) : (
+                                user.displayName.charAt(0).toUpperCase()
+                              )}
                             </div>
                             <div className="absolute bottom-0 right-0 h-3.5 w-3.5 bg-green-500 rounded-full border-2 border-white"></div>
                           </div>
@@ -767,8 +771,12 @@ export default function ChatPage() {
           {/* CHAT HEADER */}
           <div className="h-[88px] bg-white border-b border-slate-100 flex items-center justify-between px-8 z-10 shrink-0">
             <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-full bg-[#3B82F6] flex items-center justify-center font-bold text-white text-xl">
-                {selectedUser.displayName.charAt(0).toUpperCase()}
+              <div className="h-12 w-12 rounded-full bg-[#3B82F6] flex items-center justify-center font-bold text-white text-xl overflow-hidden">
+                {selectedUser.avatar && !selectedUser.avatar.includes("default") ? (
+                  <img src={selectedUser.avatar} alt="avatar" className="w-full h-full object-cover" />
+                ) : (
+                  selectedUser.displayName.charAt(0).toUpperCase()
+                )}
               </div>
               <div>
                 <h3 className="font-extrabold text-lg text-slate-900">
@@ -812,7 +820,11 @@ export default function ChatPage() {
               </div>
             ) : (
               messages.map((msg, index) => {
-                const isMe = msg.senderId._id === authUser?._id;
+                const senderIdStr =
+                  typeof msg.senderId === "string"
+                    ? msg.senderId
+                    : (msg.senderId as any)?._id;
+                const isMe = senderIdStr === authUser?._id;
 
                 return (
                   <div
