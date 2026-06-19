@@ -35,6 +35,9 @@ import {
   Image as ImageIcon,
   Tag,
   UserPlus,
+  Crown,
+  Shield,
+  Star,
 } from "lucide-react";
 
 export default function ChatPage() {
@@ -90,7 +93,7 @@ export default function ChatPage() {
 
   // STATUS STORE
   const { statuses, createStatus, isCreatingStatus } = useStatusStore();
-  
+
   // POST STORE
   const {
     posts,
@@ -107,6 +110,7 @@ export default function ChatPage() {
   const [activeTab, setActiveTab] = useState<
     "chat" | "lodge" | "explore" | "notifications"
   >("chat");
+  const [defaultLodgeChannel, setDefaultLodgeChannel] = useState("jam-info");
 
   // Channel Messaging State
   const [channelMessageText, setChannelMessageText] = useState("");
@@ -127,7 +131,7 @@ export default function ChatPage() {
     formData.append("content", postContent);
     if (postImage) formData.append("image", postImage);
     if (postTags) formData.append("tags", postTags);
-    
+
     const success = await createPost(formData);
     if (success) {
       setPostContent("");
@@ -1073,8 +1077,101 @@ export default function ChatPage() {
                 </div>
               </div>
             ) : (
-              <div className="p-6 text-center text-slate-400 text-sm font-medium mt-10">
-                Select a lodge
+              <div className="flex flex-col h-full overflow-hidden bg-slate-50 text-slate-500 border-r border-slate-200 w-60">
+                {/* Default Server Header */}
+                <div className="p-4 border-b border-slate-200 hover:bg-slate-100 cursor-pointer transition-colors flex items-center justify-between text-slate-900 shadow-sm">
+                  <h3 className="font-extrabold text-[15px] truncate">
+                    Welcome
+                  </h3>
+                  <div className="text-slate-400">
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </div>
+                </div>
+
+                <div className="flex-1 overflow-y-auto p-3 space-y-4 custom-scrollbar">
+                  {/* Category: Welcome */}
+                  <div>
+                    <div className="flex items-center px-1 mb-1 group cursor-pointer hover:text-slate-700">
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="mr-1"
+                      >
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
+                      <span className="text-[12px] font-bold uppercase tracking-wide">
+                        Welcome
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => setDefaultLodgeChannel("jam-info")}
+                      className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-[15px] font-medium transition-colors ${defaultLodgeChannel === "jam-info" ? "bg-blue-50 text-blue-600" : "hover:bg-slate-200/50 hover:text-slate-800"}`}
+                    >
+                      <span className="text-xl shrink-0">🌞</span>
+                      <span className="truncate">jam-info</span>
+                    </button>
+                  </div>
+
+                  {/* Category: General */}
+                  <div>
+                    <div className="flex items-center px-1 mb-1 group cursor-pointer hover:text-slate-700">
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="mr-1"
+                      >
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
+                      <span className="text-[12px] font-bold uppercase tracking-wide">
+                        General
+                      </span>
+                    </div>
+                    {[
+                      {
+                        id: "announcements",
+                        icon: "📢",
+                        name: "announcements",
+                      },
+                      { id: "general", icon: "🌱", name: "general" },
+                      { id: "roles", icon: "👤", name: "roles" },
+                      { id: "self-promo", icon: "🔰", name: "self-promo" },
+                    ].map((ch) => (
+                      <button
+                        key={ch.id}
+                        onClick={() => setDefaultLodgeChannel(ch.id)}
+                        className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-[15px] font-medium transition-colors ${defaultLodgeChannel === ch.id ? "bg-blue-50 text-blue-600" : "hover:bg-slate-200/50 hover:text-slate-800"}`}
+                      >
+                        <span className="text-lg shrink-0 w-6 text-center">
+                          {ch.icon}
+                        </span>
+                        <span className="truncate">{ch.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
             )}
           </div>
@@ -1287,16 +1384,160 @@ export default function ChatPage() {
                   </div>
                 </>
               ) : (
-                <div className="flex-1 flex flex-col items-center justify-center bg-white text-center px-4">
-                  <div className="h-24 w-24 bg-slate-50 rounded-full flex items-center justify-center text-slate-300 mb-6">
-                    <Hash size={40} />
-                  </div>
-                  <h3 className="text-2xl font-bold text-slate-800">
-                    No Channel Selected
-                  </h3>
-                  <p className="text-slate-500 mt-2 max-w-md font-medium">
-                    Select a channel from the sidebar to start collaborating.
-                  </p>
+                <div className="flex-1 flex flex-col items-center justify-center text-slate-800 bg-white h-full p-8">
+                  {/* Mock content based on defaultLodgeChannel */}
+                  {defaultLodgeChannel === "jam-info" && (
+                    <div className="max-w-2xl text-center space-y-6">
+                      <div className="w-24 h-24 bg-[#3B82F6] rounded-3xl flex items-center justify-center mx-auto shadow-lg mb-8">
+                        <span className="text-5xl">🌞</span>
+                      </div>
+                      <h2 className="text-4xl font-extrabold text-slate-900">
+                        Welcome to Bind!
+                      </h2>
+                      <p className="text-slate-600 text-lg leading-relaxed font-medium">
+                        This is your global campus. Connect with peers from
+                        around the world, join lodges, and collaborate on your
+                        academic journey.
+                      </p>
+                      <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 text-left mt-8 shadow-sm">
+                        <h4 className="text-slate-900 font-bold mb-3 flex items-center gap-2">
+                          <Info size={18} className="text-[#3B82F6]" /> About
+                          this Lodge
+                        </h4>
+                        <p className="text-slate-600 text-sm leading-relaxed mb-4">
+                          This default space serves as your hub for global
+                          announcements and introductions. Check the channels on
+                          the left to navigate:
+                        </p>
+                        <ul className="text-slate-600 text-sm space-y-2 list-disc pl-5">
+                          <li>
+                            <strong className="text-slate-900">
+                              # announcements
+                            </strong>
+                            : Updates from the developers
+                          </li>
+                          <li>
+                            <strong className="text-slate-900"># roles</strong>:
+                            Pick your specialization
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  )}
+                  {defaultLodgeChannel === "announcements" && (
+                    <div className="w-full max-w-4xl h-full flex flex-col justify-end pb-8">
+                      <h2 className="text-3xl font-extrabold text-slate-900 mb-2">
+                        Welcome to #announcements!
+                      </h2>
+                      <p className="text-slate-500 font-medium mb-8">
+                        This is the start of the #announcements channel.
+                      </p>
+
+                      <div className="flex gap-4 mt-6 hover:bg-slate-50 p-3 rounded-xl border border-transparent hover:border-slate-100 transition-colors">
+                        <div className="w-10 h-10 rounded-full bg-[#3B82F6] flex items-center justify-center text-white font-bold shrink-0">
+                          D
+                        </div>
+                        <div>
+                          <p className="font-bold text-slate-900 flex items-baseline gap-2">
+                            Developer{" "}
+                            <span className="text-xs font-medium text-slate-400">
+                              Today at 10:00 AM
+                            </span>
+                          </p>
+                          <p className="text-slate-700 mt-1">
+                            Welcome everyone! We've just launched the new Global
+                            Feed feature. Check it out on the Explore tab!
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  {defaultLodgeChannel === "roles" && (
+                    <div className="w-full max-w-4xl h-full flex flex-col justify-start pt-4 pb-8 overflow-y-auto">
+                      <h2 className="text-3xl font-extrabold text-slate-900 mb-4 shrink-0">
+                        Lodge Hierarchy & Roles
+                      </h2>
+                      <p className="text-slate-600 font-medium text-lg mb-8 leading-relaxed shrink-0">
+                        A lodge is a space for brilliant minds to come together
+                        to build something great or to discuss something new or
+                        maybe just relax and have a fun chat. But every group
+                        needs order, so in a lodge there are dedicated roles
+                        assigned to each member:
+                      </p>
+
+                      <div className="flex flex-col gap-4">
+                        <div className="bg-amber-50 p-5 rounded-2xl border border-amber-200">
+                          <h3 className="font-extrabold text-lg text-slate-900 flex items-center gap-2 mb-2">
+                            <Crown size={20} className="text-amber-500" />{" "}
+                            Captain
+                          </h3>
+                          <p className="text-slate-600 text-sm leading-relaxed">
+                            The creator of the lodge. There can be only one
+                            captain. The captain can only pass their position to
+                            a Vice Captain. (Moderator).
+                          </p>
+                        </div>
+
+                        <div className="bg-blue-50 p-5 rounded-2xl border border-blue-200">
+                          <h3 className="font-extrabold text-lg text-slate-900 flex items-center gap-2 mb-2">
+                            <Shield size={20} className="text-blue-500" /> Vice
+                            Captain
+                          </h3>
+                          <p className="text-slate-600 text-sm leading-relaxed">
+                            Second in power after the Captain. Has the power of
+                            a moderator.
+                          </p>
+                        </div>
+
+                        <div className="bg-purple-50 p-5 rounded-2xl border border-purple-200">
+                          <h3 className="font-extrabold text-lg text-slate-900 flex items-center gap-2 mb-2">
+                            <Star size={20} className="text-purple-500" /> Elder
+                          </h3>
+                          <p className="text-slate-600 text-sm leading-relaxed">
+                            Trusted members can be promoted to the rank of
+                            'elder'. They do not possess moderator power,
+                            although they can invoke a vote for a decision to
+                            occur.
+                          </p>
+                        </div>
+
+                        <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200">
+                          <h3 className="font-extrabold text-lg text-slate-900 flex items-center gap-2 mb-2">
+                            <User size={20} className="text-slate-400" /> Junior
+                          </h3>
+                          <p className="text-slate-600 text-sm leading-relaxed">
+                            Just a new fellow, nothing much... The starting
+                            point for everyone joining the lodge!
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  {/* Default fallback for other channels */}
+                  {!["jam-info", "announcements", "roles"].includes(
+                    defaultLodgeChannel,
+                  ) && (
+                    <div className="w-full max-w-3xl h-full flex flex-col justify-center items-center text-center pb-8">
+                      <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mb-6">
+                        <Hash size={32} className="text-slate-400" />
+                      </div>
+                      <h2 className="text-3xl font-extrabold text-slate-900 mb-4">
+                        #{defaultLodgeChannel}
+                      </h2>
+                      <p className="text-slate-600 font-medium text-lg leading-relaxed max-w-xl">
+                        {defaultLodgeChannel === "general"
+                          ? "This is where all the casual conversation happens! Once you join a real lodge, you'll be able to chat with peers about anything and everything here."
+                          : defaultLodgeChannel === "self-promo"
+                            ? "Share your projects, side-hustles, and achievements! In a real lodge, this channel keeps the main chat clean while giving you a dedicated place to shine."
+                            : `This is an example of a dedicated #${defaultLodgeChannel} channel.`}
+                      </p>
+                      <div className="mt-8 px-6 py-4 bg-blue-50 border border-blue-100 rounded-xl text-blue-600 text-sm font-bold flex items-center gap-2">
+                        <Info size={16} />
+                        This is just a preview. Join a real lodge to start
+                        chatting!
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -1443,16 +1684,23 @@ export default function ChatPage() {
                       onChange={(e) => setPostContent(e.target.value)}
                       className="w-full bg-transparent resize-none outline-none text-slate-800 placeholder:text-slate-400 min-h-[60px]"
                     />
-                    
+
                     {postImage && (
                       <div className="relative inline-block mt-2">
-                        <img src={URL.createObjectURL(postImage)} alt="Preview" className="h-32 rounded-xl object-cover" />
-                        <button onClick={() => setPostImage(null)} className="absolute top-2 right-2 bg-slate-900/50 text-white rounded-full p-1 hover:bg-slate-900/80">
+                        <img
+                          src={URL.createObjectURL(postImage)}
+                          alt="Preview"
+                          className="h-32 rounded-xl object-cover"
+                        />
+                        <button
+                          onClick={() => setPostImage(null)}
+                          className="absolute top-2 right-2 bg-slate-900/50 text-white rounded-full p-1 hover:bg-slate-900/80"
+                        >
                           <X size={14} />
                         </button>
                       </div>
                     )}
-                    
+
                     <div className="flex items-center gap-2 mt-2">
                       <Tag size={16} className="text-slate-400" />
                       <input
@@ -1463,7 +1711,7 @@ export default function ChatPage() {
                         className="flex-1 bg-slate-100 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-1 focus:ring-blue-400"
                       />
                     </div>
-                    
+
                     <div className="flex items-center justify-between mt-4">
                       <div className="flex items-center gap-2">
                         <input
@@ -1472,7 +1720,8 @@ export default function ChatPage() {
                           ref={postImageInputRef}
                           className="hidden"
                           onChange={(e) => {
-                            if (e.target.files?.[0]) setPostImage(e.target.files[0]);
+                            if (e.target.files?.[0])
+                              setPostImage(e.target.files[0]);
                           }}
                         />
                         <button
@@ -1488,7 +1737,11 @@ export default function ChatPage() {
                         disabled={isCreatingPost || !postContent.trim()}
                         className="px-6 py-2 bg-[#3B82F6] text-white font-bold rounded-full hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                       >
-                        {isCreatingPost ? <Loader2 className="animate-spin" size={16} /> : "Post"}
+                        {isCreatingPost ? (
+                          <Loader2 className="animate-spin" size={16} />
+                        ) : (
+                          "Post"
+                        )}
                       </button>
                     </div>
                   </div>
@@ -1510,50 +1763,79 @@ export default function ChatPage() {
                   posts.map((post) => {
                     const hasLiked = post.likes.includes(authUser?._id || "");
                     return (
-                      <div key={post._id} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                      <div
+                        key={post._id}
+                        className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200"
+                      >
                         <div className="flex items-center gap-3 mb-4">
                           <div className="h-10 w-10 rounded-full bg-slate-200 overflow-hidden shrink-0">
                             {post.author?.avatar ? (
-                              <img src={post.author.avatar} alt="avatar" className="w-full h-full object-cover" />
+                              <img
+                                src={post.author.avatar}
+                                alt="avatar"
+                                className="w-full h-full object-cover"
+                              />
                             ) : (
                               <div className="w-full h-full bg-[#3B82F6] flex items-center justify-center text-white font-bold">
-                                {post.author?.displayName?.charAt(0).toUpperCase()}
+                                {post.author?.displayName
+                                  ?.charAt(0)
+                                  .toUpperCase()}
                               </div>
                             )}
                           </div>
                           <div className="flex-1">
-                            <p className="font-bold text-slate-900">{post.author?.displayName}</p>
+                            <p className="font-bold text-slate-900">
+                              {post.author?.displayName}
+                            </p>
                             <p className="text-xs text-slate-500">
-                              {new Date(post.createdAt).toLocaleDateString()} at {new Date(post.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                              {new Date(post.createdAt).toLocaleDateString()} at{" "}
+                              {new Date(post.createdAt).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
                             </p>
                           </div>
                         </div>
-                        
-                        <p className="text-slate-800 mb-4 whitespace-pre-wrap">{post.content}</p>
-                        
+
+                        <p className="text-slate-800 mb-4 whitespace-pre-wrap">
+                          {post.content}
+                        </p>
+
                         {post.image && (
                           <div className="mb-4 rounded-xl overflow-hidden border border-slate-100">
-                            <img src={post.image} alt="Post attachment" className="w-full max-h-[400px] object-cover" />
+                            <img
+                              src={post.image}
+                              alt="Post attachment"
+                              className="w-full max-h-[400px] object-cover"
+                            />
                           </div>
                         )}
-                        
+
                         {post.tags && post.tags.length > 0 && (
                           <div className="flex flex-wrap gap-2 mb-4">
                             {post.tags.map((tag, idx) => (
-                              <span key={idx} className="px-2 py-1 bg-slate-100 text-slate-600 text-xs font-medium rounded-md">
+                              <span
+                                key={idx}
+                                className="px-2 py-1 bg-slate-100 text-slate-600 text-xs font-medium rounded-md"
+                              >
                                 #{tag}
                               </span>
                             ))}
                           </div>
                         )}
-                        
+
                         <div className="flex items-center gap-6 pt-4 border-t border-slate-100">
                           <button
                             onClick={() => toggleLike(post._id)}
                             className={`flex items-center gap-2 text-sm font-bold transition-colors ${hasLiked ? "text-red-500" : "text-slate-500 hover:text-red-500"}`}
                           >
-                            <Heart size={18} className={hasLiked ? "fill-red-500" : ""} />
-                            {post.likes.length > 0 && <span>{post.likes.length}</span>}
+                            <Heart
+                              size={18}
+                              className={hasLiked ? "fill-red-500" : ""}
+                            />
+                            {post.likes.length > 0 && (
+                              <span>{post.likes.length}</span>
+                            )}
                           </button>
                         </div>
                       </div>
@@ -1566,24 +1848,39 @@ export default function ChatPage() {
 
           {/* Right Sidebar */}
           <div className="w-[380px] flex flex-col bg-slate-50 shrink-0 overflow-y-auto custom-scrollbar p-6">
-            
             {/* Connect with Peers Container */}
             <div className="bg-white rounded-[24px] border border-slate-200 p-6 shadow-sm mb-6">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="font-extrabold text-slate-900 text-lg">Connect with Peers</h3>
-                <button className="text-[#3B82F6] font-bold text-sm hover:underline">View all</button>
+                <h3 className="font-extrabold text-slate-900 text-lg">
+                  Connect with Peers
+                </h3>
+                <button className="text-[#3B82F6] font-bold text-sm hover:underline">
+                  View all
+                </button>
               </div>
-              
+
               <div className="space-y-5">
                 {discoverUsers.length === 0 ? (
-                  <p className="text-sm text-slate-400">No new users to discover right now.</p>
+                  <p className="text-sm text-slate-400">
+                    No new users to discover right now.
+                  </p>
                 ) : (
                   discoverUsers.map((user) => (
-                    <div key={user._id} className="flex items-center justify-between">
-                      <Link href={`/profile/${user.username}`} className="flex items-center gap-3 min-w-0 hover:opacity-80 transition-opacity">
+                    <div
+                      key={user._id}
+                      className="flex items-center justify-between"
+                    >
+                      <Link
+                        href={`/profile/${user.username}`}
+                        className="flex items-center gap-3 min-w-0 hover:opacity-80 transition-opacity"
+                      >
                         <div className="h-10 w-10 rounded-full bg-slate-200 overflow-hidden shrink-0">
                           {user.avatar && !user.avatar.includes("default") ? (
-                            <img src={user.avatar} alt="avatar" className="w-full h-full object-cover" />
+                            <img
+                              src={user.avatar}
+                              alt="avatar"
+                              className="w-full h-full object-cover"
+                            />
                           ) : (
                             <div className="w-full h-full bg-[#3B82F6] flex items-center justify-center text-white font-bold text-sm">
                               {user.displayName?.charAt(0).toUpperCase()}
@@ -1591,7 +1888,9 @@ export default function ChatPage() {
                           )}
                         </div>
                         <div className="min-w-0">
-                          <p className="font-bold text-sm text-slate-900 truncate">{user.displayName}</p>
+                          <p className="font-bold text-sm text-slate-900 truncate">
+                            {user.displayName}
+                          </p>
                           <p className="text-[12px] font-medium text-slate-500 truncate">
                             {user.specialization || "Student"} • Recommended
                           </p>
@@ -1612,47 +1911,63 @@ export default function ChatPage() {
 
             {/* Popular Lodges Container */}
             <div className="bg-white rounded-[24px] border border-slate-200 p-6 shadow-sm">
-              <h3 className="font-extrabold text-slate-900 text-lg mb-6">Popular Lodges</h3>
-              
+              <h3 className="font-extrabold text-slate-900 text-lg mb-6">
+                Popular Lodges
+              </h3>
+
               <div className="space-y-6">
                 {publicLodges.length === 0 ? (
-                  <p className="text-sm text-slate-400">No public lodges available.</p>
+                  <p className="text-sm text-slate-400">
+                    No public lodges available.
+                  </p>
                 ) : (
                   publicLodges.slice(0, 3).map((lodge, index) => {
                     const isEven = index % 2 === 0;
                     const iconBg = isEven ? "bg-[#EFF6FF]" : "bg-[#FFF7ED]";
-                    const iconColor = isEven ? "text-[#3B82F6]" : "text-[#F97316]";
-                    const progressBg = isEven ? "bg-[#3B82F6]" : "text-[#F97316]"; // using text color hex
-                    const progressClass = isEven ? "bg-[#3B82F6]" : "bg-[#F97316]";
+                    const iconColor = isEven
+                      ? "text-[#3B82F6]"
+                      : "text-[#F97316]";
+                    const progressBg = isEven
+                      ? "bg-[#3B82F6]"
+                      : "text-[#F97316]"; // using text color hex
+                    const progressClass = isEven
+                      ? "bg-[#3B82F6]"
+                      : "bg-[#F97316]";
                     const progressWidth = isEven ? "75%" : "100%";
-                    
+
                     return (
                       <div key={lodge._id}>
                         <div className="flex items-center gap-4 mb-3">
-                          <div className={`w-12 h-12 rounded-[16px] flex items-center justify-center shrink-0 ${iconBg} ${iconColor}`}>
+                          <div
+                            className={`w-12 h-12 rounded-[16px] flex items-center justify-center shrink-0 ${iconBg} ${iconColor}`}
+                          >
                             <Users size={24} />
                           </div>
                           <div className="min-w-0 flex-1">
-                            <p className="font-bold text-sm text-slate-900 truncate">{lodge.name}</p>
+                            <p className="font-bold text-sm text-slate-900 truncate">
+                              {lodge.name}
+                            </p>
                             <p className="text-[12px] font-medium text-slate-500 truncate">
                               {lodge.members?.length || 1} members • Recommended
                             </p>
                           </div>
                         </div>
                         <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden">
-                          <div className={`h-full ${progressClass}`} style={{ width: progressWidth }}></div>
+                          <div
+                            className={`h-full ${progressClass}`}
+                            style={{ width: progressWidth }}
+                          ></div>
                         </div>
                       </div>
                     );
                   })
                 )}
               </div>
-              
+
               <button className="w-full py-3 mt-6 rounded-[16px] border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-colors">
                 Browse Lodges
               </button>
             </div>
-
           </div>
         </div>
       )}
