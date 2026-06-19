@@ -1397,9 +1397,9 @@ export default function ChatPage() {
               </div>
               <h3 className="text-2xl font-bold text-slate-800">Bind Feed</h3>
               <p className="text-slate-500 mt-2 max-w-md font-medium">
-                The global feed is under construction. Soon, you'll be able to
-                see posts, resources, and updates from peers all over the world
-                right here!
+                The global feed is under construction. Soon, you&apos;ll be able
+                to see posts, resources, and updates from peers all over the
+                world right here!
               </p>
             </div>
           </div>
