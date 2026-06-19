@@ -8,6 +8,90 @@ interface InteractiveIllustrationProps {
   hasError: boolean;
 }
 
+const springConfig = { type: "spring" as const, stiffness: 300, damping: 25 };
+
+interface EyeProps {
+  x: number;
+  y: number;
+  isDark?: boolean;
+  eyebrowTilt?: number;
+  isEyesClosed: boolean;
+  isWorried: boolean;
+  pupilOffset: { x: number; y: number };
+}
+
+const Eye = ({
+  x,
+  y,
+  isDark = false,
+  eyebrowTilt = 1,
+  isEyesClosed,
+  isWorried,
+  pupilOffset,
+}: EyeProps) => {
+  const strokeColor = isDark ? "white" : "#111";
+
+  return (
+    <g>
+      {/* White Eyeball */}
+      <motion.circle
+        cx={x}
+        cy={y}
+        r={6}
+        fill="white"
+        initial={false}
+        animate={{
+          scaleY: isEyesClosed ? 0.1 : 1,
+          opacity: isEyesClosed ? 0 : 1,
+        }}
+        transition={springConfig}
+        style={{ transformOrigin: `${x}px ${y}px` }}
+      />
+
+      {/* Pupil */}
+      <motion.circle
+        cx={x}
+        cy={y}
+        r={isWorried ? 2 : 2.5}
+        fill="#111"
+        initial={false}
+        animate={{
+          x: pupilOffset.x,
+          y: pupilOffset.y,
+          scaleY: isEyesClosed ? 0 : 1,
+          opacity: isEyesClosed ? 0 : 1,
+        }}
+        transition={springConfig}
+      />
+
+      {/* Closed Eye Line */}
+      <motion.path
+        d={`M ${x - 5} ${y} L ${x + 5} ${y}`}
+        stroke={strokeColor}
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        initial={false}
+        animate={{ opacity: isEyesClosed ? 1 : 0 }}
+        transition={{ duration: 0.15 }}
+      />
+
+      {/* Angry Eyebrow (Hidden for worried state) */}
+      <motion.path
+        d={`M ${x - 6} ${y - 8} L ${x + 6} ${y - 8 + 4 * eyebrowTilt}`}
+        stroke={strokeColor}
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        initial={false}
+        animate={{
+          opacity: 0,
+          y: -5,
+        }}
+        transition={springConfig}
+      />
+    </g>
+  );
+};
+
 export default function InteractiveIllustration({
   focusedField,
   hasError,
@@ -17,105 +101,39 @@ export default function InteractiveIllustration({
   const [isWorried, setIsWorried] = useState(false);
 
   useEffect(() => {
+    let resetTimer: ReturnType<typeof setTimeout>;
+    
+    const timer = setTimeout(() => {
+      if (hasError) {
+        setIsWorried(true);
+        setPupilOffset({ x: -2, y: -4 });
+        setIsEyesClosed(false);
+      } else {
+        setIsWorried(false);
+        if (focusedField === "password") {
+          setIsEyesClosed(true);
+          setPupilOffset({ x: 0, y: 0 });
+        } else if (focusedField) {
+          setIsEyesClosed(false);
+          setPupilOffset({ x: 4, y: 2 });
+        } else {
+          setIsEyesClosed(false);
+          setPupilOffset({ x: 0, y: 0 });
+        }
+      }
+    }, 0);
+
     if (hasError) {
-      setIsWorried(true);
-      setPupilOffset({ x: -2, y: -4 });
-      setIsEyesClosed(false);
-
-      const t = setTimeout(() => setIsWorried(false), 3000);
-      return () => clearTimeout(t);
-    } else {
-      setIsWorried(false);
+      resetTimer = setTimeout(() => setIsWorried(false), 3000);
     }
 
-    if (focusedField === "password") {
-      setIsEyesClosed(true);
-      setPupilOffset({ x: 0, y: 0 });
-    } else if (focusedField) {
-      setIsEyesClosed(false);
-      setPupilOffset({ x: 4, y: 2 });
-    } else {
-      setIsEyesClosed(false);
-      setPupilOffset({ x: 0, y: 0 });
-    }
+    return () => {
+      clearTimeout(timer);
+      if (resetTimer) clearTimeout(resetTimer);
+    };
   }, [focusedField, hasError]);
 
-  const springConfig = { type: "spring" as const, stiffness: 300, damping: 25 };
 
-  // Reusable Eye Component
-  const Eye = ({
-    x,
-    y,
-    isDark = false,
-    eyebrowTilt = 1,
-  }: {
-    x: number;
-    y: number;
-    isDark?: boolean;
-    eyebrowTilt?: number;
-  }) => {
-    const strokeColor = isDark ? "white" : "#111";
-
-    return (
-      <g>
-        {/* White Eyeball */}
-        <motion.circle
-          cx={x}
-          cy={y}
-          r={6}
-          fill="white"
-          initial={false}
-          animate={{
-            scaleY: isEyesClosed ? 0.1 : 1,
-            opacity: isEyesClosed ? 0 : 1,
-          }}
-          transition={springConfig}
-          style={{ transformOrigin: `${x}px ${y}px` }}
-        />
-
-        {/* Pupil */}
-        <motion.circle
-          cx={x}
-          cy={y}
-          r={isWorried ? 2 : 2.5}
-          fill="#111"
-          initial={false}
-          animate={{
-            x: pupilOffset.x,
-            y: pupilOffset.y,
-            scaleY: isEyesClosed ? 0 : 1,
-            opacity: isEyesClosed ? 0 : 1,
-          }}
-          transition={springConfig}
-        />
-
-        {/* Closed Eye Line */}
-        <motion.path
-          d={`M ${x - 5} ${y} L ${x + 5} ${y}`}
-          stroke={strokeColor}
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          initial={false}
-          animate={{ opacity: isEyesClosed ? 1 : 0 }}
-          transition={{ duration: 0.15 }}
-        />
-
-        {/* Angry Eyebrow (Hidden for worried state) */}
-        <motion.path
-          d={`M ${x - 6} ${y - 8} L ${x + 6} ${y - 8 + 4 * eyebrowTilt}`}
-          stroke={strokeColor}
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          initial={false}
-          animate={{
-            opacity: 0,
-            y: -5,
-          }}
-          transition={springConfig}
-        />
-      </g>
-    );
-  };
 
   return (
     <div className="w-full h-full flex items-center justify-center bg-[#B8F0FF] overflow-hidden">
@@ -140,8 +158,8 @@ export default function InteractiveIllustration({
               style={{ originX: 0.5, originY: 1 }}
             >
               <rect width="110" height="220" fill="#4A90E2" rx="4" />
-              <Eye x={50} y={30} eyebrowTilt={1} />
-              <Eye x={70} y={30} eyebrowTilt={-1} />
+              <Eye x={50} y={30} eyebrowTilt={1} isEyesClosed={isEyesClosed} isWorried={isWorried} pupilOffset={pupilOffset} />
+              <Eye x={70} y={30} eyebrowTilt={-1} isEyesClosed={isEyesClosed} isWorried={isWorried} pupilOffset={pupilOffset} />
               {/* Small smile / beak morph */}
               <motion.path
                 initial={false}
@@ -161,8 +179,8 @@ export default function InteractiveIllustration({
           {/* Black Block (Medium, middle) */}
           <g transform="translate(160, 150)">
             <rect width="90" height="150" fill="#212121" rx="4" />
-            <Eye x={40} y={30} isDark eyebrowTilt={1} />
-            <Eye x={60} y={30} isDark eyebrowTilt={-1} />
+            <Eye x={40} y={30} isDark eyebrowTilt={1} isEyesClosed={isEyesClosed} isWorried={isWorried} pupilOffset={pupilOffset} />
+            <Eye x={60} y={30} isDark eyebrowTilt={-1} isEyesClosed={isEyesClosed} isWorried={isWorried} pupilOffset={pupilOffset} />
             {/* Expression morph */}
             <motion.path
               initial={false}
@@ -190,7 +208,7 @@ export default function InteractiveIllustration({
                 d="M 0 50 A 50 50 0 0 1 100 50 L 100 110 L 0 110 Z"
                 fill="#F7CA18"
               />
-              <Eye x={30} y={40} eyebrowTilt={1} />
+              <Eye x={30} y={40} eyebrowTilt={1} isEyesClosed={isEyesClosed} isWorried={isWorried} pupilOffset={pupilOffset} />
               {/* Long Beak (Chuck style) - morphs to worried mouth */}
               <motion.path
                 initial={false}
@@ -217,8 +235,8 @@ export default function InteractiveIllustration({
             >
               <path d="M 0 100 A 100 100 0 0 1 200 100 Z" fill="#E23636" />
               <g transform="translate(100, 50)">
-                <Eye x={0} y={0} eyebrowTilt={1} />
-                <Eye x={24} y={0} eyebrowTilt={-1} />
+                <Eye x={0} y={0} eyebrowTilt={1} isEyesClosed={isEyesClosed} isWorried={isWorried} pupilOffset={pupilOffset} />
+                <Eye x={24} y={0} eyebrowTilt={-1} isEyesClosed={isEyesClosed} isWorried={isWorried} pupilOffset={pupilOffset} />
                 {/* Beak Morph */}
                 <motion.path
                   initial={false}
