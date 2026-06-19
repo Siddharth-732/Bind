@@ -362,6 +362,7 @@ export const updateUserBanner = async (req, res) => {
 
 export const getDiscoverUsers = async (req, res) => {
   try {
+    const { search } = req.query;
     // req.user comes from your authentication middleware
     const loggedInUserId = req.user._id;
 
@@ -372,9 +373,43 @@ export const getDiscoverUsers = async (req, res) => {
       ...currentUser.pendingRequests,
     ];
 
-    const filteredUsers = await User.find({
-      _id: { $nin: excludedIds },
-    }).select("-password");
+    const query = { _id: { $nin: excludedIds } };
+
+    if (search) {
+      query.$or = [
+        { displayName: { $regex: search, $options: "i" } },
+        { username: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    const filteredUsers = await User.find(query).select("-password").lean();
+
+    // Recommendation Scoring Engine
+    const myInstituteTokens = (currentUser.institute || "").toLowerCase().split(/\s+/);
+    const mySpecTokens = (currentUser.specialization || "").toLowerCase().split(/\s+/);
+
+    filteredUsers.forEach((user) => {
+      let score = 0;
+      const userInstTokens = (user.institute || "").toLowerCase().split(/\s+/);
+      const userSpecTokens = (user.specialization || "").toLowerCase().split(/\s+/);
+
+      // Check institute matches (e.g. "iit", "nit")
+      const commonInst = userInstTokens.filter(
+        (token) => token.length > 2 && myInstituteTokens.includes(token)
+      );
+      if (commonInst.length > 0) score += 10;
+
+      // Check specialization matches
+      const commonSpec = userSpecTokens.filter(
+        (token) => token.length > 2 && mySpecTokens.includes(token)
+      );
+      if (commonSpec.length > 0) score += 5;
+
+      user.relevanceScore = score;
+    });
+
+    // Sort by score descending
+    filteredUsers.sort((a, b) => b.relevanceScore - a.relevanceScore);
 
     return res.status(200).json({
       success: true,

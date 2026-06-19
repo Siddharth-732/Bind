@@ -97,7 +97,18 @@ export default function ChatPage() {
 
   // Direct Messaging State
   const [chatMessageText, setChatMessageText] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (activeTab === "explore") {
+      const timer = setTimeout(() => {
+        useConnectionStore.getState().getDiscoverUsers(searchQuery);
+        useLodgeStore.getState().getPublicLodges(searchQuery);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [searchQuery, activeTab]);
 
   const handleChatInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setChatMessageText(e.target.value);
@@ -280,22 +291,8 @@ export default function ChatPage() {
 
   if (!authUser) return null;
 
-  const botModerator: import("../store/useLodgeStore").LodgeMember = {
-    _id: "bot_1",
-    role: "captain",
-    user: {
-      _id: "bot_user_1",
-      displayName: "Lodge Bot",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix",
-      username: "lodge_bot",
-      email: "bot@lodge.edu",
-      createdAt: new Date().toISOString(),
-    },
-  };
-
   const fetchedModerators =
     currentLodgeMembers?.filter((m) => m.role === "captain") || [];
-  const moderators = [botModerator, ...fetchedModerators];
 
   const members =
     currentLodgeMembers?.filter((m) => m.role !== "captain") || [];
@@ -491,6 +488,8 @@ export default function ChatPage() {
                 placeholder={
                   activeTab === "chat" ? "Search Peers" : "Search..."
                 }
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full bg-white border border-slate-200 rounded-full py-3 pl-12 pr-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent shadow-sm placeholder:text-slate-400"
               />
             </div>
@@ -504,8 +503,13 @@ export default function ChatPage() {
                     No peers found. Head to Explore to find friends!
                   </p>
                 ) : (
-                  peers.map((user) => {
-                    const isSelected = selectedUser?._id === user._id;
+                  peers
+                    .filter((user) =>
+                      user.displayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                      user.username.toLowerCase().includes(searchQuery.toLowerCase())
+                    )
+                    .map((user) => {
+                      const isSelected = selectedUser?._id === user._id;
                     return (
                       <button
                         key={user._id}
@@ -1258,13 +1262,13 @@ export default function ChatPage() {
             {isMembersSidebarOpen && (
               <div className="w-64 bg-[#EFF6FF]/40 border-l border-slate-200 flex flex-col shrink-0 overflow-y-auto hidden lg:flex">
                 <div className="p-4">
-                  {moderators.length > 0 && (
+                  {currentLodgeMembers.length > 0 && (
                     <>
                       <h4 className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider mb-4">
-                        Moderators — {moderators.length}
+                        Moderators — {currentLodgeMembers.length}
                       </h4>
                       <div className="space-y-1 mb-6">
-                        {moderators.map(
+                        {currentLodgeMembers.map(
                           (
                             member: import("../store/useLodgeStore").LodgeMember,
                           ) => (

@@ -46,7 +46,7 @@ interface LodgeState {
   isJoining: boolean;
   isCreating: boolean;
 
-  getPublicLodges: () => Promise<void>;
+  getPublicLodges: (search?: string) => Promise<void>;
   getMyLodges: () => Promise<void>;
   joinLodge: (lodgeId: string) => Promise<boolean>;
   getLodgeChannels: (lodgeId: string) => Promise<void>;
@@ -77,10 +77,11 @@ export const useLodgeStore = create<LodgeState>((set, get) => ({
   channelMessages: [],
   isChannelMessagesLoading: false,
 
-  getPublicLodges: async () => {
+  getPublicLodges: async (search?: string) => {
     set({ isLoadingLodges: true });
     try {
-      const response = await axiosInstance.get("/lodges");
+      const query = search ? `?search=${encodeURIComponent(search)}` : "";
+      const response = await axiosInstance.get(`/lodges${query}`);
       set({ publicLodges: response.data.data });
     } catch (error: unknown) {
       const axiosError = error as AxiosError<{ message: string }>;

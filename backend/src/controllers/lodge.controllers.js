@@ -1,6 +1,7 @@
 import { Lodge } from "../models/lodge.models.js";
 import { Channel } from "../models/channel.models.js";
 import { LodgeMember } from "../models/lodgeMember.models.js";
+import { User } from "../models/user.models.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 export const createLodge = async (req, res) => {
@@ -59,10 +60,34 @@ export const createLodge = async (req, res) => {
 
 export const getAllLodges = async (req, res) => {
   try {
-    // fetch all public lodges for the discovery page
-    const lodges = await Lodge.find({ isPublic: true })
+    const { search } = req.query;
+    const loggedInUserId = req.user._id;
+    const currentUser = await User.findById(loggedInUserId);
+
+    const query = { isPublic: true };
+    if (search) {
+      query.name = { $regex: search, $options: "i" };
+    }
+
+    const lodges = await Lodge.find(query)
       .populate("creator", "displayName username avatar")
-      .sort({ createdAt: -1 });
+      .lean();
+
+    const mySpecTokens = (currentUser.specialization || "").toLowerCase().split(/\s+/);
+    const myBioTokens = (currentUser.bio || "").toLowerCase().split(/\s+/);
+    const userTokens = [...new Set([...mySpecTokens, ...myBioTokens])].filter(t => t.length > 2);
+
+    lodges.forEach((lodge) => {
+      let score = 0;
+      const lodgeTokens = ((lodge.name || "") + " " + (lodge.description || "")).toLowerCase().split(/\s+/);
+      
+      const commonTokens = lodgeTokens.filter(token => token.length > 2 && userTokens.includes(token));
+      if (commonTokens.length > 0) score += 10;
+      
+      lodge.relevanceScore = score;
+    });
+
+    lodges.sort((a, b) => b.relevanceScore - a.relevanceScore);
 
     return res.status(200).json({
       success: true,

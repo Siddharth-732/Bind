@@ -10,10 +10,9 @@ interface ConnectionState {
   pendingRequests: AuthUser[];
   discoverUsers: AuthUser[];
   isLoading: boolean;
-
   getPeers: () => Promise<void>;
   getPeerRequests: () => Promise<void>;
-  getDiscoverUsers: () => Promise<void>;
+  getDiscoverUsers: (search?: string) => Promise<void>;
   sendPeerRequest: (peerId: string) => Promise<boolean>;
   acceptPeerRequest: (peerId: string) => Promise<boolean>;
   rejectPeerRequest: (peerId: string) => Promise<boolean>;
@@ -54,10 +53,11 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
     }
   },
 
-  getDiscoverUsers: async () => {
+  getDiscoverUsers: async (search?: string) => {
     set({ isLoading: true });
     try {
-      const response = await axiosInstance.get("/users");
+      const query = search ? `?search=${encodeURIComponent(search)}` : "";
+      const response = await axiosInstance.get(`/users${query}`);
       set({ discoverUsers: response.data.data });
     } catch (error: unknown) {
       const axiosError = error as AxiosError<{ message: string }>;
