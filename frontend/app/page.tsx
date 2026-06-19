@@ -1156,6 +1156,7 @@ export default function ChatPage() {
                         name: "announcements",
                       },
                       { id: "general", icon: "🌱", name: "general" },
+                      { id: "rules", icon: "📜", name: "rules" },
                       { id: "roles", icon: "👤", name: "roles" },
                       { id: "self-promo", icon: "🔰", name: "self-promo" },
                     ].map((ch) => (
@@ -1512,8 +1513,58 @@ export default function ChatPage() {
                       </div>
                     </div>
                   )}
+                  {defaultLodgeChannel === "rules" && (
+                    <div className="w-full max-w-4xl h-full flex flex-col justify-start pt-4 pb-8 overflow-y-auto">
+                      <h2 className="text-3xl font-extrabold text-slate-900 mb-4 shrink-0">
+                        Lodge Rules
+                      </h2>
+                      <p className="text-slate-600 font-medium text-lg mb-8 leading-relaxed shrink-0">
+                        To keep this Lodge a safe and welcoming space for everyone, please adhere to the following rules:
+                      </p>
+
+                      <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                        <ul className="space-y-4">
+                          <li className="flex items-start gap-3">
+                            <span className="font-bold text-blue-500 text-lg mt-0.5">1.</span>
+                            <div>
+                              <strong className="text-slate-900 block mb-1">Be Kind and Respectful</strong>
+                              <p className="text-slate-600 text-sm">Treat all members with respect. No harassment, sexism, racism, or hate speech will be tolerated.</p>
+                            </div>
+                          </li>
+                          <li className="flex items-start gap-3">
+                            <span className="font-bold text-blue-500 text-lg mt-0.5">2.</span>
+                            <div>
+                              <strong className="text-slate-900 block mb-1">No Bullying</strong>
+                              <p className="text-slate-600 text-sm">Bullying of any kind is strictly prohibited. If you see someone being bullied, please report it to a Moderator.</p>
+                            </div>
+                          </li>
+                          <li className="flex items-start gap-3">
+                            <span className="font-bold text-blue-500 text-lg mt-0.5">3.</span>
+                            <div>
+                              <strong className="text-slate-900 block mb-1">No NSFW Content</strong>
+                              <p className="text-slate-600 text-sm">This is an academic environment. Keep all content appropriate and safe for work.</p>
+                            </div>
+                          </li>
+                          <li className="flex items-start gap-3">
+                            <span className="font-bold text-blue-500 text-lg mt-0.5">4.</span>
+                            <div>
+                              <strong className="text-slate-900 block mb-1">Stay On Topic</strong>
+                              <p className="text-slate-600 text-sm">Use the appropriate channels for your discussions. Do not derail ongoing conversations.</p>
+                            </div>
+                          </li>
+                          <li className="flex items-start gap-3">
+                            <span className="font-bold text-blue-500 text-lg mt-0.5">5.</span>
+                            <div>
+                              <strong className="text-slate-900 block mb-1">No Spam or Self-Promotion</strong>
+                              <p className="text-slate-600 text-sm">Avoid spamming messages. Keep self-promotion strictly to the designated #self-promo channel.</p>
+                            </div>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  )}
                   {/* Default fallback for other channels */}
-                  {!["Lodge Info", "announcements", "roles"].includes(
+                  {!["Lodge Info", "announcements", "roles", "rules"].includes(
                     defaultLodgeChannel,
                   ) && (
                     <div className="w-full max-w-3xl h-full flex flex-col justify-center items-center text-center pb-8">
