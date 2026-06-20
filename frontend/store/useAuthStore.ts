@@ -43,6 +43,7 @@ interface AuthState {
   updateAccountDetails: (data: {
     displayName?: string;
     bio?: string;
+    avatar?: string;
   }) => Promise<boolean>;
   updateUserAvatar: (file: File) => Promise<boolean>;
   updateUserBanner: (file: File) => Promise<boolean>;

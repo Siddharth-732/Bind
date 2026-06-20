@@ -15,6 +15,9 @@ import {
   ArrowLeft,
   Camera,
   Network,
+  UserPlus,
+  UserMinus,
+  Check,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { axiosInstance } from "../../../lib/axios";
@@ -44,7 +47,7 @@ export default function ProfilePage() {
     updateAccountDetails,
     onlineUsers,
   } = useAuthStore();
-  const { removePeer } = usePeerStore();
+  const { removePeer, sendPeerRequest } = usePeerStore();
   const { userPosts, isLoadingPosts, getUserPosts, toggleLike } = usePostStore();
   const isOwner = authUser?._id === profileData?._id;
 
@@ -77,6 +80,21 @@ export default function ProfilePage() {
       }
     } finally {
       setIsUploadingAvatar(false);
+    }
+  };
+
+  const [requestSent, setRequestSent] = useState(false);
+
+  const isPeer = authUser?.peers?.some((p) => {
+    if (typeof p === "string") return p === profileData?._id;
+    return p._id === profileData?._id;
+  });
+
+  const handleConnect = async () => {
+    if (!profileData?._id) return;
+    const success = await sendPeerRequest(profileData._id);
+    if (success) {
+      setRequestSent(true);
     }
   };
 
@@ -244,7 +262,37 @@ export default function ProfilePage() {
             @{profileData.username}
           </p>
         </div>
-        <div className="flex items-center gap-3 mt-2 md:mt-4"></div>
+        <div className="flex items-center gap-3 mt-4 md:mt-6">
+          {!isOwner && profileData && (
+            isPeer ? (
+              <button
+                onClick={() => setPeerToRemove(profileData._id)}
+                className="flex items-center gap-2 px-6 py-2.5 bg-red-50 text-red-600 rounded-full font-bold text-sm hover:bg-red-100 transition-colors"
+              >
+                <UserMinus size={18} />
+                Remove Peer
+              </button>
+            ) : (
+              <button
+                onClick={handleConnect}
+                disabled={requestSent}
+                className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-full font-bold text-sm hover:bg-indigo-700 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+              >
+                {requestSent ? (
+                  <>
+                    <Check size={18} />
+                    Request Sent
+                  </>
+                ) : (
+                  <>
+                    <UserPlus size={18} />
+                    Connect
+                  </>
+                )}
+              </button>
+            )
+          )}
+        </div>
       </div>
 
       {/* 3. Main Grid Layout */}
