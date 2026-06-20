@@ -22,6 +22,7 @@ import { useAuthStore, PopulatedPeer } from "../../../store/useAuthStore";
 import { usePeerStore } from "../../../store/usePeerStore";
 import { useRef } from "react";
 import Link from "next/link";
+import ConfirmModal from "../../../components/ConfirmModal";
 
 export default function ProfilePage() {
   const params = useParams();
@@ -36,12 +37,13 @@ export default function ProfilePage() {
   const { authUser, updateUserAvatar, updateUserBanner, onlineUsers } =
     useAuthStore();
   const { removePeer } = usePeerStore();
-  const isOwner = authUser?.username === profileData?.username;
+  const isOwner = authUser?._id === profileData?._id;
 
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const bannerInputRef = useRef<HTMLInputElement>(null);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [isUploadingBanner, setIsUploadingBanner] = useState(false);
+  const [peerToRemove, setPeerToRemove] = useState<string | null>(null);
 
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -383,7 +385,7 @@ export default function ProfilePage() {
                     </Link>
                     {isOwner && (
                       <button
-                        onClick={() => handleRemovePeer(peer._id)}
+                        onClick={() => setPeerToRemove(peer._id)}
                         className="ml-3 px-3 py-1.5 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 rounded-full transition-colors shrink-0"
                       >
                         Remove
@@ -406,6 +408,19 @@ export default function ProfilePage() {
           )}
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={!!peerToRemove}
+        onClose={() => setPeerToRemove(null)}
+        onConfirm={() => {
+          if (peerToRemove) handleRemovePeer(peerToRemove);
+        }}
+        title="Remove Peer"
+        message="Are you sure you want to sever this connection? You will no longer be connected as peers."
+        confirmText="Remove Peer"
+        cancelText="Cancel"
+        isDestructive={true}
+      />
     </div>
   );
 }
