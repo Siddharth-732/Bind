@@ -16,16 +16,19 @@ export interface Post {
 
 interface PostState {
   posts: Post[];
+  userPosts: Post[];
   isLoadingPosts: boolean;
   isCreatingPost: boolean;
 
   getGlobalFeed: () => Promise<void>;
+  getUserPosts: (username: string) => Promise<void>;
   createPost: (data: FormData) => Promise<boolean>;
   toggleLike: (postId: string) => Promise<void>;
 }
 
 export const usePostStore = create<PostState>((set, get) => ({
   posts: [],
+  userPosts: [],
   isLoadingPosts: false,
   isCreatingPost: false,
 
@@ -38,6 +41,21 @@ export const usePostStore = create<PostState>((set, get) => ({
       const axiosError = error as AxiosError<{ message: string }>;
       toast.error(
         axiosError.response?.data?.message || "Failed to load posts",
+      );
+    } finally {
+      set({ isLoadingPosts: false });
+    }
+  },
+
+  getUserPosts: async (username: string) => {
+    set({ isLoadingPosts: true });
+    try {
+      const response = await axiosInstance.get(`/posts/user/${username}`);
+      set({ userPosts: response.data.data });
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ message: string }>;
+      toast.error(
+        axiosError.response?.data?.message || "Failed to load user posts",
       );
     } finally {
       set({ isLoadingPosts: false });
@@ -70,9 +88,10 @@ export const usePostStore = create<PostState>((set, get) => ({
       const response = await axiosInstance.post(`/posts/${postId}/like`);
       const updatedPost = response.data.data;
       
-      // We'll update the specific post in the UI state
+      // We'll update the specific post in the UI state (global feed and user feed)
       set((state) => ({
         posts: state.posts.map((p) => (p._id === postId ? { ...p, likes: updatedPost.likes } : p)),
+        userPosts: state.userPosts.map((p) => (p._id === postId ? { ...p, likes: updatedPost.likes } : p)),
       }));
     } catch (error: unknown) {
       console.error("Error toggling like:", error);

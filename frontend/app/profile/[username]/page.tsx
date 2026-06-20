@@ -23,6 +23,8 @@ import { usePeerStore } from "../../../store/usePeerStore";
 import { useRef } from "react";
 import Link from "next/link";
 import ConfirmModal from "../../../components/ConfirmModal";
+import PostCard from "../../../components/PostCard";
+import { usePostStore } from "../../../store/usePostStore";
 
 export default function ProfilePage() {
   const params = useParams();
@@ -37,6 +39,7 @@ export default function ProfilePage() {
   const { authUser, updateUserAvatar, updateUserBanner, onlineUsers } =
     useAuthStore();
   const { removePeer } = usePeerStore();
+  const { userPosts, isLoadingPosts, getUserPosts, toggleLike } = usePostStore();
   const isOwner = authUser?._id === profileData?._id;
 
   const avatarInputRef = useRef<HTMLInputElement>(null);
@@ -110,6 +113,12 @@ export default function ProfilePage() {
     };
     if (username) fetchProfile();
   }, [username]);
+
+  useEffect(() => {
+    if (activeTab === "posts" && username) {
+      getUserPosts(username);
+    }
+  }, [activeTab, username]);
 
   if (isLoading) {
     return (
@@ -330,8 +339,8 @@ export default function ProfilePage() {
             </button>
           </div>
 
-          {/* Placeholder for other tabs */}
-          {activeTab !== "peers" && (
+          {/* Placeholder for other empty tabs */}
+          {activeTab !== "peers" && activeTab !== "posts" && (
             <div className="bg-white rounded-2xl p-12 border border-slate-100 text-center animate-in fade-in duration-500 mt-6">
               <h3 className="text-lg font-bold text-slate-900 mb-2">
                 Nothing to see here yet
@@ -340,6 +349,35 @@ export default function ProfilePage() {
                 {profileData.displayName} hasn&apos;t added any{" "}
                 {activeTab === "saved" ? "saved items" : activeTab} yet.
               </p>
+            </div>
+          )}
+
+          {/* Posts Tab Content */}
+          {activeTab === "posts" && (
+            <div className="space-y-6 mt-6 animate-in fade-in duration-500">
+              {isLoadingPosts ? (
+                <div className="flex justify-center p-8">
+                  <Loader2 className="animate-spin text-indigo-600" size={32} />
+                </div>
+              ) : userPosts.length > 0 ? (
+                userPosts.map((post) => (
+                  <PostCard
+                    key={post._id}
+                    post={post}
+                    authUser={authUser}
+                    toggleLike={toggleLike}
+                  />
+                ))
+              ) : (
+                <div className="bg-white rounded-2xl p-12 border border-slate-100 text-center">
+                  <h3 className="text-lg font-bold text-slate-900 mb-2">
+                    No posts yet
+                  </h3>
+                  <p className="text-sm font-medium text-slate-500">
+                    {profileData.displayName} hasn&apos;t posted anything.
+                  </p>
+                </div>
+              )}
             </div>
           )}
 
