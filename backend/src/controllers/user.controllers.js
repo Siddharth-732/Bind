@@ -620,7 +620,8 @@ export const getUserProfile = async (req, res) => {
     const { username } = req.params;
 
     const user = await User.findOne({ username: username.toLowerCase() })
-      .select("-password -refreshToken");
+      .select("-password -refreshToken")
+      .populate("peers", "username displayName avatar bio");
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });

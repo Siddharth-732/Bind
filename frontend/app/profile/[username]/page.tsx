@@ -14,11 +14,14 @@ import {
   Loader2,
   ArrowLeft,
   Camera,
+  Network,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { axiosInstance } from "../../../lib/axios";
-import { useAuthStore } from "../../../store/useAuthStore";
+import { useAuthStore, PopulatedPeer } from "../../../store/useAuthStore";
+import { usePeerStore } from "../../../store/usePeerStore";
 import { useRef } from "react";
+import Link from "next/link";
 
 export default function ProfilePage() {
   const params = useParams();
@@ -32,6 +35,7 @@ export default function ProfilePage() {
 
   const { authUser, updateUserAvatar, updateUserBanner, onlineUsers } =
     useAuthStore();
+  const { removePeer } = usePeerStore();
   const isOwner = authUser?.username === profileData?.username;
 
   const avatarInputRef = useRef<HTMLInputElement>(null);
@@ -75,6 +79,19 @@ export default function ProfilePage() {
       }
     } finally {
       setIsUploadingBanner(false);
+    }
+  };
+
+  const handleRemovePeer = async (peerId: string) => {
+    const success = await removePeer(peerId);
+    if (success && profileData) {
+      setProfileData({
+        ...profileData,
+        peers:
+          (profileData.peers as PopulatedPeer[])?.filter(
+            (p) => p._id !== peerId,
+          ) || [],
+      });
     }
   };
 
@@ -298,6 +315,12 @@ export default function ProfilePage() {
               <Users size={16} /> Lodges
             </button>
             <button
+              onClick={() => setActiveTab("peers")}
+              className={`flex items-center gap-2 pb-4 text-sm font-bold border-b-2 transition-colors whitespace-nowrap ${activeTab === "peers" ? "border-indigo-600 text-indigo-600" : "border-transparent text-slate-500 hover:text-slate-800"}`}
+            >
+              <Network size={16} /> Peers
+            </button>
+            <button
               onClick={() => setActiveTab("saved")}
               className={`flex items-center gap-2 pb-4 text-sm font-bold border-b-2 transition-colors whitespace-nowrap ${activeTab === "saved" ? "border-indigo-600 text-indigo-600" : "border-transparent text-slate-500 hover:text-slate-800"}`}
             >
@@ -305,16 +328,82 @@ export default function ProfilePage() {
             </button>
           </div>
 
-          {/* Placeholder for all tabs */}
-          <div className="bg-white rounded-2xl p-12 border border-slate-100 text-center animate-in fade-in duration-500 mt-6">
-            <h3 className="text-lg font-bold text-slate-900 mb-2">
-              Nothing to see here yet
-            </h3>
-            <p className="text-sm font-medium text-slate-500">
-              {profileData.displayName} hasn&apos;t added any{" "}
-              {activeTab === "saved" ? "saved items" : activeTab} yet.
-            </p>
-          </div>
+          {/* Placeholder for other tabs */}
+          {activeTab !== "peers" && (
+            <div className="bg-white rounded-2xl p-12 border border-slate-100 text-center animate-in fade-in duration-500 mt-6">
+              <h3 className="text-lg font-bold text-slate-900 mb-2">
+                Nothing to see here yet
+              </h3>
+              <p className="text-sm font-medium text-slate-500">
+                {profileData.displayName} hasn&apos;t added any{" "}
+                {activeTab === "saved" ? "saved items" : activeTab} yet.
+              </p>
+            </div>
+          )}
+
+          {/* Peers Tab Content */}
+          {activeTab === "peers" && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 animate-in fade-in duration-500">
+              {profileData.peers && profileData.peers.length > 0 ? (
+                (profileData.peers as PopulatedPeer[]).map((peer) => (
+                  <div
+                    key={peer._id}
+                    className="flex items-center justify-between p-4 bg-white rounded-2xl border border-slate-100 shadow-sm"
+                  >
+                    <Link
+                      href={`/profile/${peer.username}`}
+                      className="flex items-center gap-3 hover:opacity-80 transition-opacity min-w-0"
+                    >
+                      <div className="h-12 w-12 rounded-full bg-slate-200 overflow-hidden shrink-0">
+                        {peer.avatar && !peer.avatar.includes("default") ? (
+                          <img
+                            src={peer.avatar}
+                            alt="avatar"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-[#3B82F6] flex items-center justify-center text-white font-bold text-lg">
+                            {peer.displayName?.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-bold text-slate-900 truncate">
+                          {peer.displayName}
+                        </p>
+                        <p className="text-sm text-slate-500 truncate">
+                          @{peer.username}
+                        </p>
+                        {peer.bio && (
+                          <p className="text-xs text-slate-400 truncate mt-1">
+                            {peer.bio}
+                          </p>
+                        )}
+                      </div>
+                    </Link>
+                    {isOwner && (
+                      <button
+                        onClick={() => handleRemovePeer(peer._id)}
+                        className="ml-3 px-3 py-1.5 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 rounded-full transition-colors shrink-0"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-1 md:col-span-2 bg-white rounded-2xl p-12 border border-slate-100 text-center">
+                  <h3 className="text-lg font-bold text-slate-900 mb-2">
+                    No peers yet
+                  </h3>
+                  <p className="text-sm font-medium text-slate-500">
+                    {profileData.displayName} hasn&apos;t connected with anyone
+                    yet.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
