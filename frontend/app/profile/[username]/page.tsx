@@ -24,6 +24,7 @@ import { useRef } from "react";
 import Link from "next/link";
 import ConfirmModal from "../../../components/ConfirmModal";
 import PostCard from "../../../components/PostCard";
+import AvatarSelectionModal from "../../../components/AvatarSelectionModal";
 import { usePostStore } from "../../../store/usePostStore";
 
 export default function ProfilePage() {
@@ -36,8 +37,13 @@ export default function ProfilePage() {
   >(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const { authUser, updateUserAvatar, updateUserBanner, onlineUsers } =
-    useAuthStore();
+  const {
+    authUser,
+    updateUserAvatar,
+    updateUserBanner,
+    updateAccountDetails,
+    onlineUsers,
+  } = useAuthStore();
   const { removePeer } = usePeerStore();
   const { userPosts, isLoadingPosts, getUserPosts, toggleLike } = usePostStore();
   const isOwner = authUser?._id === profileData?._id;
@@ -48,12 +54,18 @@ export default function ProfilePage() {
   const [isUploadingBanner, setIsUploadingBanner] = useState(false);
   const [peerToRemove, setPeerToRemove] = useState<string | null>(null);
 
-  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
+
+  const handleAvatarSelect = async (file: File | null, url: string) => {
     setIsUploadingAvatar(true);
     try {
-      const success = await updateUserAvatar(file);
+      let success = false;
+      if (file) {
+        success = await updateUserAvatar(file);
+      } else {
+        success = await updateAccountDetails({ avatar: url });
+      }
+
       if (success) {
         // useAuthStore is updated, grab the latest
         const updatedUser = useAuthStore.getState().authUser;
@@ -141,13 +153,6 @@ export default function ProfilePage() {
       {/* Hidden File Inputs */}
       <input
         type="file"
-        ref={avatarInputRef}
-        className="hidden"
-        accept="image/*"
-        onChange={handleAvatarChange}
-      />
-      <input
-        type="file"
         ref={bannerInputRef}
         className="hidden"
         accept="image/*"
@@ -195,9 +200,9 @@ export default function ProfilePage() {
           <div className="relative">
             <div
               className={`w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-white overflow-hidden bg-white shadow-md relative group ${isOwner ? "cursor-pointer" : ""}`}
-              onClick={() =>
-                isOwner && !isUploadingAvatar && avatarInputRef.current?.click()
-              }
+              onClick={() => {
+                if (isOwner && !isUploadingAvatar) setIsAvatarModalOpen(true);
+              }}
             >
               <img
                 src={
@@ -458,6 +463,12 @@ export default function ProfilePage() {
         confirmText="Remove Peer"
         cancelText="Cancel"
         isDestructive={true}
+      />
+
+      <AvatarSelectionModal
+        isOpen={isAvatarModalOpen}
+        onClose={() => setIsAvatarModalOpen(false)}
+        onSelect={handleAvatarSelect}
       />
     </div>
   );

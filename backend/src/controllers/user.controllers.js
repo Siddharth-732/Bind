@@ -237,12 +237,12 @@ export const refreshAccessToken = async (req, res) => {
 };
 
 export const updateAccountDetails = async (req, res) => {
-  const { displayName, bio } = req.body;
+  const { displayName, bio, avatar } = req.body;
 
-  if (!displayName && !bio) {
+  if (!displayName && !bio && !avatar) {
     return res
       .status(400)
-      .json({ message: "Please provide a display name or bio to update." });
+      .json({ message: "Please provide details to update." });
   }
 
   const user = await User.findByIdAndUpdate(
@@ -251,6 +251,7 @@ export const updateAccountDetails = async (req, res) => {
       $set: {
         ...(displayName && { displayName }), // Only update if provided
         ...(bio && { bio }), // Only update if provided
+        ...(avatar && { avatar }), // Only update if provided
       },
     },
     { returnDocument: "after" },

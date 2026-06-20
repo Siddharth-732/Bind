@@ -40,6 +40,7 @@ import {
   Star,
 } from "lucide-react";
 import PostCard from "../components/PostCard";
+import AvatarSelectionModal from "../components/AvatarSelectionModal";
 
 export default function ChatPage() {
   const {
@@ -231,6 +232,7 @@ export default function ChatPage() {
   );
   const [settingsAvatarPreview, setSettingsAvatarPreview] = useState("");
   const [settingsBannerPreview, setSettingsBannerPreview] = useState("");
+  const [isSettingsAvatarModalOpen, setIsSettingsAvatarModalOpen] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const bannerInputRef = useRef<HTMLInputElement>(null);
 
@@ -781,7 +783,7 @@ export default function ChatPage() {
           </div>
 
           {/* CHAT HEADER */}
-          <div className="h-[88px] bg-white border-b border-slate-100 flex items-center justify-between px-8 z-10 shrink-0">
+          <div className="h-[88px] bg-gray-100 border-b border-slate-100 flex items-center justify-between px-8 z-10 shrink-0">
             <div className="flex items-center gap-4">
               <div className="h-12 w-12 rounded-full bg-[#3B82F6] flex items-center justify-center font-bold text-white text-xl overflow-hidden">
                 {selectedUser.avatar &&
@@ -2288,7 +2290,7 @@ export default function ChatPage() {
                         <div className="absolute -top-12 flex items-end">
                           <div
                             className="h-[100px] w-[100px] rounded-full bg-slate-50 border border-slate-200 border-[6px] border-[#2b2d31] shadow-lg relative group cursor-pointer overflow-hidden"
-                            onClick={() => avatarInputRef.current?.click()}
+                            onClick={() => setIsSettingsAvatarModalOpen(true)}
                           >
                             <img
                               src={
@@ -2301,26 +2303,17 @@ export default function ChatPage() {
                             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                               <Plus size={24} className="text-white" />
                             </div>
-                            <input
-                              type="file"
-                              ref={avatarInputRef}
-                              className="hidden"
-                              accept="image/*"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) {
-                                  setSettingsAvatarFile(file);
-                                  const reader = new FileReader();
-                                  reader.onload = () =>
-                                    setSettingsAvatarPreview(
-                                      reader.result as string,
-                                    );
-                                  reader.readAsDataURL(file);
-                                }
-                              }}
-                            />
                           </div>
                         </div>
+
+                        <AvatarSelectionModal
+                          isOpen={isSettingsAvatarModalOpen}
+                          onClose={() => setIsSettingsAvatarModalOpen(false)}
+                          onSelect={(file, url) => {
+                            setSettingsAvatarFile(file);
+                            setSettingsAvatarPreview(url);
+                          }}
+                        />
 
                         <div className="pt-16 space-y-5">
                           {/* Name */}
