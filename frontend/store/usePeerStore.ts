@@ -5,24 +5,24 @@ import toast from "react-hot-toast";
 import { AuthUser } from "./useAuthStore";
 import { AxiosError } from "axios";
 
-interface ConnectionState {
+interface PeerState {
   peers: AuthUser[];
-  pendingRequests: AuthUser[];
-  discoverUsers: AuthUser[];
+  peerRequests: AuthUser[];
+  suggestedPeers: AuthUser[];
   isLoading: boolean;
   getPeers: () => Promise<void>;
   getPeerRequests: () => Promise<void>;
-  getDiscoverUsers: (search?: string) => Promise<void>;
+  getSuggestedPeers: (search?: string) => Promise<void>;
   sendPeerRequest: (peerId: string) => Promise<boolean>;
   acceptPeerRequest: (peerId: string) => Promise<boolean>;
   rejectPeerRequest: (peerId: string) => Promise<boolean>;
   removePeer: (peerId: string) => Promise<boolean>;
 }
 
-export const useConnectionStore = create<ConnectionState>((set, get) => ({
+export const usePeerStore = create<PeerState>((set, get) => ({
   peers: [],
-  pendingRequests: [],
-  discoverUsers: [],
+  peerRequests: [],
+  suggestedPeers: [],
   isLoading: false,
 
   getPeers: async () => {
@@ -42,7 +42,7 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
     set({ isLoading: true });
     try {
       const response = await axiosInstance.get("/users/peers/requests");
-      set({ pendingRequests: response.data.data });
+      set({ peerRequests: response.data.data });
     } catch (error: unknown) {
       const axiosError = error as AxiosError<{ message: string }>;
       toast.error(
@@ -53,16 +53,16 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
     }
   },
 
-  getDiscoverUsers: async (search?: string) => {
+  getSuggestedPeers: async (search?: string) => {
     set({ isLoading: true });
     try {
       const query = search ? `?search=${encodeURIComponent(search)}` : "";
       const response = await axiosInstance.get(`/users${query}`);
-      set({ discoverUsers: response.data.data });
+      set({ suggestedPeers: response.data.data });
     } catch (error: unknown) {
       const axiosError = error as AxiosError<{ message: string }>;
       toast.error(
-        axiosError.response?.data?.message || "Failed to load discover users",
+        axiosError.response?.data?.message || "Failed to load suggested peers",
       );
     } finally {
       set({ isLoading: false });
@@ -75,9 +75,9 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
         `/users/peers/${peerId}/request`,
       );
       toast.success(response.data.message);
-      // Remove the user from discoverUsers
+      // Remove the user from suggestedPeers
       set((state) => ({
-        discoverUsers: state.discoverUsers.filter((u) => u._id !== peerId),
+        suggestedPeers: state.suggestedPeers.filter((u) => u._id !== peerId),
       }));
       return true;
     } catch (error: unknown) {

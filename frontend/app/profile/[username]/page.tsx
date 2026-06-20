@@ -14,11 +14,21 @@ import {
   Loader2,
   ArrowLeft,
   Camera,
+  Network,
+  UserPlus,
+  UserMinus,
+  Check,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { axiosInstance } from "../../../lib/axios";
-import { useAuthStore } from "../../../store/useAuthStore";
+import { useAuthStore, PopulatedPeer } from "../../../store/useAuthStore";
+import { usePeerStore } from "../../../store/usePeerStore";
 import { useRef } from "react";
+import Link from "next/link";
+import ConfirmModal from "../../../components/ConfirmModal";
+import PostCard from "../../../components/PostCard";
+import AvatarSelectionModal from "../../../components/AvatarSelectionModal";
+import { usePostStore } from "../../../store/usePostStore";
 
 export default function ProfilePage() {
   const params = useParams();
@@ -30,21 +40,35 @@ export default function ProfilePage() {
   >(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const { authUser, updateUserAvatar, updateUserBanner, onlineUsers } =
-    useAuthStore();
-  const isOwner = authUser?.username === profileData?.username;
+  const {
+    authUser,
+    updateUserAvatar,
+    updateUserBanner,
+    updateAccountDetails,
+    onlineUsers,
+  } = useAuthStore();
+  const { removePeer, sendPeerRequest } = usePeerStore();
+  const { userPosts, isLoadingPosts, getUserPosts, toggleLike } = usePostStore();
+  const isOwner = authUser?._id === profileData?._id;
 
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const bannerInputRef = useRef<HTMLInputElement>(null);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [isUploadingBanner, setIsUploadingBanner] = useState(false);
+  const [peerToRemove, setPeerToRemove] = useState<string | null>(null);
 
-  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
+
+  const handleAvatarSelect = async (file: File | null, url: string) => {
     setIsUploadingAvatar(true);
     try {
-      const success = await updateUserAvatar(file);
+      let success = false;
+      if (file) {
+        success = await updateUserAvatar(file);
+      } else {
+        success = await updateAccountDetails({ avatar: url });
+      }
+
       if (success) {
         // useAuthStore is updated, grab the latest
         const updatedUser = useAuthStore.getState().authUser;
@@ -56,6 +80,21 @@ export default function ProfilePage() {
       }
     } finally {
       setIsUploadingAvatar(false);
+    }
+  };
+
+  const [requestSent, setRequestSent] = useState(false);
+
+  const isPeer = authUser?.peers?.some((p) => {
+    if (typeof p === "string") return p === profileData?._id;
+    return p._id === profileData?._id;
+  });
+
+  const handleConnect = async () => {
+    if (!profileData?._id) return;
+    const success = await sendPeerRequest(profileData._id);
+    if (success) {
+      setRequestSent(true);
     }
   };
 
@@ -78,6 +117,19 @@ export default function ProfilePage() {
     }
   };
 
+  const handleRemovePeer = async (peerId: string) => {
+    const success = await removePeer(peerId);
+    if (success && profileData) {
+      setProfileData({
+        ...profileData,
+        peers:
+          (profileData.peers as PopulatedPeer[])?.filter(
+            (p) => p._id !== peerId,
+          ) || [],
+      });
+    }
+  };
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -91,6 +143,12 @@ export default function ProfilePage() {
     };
     if (username) fetchProfile();
   }, [username]);
+
+  useEffect(() => {
+    if (activeTab === "posts" && username) {
+      getUserPosts(username);
+    }
+  }, [activeTab, username]);
 
   if (isLoading) {
     return (
@@ -111,13 +169,6 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] font-sans pb-20">
       {/* Hidden File Inputs */}
-      <input
-        type="file"
-        ref={avatarInputRef}
-        className="hidden"
-        accept="image/*"
-        onChange={handleAvatarChange}
-      />
       <input
         type="file"
         ref={bannerInputRef}
@@ -167,9 +218,9 @@ export default function ProfilePage() {
           <div className="relative">
             <div
               className={`w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-white overflow-hidden bg-white shadow-md relative group ${isOwner ? "cursor-pointer" : ""}`}
-              onClick={() =>
-                isOwner && !isUploadingAvatar && avatarInputRef.current?.click()
-              }
+              onClick={() => {
+                if (isOwner && !isUploadingAvatar) setIsAvatarModalOpen(true);
+              }}
             >
               <img
                 src={
@@ -211,7 +262,37 @@ export default function ProfilePage() {
             @{profileData.username}
           </p>
         </div>
-        <div className="flex items-center gap-3 mt-2 md:mt-4"></div>
+        <div className="flex items-center gap-3 mt-4 md:mt-6">
+          {!isOwner && profileData && (
+            isPeer ? (
+              <button
+                onClick={() => setPeerToRemove(profileData._id)}
+                className="flex items-center gap-2 px-6 py-2.5 bg-red-50 text-red-600 rounded-full font-bold text-sm hover:bg-red-100 transition-colors"
+              >
+                <UserMinus size={18} />
+                Remove Peer
+              </button>
+            ) : (
+              <button
+                onClick={handleConnect}
+                disabled={requestSent}
+                className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-full font-bold text-sm hover:bg-indigo-700 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+              >
+                {requestSent ? (
+                  <>
+                    <Check size={18} />
+                    Request Sent
+                  </>
+                ) : (
+                  <>
+                    <UserPlus size={18} />
+                    Connect
+                  </>
+                )}
+              </button>
+            )
+          )}
+        </div>
       </div>
 
       {/* 3. Main Grid Layout */}
@@ -298,6 +379,12 @@ export default function ProfilePage() {
               <Users size={16} /> Lodges
             </button>
             <button
+              onClick={() => setActiveTab("peers")}
+              className={`flex items-center gap-2 pb-4 text-sm font-bold border-b-2 transition-colors whitespace-nowrap ${activeTab === "peers" ? "border-indigo-600 text-indigo-600" : "border-transparent text-slate-500 hover:text-slate-800"}`}
+            >
+              <Network size={16} /> Peers
+            </button>
+            <button
               onClick={() => setActiveTab("saved")}
               className={`flex items-center gap-2 pb-4 text-sm font-bold border-b-2 transition-colors whitespace-nowrap ${activeTab === "saved" ? "border-indigo-600 text-indigo-600" : "border-transparent text-slate-500 hover:text-slate-800"}`}
             >
@@ -305,18 +392,132 @@ export default function ProfilePage() {
             </button>
           </div>
 
-          {/* Placeholder for all tabs */}
-          <div className="bg-white rounded-2xl p-12 border border-slate-100 text-center animate-in fade-in duration-500 mt-6">
-            <h3 className="text-lg font-bold text-slate-900 mb-2">
-              Nothing to see here yet
-            </h3>
-            <p className="text-sm font-medium text-slate-500">
-              {profileData.displayName} hasn&apos;t added any{" "}
-              {activeTab === "saved" ? "saved items" : activeTab} yet.
-            </p>
-          </div>
+          {/* Placeholder for other empty tabs */}
+          {activeTab !== "peers" && activeTab !== "posts" && (
+            <div className="bg-white rounded-2xl p-12 border border-slate-100 text-center animate-in fade-in duration-500 mt-6">
+              <h3 className="text-lg font-bold text-slate-900 mb-2">
+                Nothing to see here yet
+              </h3>
+              <p className="text-sm font-medium text-slate-500">
+                {profileData.displayName} hasn&apos;t added any{" "}
+                {activeTab === "saved" ? "saved items" : activeTab} yet.
+              </p>
+            </div>
+          )}
+
+          {/* Posts Tab Content */}
+          {activeTab === "posts" && (
+            <div className="space-y-6 mt-6 animate-in fade-in duration-500">
+              {isLoadingPosts ? (
+                <div className="flex justify-center p-8">
+                  <Loader2 className="animate-spin text-indigo-600" size={32} />
+                </div>
+              ) : userPosts.length > 0 ? (
+                userPosts.map((post) => (
+                  <PostCard
+                    key={post._id}
+                    post={post}
+                    authUser={authUser}
+                    toggleLike={toggleLike}
+                  />
+                ))
+              ) : (
+                <div className="bg-white rounded-2xl p-12 border border-slate-100 text-center">
+                  <h3 className="text-lg font-bold text-slate-900 mb-2">
+                    No posts yet
+                  </h3>
+                  <p className="text-sm font-medium text-slate-500">
+                    {profileData.displayName} hasn&apos;t posted anything.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Peers Tab Content */}
+          {activeTab === "peers" && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 animate-in fade-in duration-500">
+              {profileData.peers && profileData.peers.length > 0 ? (
+                (profileData.peers as PopulatedPeer[]).map((peer) => (
+                  <div
+                    key={peer._id}
+                    className="flex items-center justify-between p-4 bg-white rounded-2xl border border-slate-100 shadow-sm"
+                  >
+                    <Link
+                      href={`/profile/${peer.username}`}
+                      className="flex items-center gap-3 hover:opacity-80 transition-opacity min-w-0"
+                    >
+                      <div className="h-12 w-12 rounded-full bg-slate-200 overflow-hidden shrink-0">
+                        {peer.avatar && !peer.avatar.includes("default") ? (
+                          <img
+                            src={peer.avatar}
+                            alt="avatar"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-[#3B82F6] flex items-center justify-center text-white font-bold text-lg">
+                            {peer.displayName?.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-bold text-slate-900 truncate">
+                          {peer.displayName}
+                        </p>
+                        <p className="text-sm text-slate-500 truncate">
+                          @{peer.username}
+                        </p>
+                        {peer.bio && (
+                          <p className="text-xs text-slate-400 truncate mt-1">
+                            {peer.bio}
+                          </p>
+                        )}
+                      </div>
+                    </Link>
+                    {isOwner && (
+                      <button
+                        onClick={() => setPeerToRemove(peer._id)}
+                        className="ml-3 px-3 py-1.5 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 rounded-full transition-colors shrink-0"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-1 md:col-span-2 bg-white rounded-2xl p-12 border border-slate-100 text-center">
+                  <h3 className="text-lg font-bold text-slate-900 mb-2">
+                    No peers yet
+                  </h3>
+                  <p className="text-sm font-medium text-slate-500">
+                    {profileData.displayName} hasn&apos;t connected with anyone
+                    yet.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={!!peerToRemove}
+        onClose={() => setPeerToRemove(null)}
+        onConfirm={() => {
+          if (peerToRemove) handleRemovePeer(peerToRemove);
+        }}
+        title="Remove Peer"
+        message="Are you sure you want to sever this connection? You will no longer be connected as peers."
+        confirmText="Remove Peer"
+        cancelText="Cancel"
+        isDestructive={true}
+      />
+
+      <AvatarSelectionModal
+        isOpen={isAvatarModalOpen}
+        onClose={() => setIsAvatarModalOpen(false)}
+        onSelect={handleAvatarSelect}
+      />
     </div>
   );
 }

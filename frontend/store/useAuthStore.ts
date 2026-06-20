@@ -4,6 +4,14 @@ import toast from "react-hot-toast";
 import { io, Socket } from "socket.io-client";
 import { AxiosError } from "axios";
 
+export interface PopulatedPeer {
+  _id: string;
+  username: string;
+  displayName: string;
+  avatar?: string;
+  bio?: string;
+}
+
 export interface AuthUser {
   _id: string;
   username: string;
@@ -15,6 +23,7 @@ export interface AuthUser {
   specialization?: string;
   institute?: string;
   createdAt: string;
+  peers?: string[] | PopulatedPeer[];
   [key: string]: unknown;
 }
 
@@ -34,6 +43,7 @@ interface AuthState {
   updateAccountDetails: (data: {
     displayName?: string;
     bio?: string;
+    avatar?: string;
   }) => Promise<boolean>;
   updateUserAvatar: (file: File) => Promise<boolean>;
   updateUserBanner: (file: File) => Promise<boolean>;

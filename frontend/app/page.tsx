@@ -3,7 +3,7 @@ import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
 import { useLodgeStore } from "../store/useLodgeStore";
 import { useStatusStore } from "../store/useStatusStore";
-import { useConnectionStore } from "../store/useConnectionStore";
+import { usePeerStore } from "../store/usePeerStore";
 import { usePostStore } from "../store/usePostStore";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -39,6 +39,8 @@ import {
   Shield,
   Star,
 } from "lucide-react";
+import PostCard from "../components/PostCard";
+import AvatarSelectionModal from "../components/AvatarSelectionModal";
 
 export default function ChatPage() {
   const {
@@ -66,12 +68,15 @@ export default function ChatPage() {
   } = useChatStore();
   const {
     peers,
-    pendingRequests,
-    discoverUsers,
+    peerRequests,
+    suggestedPeers,
+    getPeers,
+    getPeerRequests,
+    getSuggestedPeers,
+    sendPeerRequest,
     acceptPeerRequest,
     rejectPeerRequest,
-    sendPeerRequest,
-  } = useConnectionStore();
+  } = usePeerStore();
 
   // LODGE STORE
   const {
@@ -146,7 +151,7 @@ export default function ChatPage() {
     if (activeTab === "explore") {
       getGlobalFeed();
       const timer = setTimeout(() => {
-        useConnectionStore.getState().getDiscoverUsers(searchQuery);
+        usePeerStore.getState().getSuggestedPeers(searchQuery);
         useLodgeStore.getState().getPublicLodges(searchQuery);
       }, 300);
       return () => clearTimeout(timer);
@@ -227,6 +232,7 @@ export default function ChatPage() {
   );
   const [settingsAvatarPreview, setSettingsAvatarPreview] = useState("");
   const [settingsBannerPreview, setSettingsBannerPreview] = useState("");
+  const [isSettingsAvatarModalOpen, setIsSettingsAvatarModalOpen] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const bannerInputRef = useRef<HTMLInputElement>(null);
 
@@ -405,7 +411,7 @@ export default function ChatPage() {
             >
               <div className="shrink-0">
                 <Bell size={20} strokeWidth={2} />
-                {pendingRequests.length > 0 && (
+                {peerRequests.length > 0 && (
                   <div className="absolute top-2 left-9 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></div>
                 )}
               </div>
@@ -613,12 +619,12 @@ export default function ChatPage() {
                   Pending Requests
                 </h3>
                 <div className="space-y-3">
-                  {pendingRequests.length === 0 ? (
+                  {peerRequests.length === 0 ? (
                     <p className="text-center text-sm text-slate-400 mt-6">
                       No new notifications.
                     </p>
                   ) : (
-                    pendingRequests.map((request) => (
+                    peerRequests.map((request) => (
                       <div
                         key={request._id}
                         className="flex flex-col gap-3 p-4 bg-white border border-slate-100 rounded-[20px] shadow-sm"
@@ -777,7 +783,7 @@ export default function ChatPage() {
           </div>
 
           {/* CHAT HEADER */}
-          <div className="h-[88px] bg-white border-b border-slate-100 flex items-center justify-between px-8 z-10 shrink-0">
+          <div className="h-[88px] bg-gray-100 border-b border-slate-100 flex items-center justify-between px-8 z-10 shrink-0">
             <div className="flex items-center gap-4">
               <div className="h-12 w-12 rounded-full bg-[#3B82F6] flex items-center justify-center font-bold text-white text-xl overflow-hidden">
                 {selectedUser.avatar &&
@@ -1887,87 +1893,14 @@ export default function ChatPage() {
                     <p className="text-sm">Be the first to share something!</p>
                   </div>
                 ) : (
-                  posts.map((post) => {
-                    const hasLiked = post.likes.includes(authUser?._id || "");
-                    return (
-                      <div
-                        key={post._id}
-                        className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200"
-                      >
-                        <div className="flex items-center gap-3 mb-4">
-                          <div className="h-10 w-10 rounded-full bg-slate-200 overflow-hidden shrink-0">
-                            {post.author?.avatar ? (
-                              <img
-                                src={post.author.avatar}
-                                alt="avatar"
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full bg-[#3B82F6] flex items-center justify-center text-white font-bold">
-                                {post.author?.displayName
-                                  ?.charAt(0)
-                                  .toUpperCase()}
-                              </div>
-                            )}
-                          </div>
-                          <div className="flex-1">
-                            <p className="font-bold text-slate-900">
-                              {post.author?.displayName}
-                            </p>
-                            <p className="text-xs text-slate-500">
-                              {new Date(post.createdAt).toLocaleDateString()} at{" "}
-                              {new Date(post.createdAt).toLocaleTimeString([], {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
-                            </p>
-                          </div>
-                        </div>
-
-                        <p className="text-slate-800 mb-4 whitespace-pre-wrap">
-                          {post.content}
-                        </p>
-
-                        {post.image && (
-                          <div className="mb-4 rounded-xl overflow-hidden border border-slate-100">
-                            <img
-                              src={post.image}
-                              alt="Post attachment"
-                              className="w-full max-h-[400px] object-cover"
-                            />
-                          </div>
-                        )}
-
-                        {post.tags && post.tags.length > 0 && (
-                          <div className="flex flex-wrap gap-2 mb-4">
-                            {post.tags.map((tag, idx) => (
-                              <span
-                                key={idx}
-                                className="px-2 py-1 bg-slate-100 text-slate-600 text-xs font-medium rounded-md"
-                              >
-                                #{tag}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-
-                        <div className="flex items-center gap-6 pt-4 border-t border-slate-100">
-                          <button
-                            onClick={() => toggleLike(post._id)}
-                            className={`flex items-center gap-2 text-sm font-bold transition-colors ${hasLiked ? "text-red-500" : "text-slate-500 hover:text-red-500"}`}
-                          >
-                            <Heart
-                              size={18}
-                              className={hasLiked ? "fill-red-500" : ""}
-                            />
-                            {post.likes.length > 0 && (
-                              <span>{post.likes.length}</span>
-                            )}
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })
+                  posts.map((post) => (
+                    <PostCard
+                      key={post._id}
+                      post={post}
+                      authUser={authUser}
+                      toggleLike={toggleLike}
+                    />
+                  ))
                 )}
               </div>
             </div>
@@ -1987,12 +1920,12 @@ export default function ChatPage() {
               </div>
 
               <div className="space-y-5">
-                {discoverUsers.length === 0 ? (
+                {suggestedPeers.length === 0 ? (
                   <p className="text-sm text-slate-400">
-                    No new users to discover right now.
+                    No new peers to discover right now.
                   </p>
                 ) : (
-                  discoverUsers.map((user) => (
+                  suggestedPeers.map((user) => (
                     <div
                       key={user._id}
                       className="flex items-center justify-between"
@@ -2357,7 +2290,7 @@ export default function ChatPage() {
                         <div className="absolute -top-12 flex items-end">
                           <div
                             className="h-[100px] w-[100px] rounded-full bg-slate-50 border border-slate-200 border-[6px] border-[#2b2d31] shadow-lg relative group cursor-pointer overflow-hidden"
-                            onClick={() => avatarInputRef.current?.click()}
+                            onClick={() => setIsSettingsAvatarModalOpen(true)}
                           >
                             <img
                               src={
@@ -2370,26 +2303,17 @@ export default function ChatPage() {
                             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                               <Plus size={24} className="text-white" />
                             </div>
-                            <input
-                              type="file"
-                              ref={avatarInputRef}
-                              className="hidden"
-                              accept="image/*"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) {
-                                  setSettingsAvatarFile(file);
-                                  const reader = new FileReader();
-                                  reader.onload = () =>
-                                    setSettingsAvatarPreview(
-                                      reader.result as string,
-                                    );
-                                  reader.readAsDataURL(file);
-                                }
-                              }}
-                            />
                           </div>
                         </div>
+
+                        <AvatarSelectionModal
+                          isOpen={isSettingsAvatarModalOpen}
+                          onClose={() => setIsSettingsAvatarModalOpen(false)}
+                          onSelect={(file, url) => {
+                            setSettingsAvatarFile(file);
+                            setSettingsAvatarPreview(url);
+                          }}
+                        />
 
                         <div className="pt-16 space-y-5">
                           {/* Name */}
