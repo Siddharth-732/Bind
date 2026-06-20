@@ -9,13 +9,8 @@ import {
   Rocket,
   Users,
   Bookmark,
-  Heart,
-  MessageSquare,
   FlaskConical,
   GraduationCap,
-  ChevronRight,
-  Share2,
-  BookOpen,
   Loader2,
   ArrowLeft,
   Camera,
@@ -35,7 +30,8 @@ export default function ProfilePage() {
   >(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const { authUser, updateUserAvatar, updateUserBanner, onlineUsers } = useAuthStore();
+  const { authUser, updateUserAvatar, updateUserBanner, onlineUsers } =
+    useAuthStore();
   const isOwner = authUser?.username === profileData?.username;
 
   const avatarInputRef = useRef<HTMLInputElement>(null);
@@ -142,7 +138,9 @@ export default function ProfilePage() {
 
         <div
           className={`w-full h-full relative group ${isOwner ? "cursor-pointer" : ""}`}
-          onClick={() => isOwner && !isUploadingBanner && bannerInputRef.current?.click()}
+          onClick={() =>
+            isOwner && !isUploadingBanner && bannerInputRef.current?.click()
+          }
         >
           {profileData.banner ? (
             <img
@@ -169,7 +167,9 @@ export default function ProfilePage() {
           <div className="relative">
             <div
               className={`w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-white overflow-hidden bg-white shadow-md relative group ${isOwner ? "cursor-pointer" : ""}`}
-              onClick={() => isOwner && !isUploadingAvatar && avatarInputRef.current?.click()}
+              onClick={() =>
+                isOwner && !isUploadingAvatar && avatarInputRef.current?.click()
+              }
             >
               <img
                 src={
@@ -311,7 +311,8 @@ export default function ProfilePage() {
               Nothing to see here yet
             </h3>
             <p className="text-sm font-medium text-slate-500">
-              {profileData.displayName} hasn't added any {activeTab === "saved" ? "saved items" : activeTab} yet.
+              {profileData.displayName} hasn&apos;t added any{" "}
+              {activeTab === "saved" ? "saved items" : activeTab} yet.
             </p>
           </div>
         </div>

@@ -570,8 +570,13 @@ export default function ChatPage() {
                         >
                           <div className="relative shrink-0">
                             <div className="h-12 w-12 rounded-full bg-[#3B82F6] flex items-center justify-center font-bold text-white text-lg overflow-hidden">
-                              {user.avatar && !user.avatar.includes("default") ? (
-                                <img src={user.avatar} alt="avatar" className="w-full h-full object-cover" />
+                              {user.avatar &&
+                              !user.avatar.includes("default") ? (
+                                <img
+                                  src={user.avatar}
+                                  alt="avatar"
+                                  className="w-full h-full object-cover"
+                                />
                               ) : (
                                 user.displayName.charAt(0).toUpperCase()
                               )}
@@ -775,8 +780,13 @@ export default function ChatPage() {
           <div className="h-[88px] bg-white border-b border-slate-100 flex items-center justify-between px-8 z-10 shrink-0">
             <div className="flex items-center gap-4">
               <div className="h-12 w-12 rounded-full bg-[#3B82F6] flex items-center justify-center font-bold text-white text-xl overflow-hidden">
-                {selectedUser.avatar && !selectedUser.avatar.includes("default") ? (
-                  <img src={selectedUser.avatar} alt="avatar" className="w-full h-full object-cover" />
+                {selectedUser.avatar &&
+                !selectedUser.avatar.includes("default") ? (
+                  <img
+                    src={selectedUser.avatar}
+                    alt="avatar"
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
                   selectedUser.displayName.charAt(0).toUpperCase()
                 )}
@@ -786,7 +796,9 @@ export default function ChatPage() {
                   {selectedUser.displayName}
                 </h3>
                 <p className="text-[11px] font-bold text-slate-500">
-                  {onlineUsers.includes(selectedUser._id) ? "Active Now" : "Offline"}
+                  {onlineUsers.includes(selectedUser._id)
+                    ? "Active Now"
+                    : "Offline"}
                 </p>
               </div>
             </div>
@@ -826,7 +838,7 @@ export default function ChatPage() {
                 const senderIdStr =
                   typeof msg.senderId === "string"
                     ? msg.senderId
-                    : (msg.senderId as any)?._id;
+                    : (msg.senderId as { _id?: string })?._id;
                 const isMe = senderIdStr === authUser?._id;
 
                 return (
@@ -1411,29 +1423,39 @@ export default function ChatPage() {
                         Welcome to the Lodge Space!
                       </h2>
                       <p className="text-slate-600 text-lg leading-relaxed font-medium">
-                        A Lodge is a dedicated community hub designed for you and your peers to connect, collaborate, and share ideas. Whether you are studying together, building a project, or just hanging out, Lodges give you the structured environment you need to thrive.
+                        A Lodge is a dedicated community hub designed for you
+                        and your peers to connect, collaborate, and share ideas.
+                        Whether you are studying together, building a project,
+                        or just hanging out, Lodges give you the structured
+                        environment you need to thrive.
                       </p>
                       <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 text-left mt-8 shadow-sm">
                         <h4 className="text-slate-900 font-bold mb-3 flex items-center gap-2">
-                          <Info size={18} className="text-[#3B82F6]" /> Getting Started
+                          <Info size={18} className="text-[#3B82F6]" /> Getting
+                          Started
                         </h4>
                         <p className="text-slate-600 text-sm leading-relaxed mb-4">
-                          We've set up a few template channels to show you how a Lodge is organized. Take a look around:
+                          We&apos;ve set up a few template channels to show you
+                          how a Lodge is organized. Take a look around:
                         </p>
                         <ul className="text-slate-600 text-sm space-y-3 list-disc pl-5">
                           <li>
                             <strong className="text-slate-900">
                               # announcements
                             </strong>
-                            : Check out how server owners can broadcast important updates to all members.
+                            : Check out how server owners can broadcast
+                            important updates to all members.
                           </li>
                           <li>
                             <strong className="text-slate-900"># roles</strong>:
-                            Discover how Lodge hierarchies work, from Captain down to Junior members.
+                            Discover how Lodge hierarchies work, from Captain
+                            down to Junior members.
                           </li>
                           <li>
-                            <strong className="text-slate-900"># general</strong>:
-                            Where the day-to-day casual chat happens.
+                            <strong className="text-slate-900">
+                              # general
+                            </strong>
+                            : Where the day-to-day casual chat happens.
                           </li>
                         </ul>
                       </div>
@@ -1460,8 +1482,9 @@ export default function ChatPage() {
                             </span>
                           </p>
                           <p className="text-slate-700 mt-1">
-                            Welcome everyone! We've just launched the new Global
-                            Feed feature. Check it out on the Explore tab!
+                            Welcome everyone! We&apos;ve just launched the new
+                            Global Feed feature. Check it out on the Explore
+                            tab!
                           </p>
                         </div>
                       </div>
@@ -1510,9 +1533,9 @@ export default function ChatPage() {
                           </h3>
                           <p className="text-slate-600 text-sm leading-relaxed">
                             Trusted members can be promoted to the rank of
-                            'elder'. They do not possess moderator power,
-                            although they can invoke a vote for a decision to
-                            occur.
+                            &apos;elder&apos;. They do not possess moderator
+                            power, although they can invoke a vote for a
+                            decision to occur.
                           </p>
                         </div>
 
@@ -1534,44 +1557,83 @@ export default function ChatPage() {
                         Lodge Rules
                       </h2>
                       <p className="text-slate-600 font-medium text-lg mb-8 leading-relaxed shrink-0">
-                        To keep this Lodge a safe and welcoming space for everyone, please adhere to the following rules:
+                        To keep this Lodge a safe and welcoming space for
+                        everyone, please adhere to the following rules:
                       </p>
 
                       <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
                         <ul className="space-y-4">
                           <li className="flex items-start gap-3">
-                            <span className="font-bold text-blue-500 text-lg mt-0.5">1.</span>
+                            <span className="font-bold text-blue-500 text-lg mt-0.5">
+                              1.
+                            </span>
                             <div>
-                              <strong className="text-slate-900 block mb-1">Be Kind and Respectful</strong>
-                              <p className="text-slate-600 text-sm">Treat all members with respect. No harassment, sexism, racism, or hate speech will be tolerated.</p>
+                              <strong className="text-slate-900 block mb-1">
+                                Be Kind and Respectful
+                              </strong>
+                              <p className="text-slate-600 text-sm">
+                                Treat all members with respect. No harassment,
+                                sexism, racism, or hate speech will be
+                                tolerated.
+                              </p>
                             </div>
                           </li>
                           <li className="flex items-start gap-3">
-                            <span className="font-bold text-blue-500 text-lg mt-0.5">2.</span>
+                            <span className="font-bold text-blue-500 text-lg mt-0.5">
+                              2.
+                            </span>
                             <div>
-                              <strong className="text-slate-900 block mb-1">No Bullying</strong>
-                              <p className="text-slate-600 text-sm">Bullying of any kind is strictly prohibited. If you see someone being bullied, please report it to a Moderator.</p>
+                              <strong className="text-slate-900 block mb-1">
+                                No Bullying
+                              </strong>
+                              <p className="text-slate-600 text-sm">
+                                Bullying of any kind is strictly prohibited. If
+                                you see someone being bullied, please report it
+                                to a Moderator.
+                              </p>
                             </div>
                           </li>
                           <li className="flex items-start gap-3">
-                            <span className="font-bold text-blue-500 text-lg mt-0.5">3.</span>
+                            <span className="font-bold text-blue-500 text-lg mt-0.5">
+                              3.
+                            </span>
                             <div>
-                              <strong className="text-slate-900 block mb-1">No NSFW Content</strong>
-                              <p className="text-slate-600 text-sm">This is an academic environment. Keep all content appropriate and safe for work.</p>
+                              <strong className="text-slate-900 block mb-1">
+                                No NSFW Content
+                              </strong>
+                              <p className="text-slate-600 text-sm">
+                                This is an academic environment. Keep all
+                                content appropriate and safe for work.
+                              </p>
                             </div>
                           </li>
                           <li className="flex items-start gap-3">
-                            <span className="font-bold text-blue-500 text-lg mt-0.5">4.</span>
+                            <span className="font-bold text-blue-500 text-lg mt-0.5">
+                              4.
+                            </span>
                             <div>
-                              <strong className="text-slate-900 block mb-1">Stay On Topic</strong>
-                              <p className="text-slate-600 text-sm">Use the appropriate channels for your discussions. Do not derail ongoing conversations.</p>
+                              <strong className="text-slate-900 block mb-1">
+                                Stay On Topic
+                              </strong>
+                              <p className="text-slate-600 text-sm">
+                                Use the appropriate channels for your
+                                discussions. Do not derail ongoing
+                                conversations.
+                              </p>
                             </div>
                           </li>
                           <li className="flex items-start gap-3">
-                            <span className="font-bold text-blue-500 text-lg mt-0.5">5.</span>
+                            <span className="font-bold text-blue-500 text-lg mt-0.5">
+                              5.
+                            </span>
                             <div>
-                              <strong className="text-slate-900 block mb-1">No Spam or Self-Promotion</strong>
-                              <p className="text-slate-600 text-sm">Avoid spamming messages. Keep self-promotion strictly to the designated #self-promo channel.</p>
+                              <strong className="text-slate-900 block mb-1">
+                                No Spam or Self-Promotion
+                              </strong>
+                              <p className="text-slate-600 text-sm">
+                                Avoid spamming messages. Keep self-promotion
+                                strictly to the designated #self-promo channel.
+                              </p>
                             </div>
                           </li>
                         </ul>
@@ -1591,7 +1653,7 @@ export default function ChatPage() {
                       </h2>
                       <p className="text-slate-600 font-medium text-lg leading-relaxed max-w-xl">
                         {defaultLodgeChannel === "general"
-                          ? "This is where all the casual conversation happens! Once you join a real lodge, you'll be able to chat with peers about anything and everything here."
+                          ? "This is where all the casual conversation happens! Once you join a real lodge, you&apos;ll be able to chat with peers about anything and everything here."
                           : defaultLodgeChannel === "self-promo"
                             ? "Share your projects, side-hustles, and achievements! In a real lodge, this channel keeps the main chat clean while giving you a dedicated place to shine."
                             : `This is an example of a dedicated #${defaultLodgeChannel} channel.`}
