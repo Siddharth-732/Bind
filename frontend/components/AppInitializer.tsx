@@ -1,13 +1,13 @@
 "use client";
 import { useEffect } from "react";
 import { useAuthStore } from "../store/useAuthStore";
-import { useConnectionStore } from "../store/useConnectionStore";
+import { usePeerStore } from "../store/usePeerStore";
 import { useLodgeStore } from "../store/useLodgeStore";
 import { useStatusStore } from "../store/useStatusStore";
 
 export default function AppInitializer() {
   const { authUser, connectSocket, disconnectSocket } = useAuthStore();
-  const { getPeers, getPeerRequests, getDiscoverUsers } = useConnectionStore();
+  const { getPeers, getPeerRequests, getSuggestedPeers } = usePeerStore();
   const { getPublicLodges, getMyLodges } = useLodgeStore();
   const { getStatuses, subscribeToStatuses, unsubscribeFromStatuses } =
     useStatusStore();
@@ -17,7 +17,7 @@ export default function AppInitializer() {
       connectSocket();
       getPeers();
       getPeerRequests();
-      getDiscoverUsers();
+      getSuggestedPeers();
       getPublicLodges();
       getMyLodges();
       getStatuses();
@@ -37,7 +37,7 @@ export default function AppInitializer() {
     disconnectSocket,
     getPeers,
     getPeerRequests,
-    getDiscoverUsers,
+    getSuggestedPeers,
     getPublicLodges,
     getMyLodges,
     getStatuses,

@@ -3,7 +3,7 @@ import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
 import { useLodgeStore } from "../store/useLodgeStore";
 import { useStatusStore } from "../store/useStatusStore";
-import { useConnectionStore } from "../store/useConnectionStore";
+import { usePeerStore } from "../store/usePeerStore";
 import { usePostStore } from "../store/usePostStore";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -66,12 +66,15 @@ export default function ChatPage() {
   } = useChatStore();
   const {
     peers,
-    pendingRequests,
-    discoverUsers,
+    peerRequests,
+    suggestedPeers,
+    getPeers,
+    getPeerRequests,
+    getSuggestedPeers,
+    sendPeerRequest,
     acceptPeerRequest,
     rejectPeerRequest,
-    sendPeerRequest,
-  } = useConnectionStore();
+  } = usePeerStore();
 
   // LODGE STORE
   const {
@@ -146,7 +149,7 @@ export default function ChatPage() {
     if (activeTab === "explore") {
       getGlobalFeed();
       const timer = setTimeout(() => {
-        useConnectionStore.getState().getDiscoverUsers(searchQuery);
+        usePeerStore.getState().getSuggestedPeers(searchQuery);
         useLodgeStore.getState().getPublicLodges(searchQuery);
       }, 300);
       return () => clearTimeout(timer);
@@ -405,7 +408,7 @@ export default function ChatPage() {
             >
               <div className="shrink-0">
                 <Bell size={20} strokeWidth={2} />
-                {pendingRequests.length > 0 && (
+                {peerRequests.length > 0 && (
                   <div className="absolute top-2 left-9 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></div>
                 )}
               </div>
@@ -613,12 +616,12 @@ export default function ChatPage() {
                   Pending Requests
                 </h3>
                 <div className="space-y-3">
-                  {pendingRequests.length === 0 ? (
+                  {peerRequests.length === 0 ? (
                     <p className="text-center text-sm text-slate-400 mt-6">
                       No new notifications.
                     </p>
                   ) : (
-                    pendingRequests.map((request) => (
+                    peerRequests.map((request) => (
                       <div
                         key={request._id}
                         className="flex flex-col gap-3 p-4 bg-white border border-slate-100 rounded-[20px] shadow-sm"
@@ -1987,12 +1990,12 @@ export default function ChatPage() {
               </div>
 
               <div className="space-y-5">
-                {discoverUsers.length === 0 ? (
+                {suggestedPeers.length === 0 ? (
                   <p className="text-sm text-slate-400">
-                    No new users to discover right now.
+                    No new peers to discover right now.
                   </p>
                 ) : (
-                  discoverUsers.map((user) => (
+                  suggestedPeers.map((user) => (
                     <div
                       key={user._id}
                       className="flex items-center justify-between"
