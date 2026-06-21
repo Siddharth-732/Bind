@@ -49,6 +49,7 @@ export default function ChatPage() {
     updateAccountDetails,
     updateUserAvatar,
     updateUserBanner,
+    changePassword,
     isUpdatingProfile,
     onlineUsers,
   } = useAuthStore();
@@ -232,9 +233,15 @@ export default function ChatPage() {
   );
   const [settingsAvatarPreview, setSettingsAvatarPreview] = useState("");
   const [settingsBannerPreview, setSettingsBannerPreview] = useState("");
-  const [isSettingsAvatarModalOpen, setIsSettingsAvatarModalOpen] = useState(false);
+  const [isSettingsAvatarModalOpen, setIsSettingsAvatarModalOpen] =
+    useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const bannerInputRef = useRef<HTMLInputElement>(null);
+
+  const [editingField, setEditingField] = useState<"username" | "email" | "phone" | "password" | null>(null);
+  const [editValue, setEditValue] = useState("");
+  const [editOldPassword, setEditOldPassword] = useState("");
+  const [editNewPassword, setEditNewPassword] = useState("");
 
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -336,6 +343,27 @@ export default function ChatPage() {
     setIsSettingsModalOpen(false);
     setSettingsAvatarFile(null);
     setSettingsBannerFile(null);
+  };
+
+  const handleSaveInlineField = async (field: "username" | "email" | "phone") => {
+    if (!authUser || !editValue) return;
+    const success = await updateAccountDetails({ [field]: editValue });
+    if (success) {
+      setEditingField(null);
+    }
+  };
+
+  const handleSavePassword = async () => {
+    if (!editOldPassword || !editNewPassword) return;
+    const success = await changePassword({
+      oldPassword: editOldPassword,
+      newPassword: editNewPassword,
+    });
+    if (success) {
+      setEditingField(null);
+      setEditOldPassword("");
+      setEditNewPassword("");
+    }
   };
 
   if (!authUser) return null;
@@ -2139,49 +2167,158 @@ export default function ChatPage() {
                         Account Info
                       </h3>
 
+                      {/* Username Field */}
                       <div className="flex items-center justify-between py-3 border-b border-slate-200 last:border-0">
                         <div className="flex-1">
                           <div className="text-[13px] font-bold text-slate-500 uppercase mb-1">
                             Username
                           </div>
-                          <div className="text-[16px] font-medium text-slate-900">
-                            {authUser?.username}
-                          </div>
+                          {editingField === "username" ? (
+                            <div className="flex flex-col gap-2 mt-2 max-w-[300px]">
+                              <input
+                                type="text"
+                                value={editValue}
+                                onChange={(e) => setEditValue(e.target.value)}
+                                className="w-full bg-white border border-slate-200 rounded-[4px] p-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#00a8fc] text-[15px]"
+                              />
+                            </div>
+                          ) : (
+                            <div className="text-[16px] font-medium text-slate-900">
+                              {authUser?.username}
+                            </div>
+                          )}
                         </div>
-                        <button className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-[14px] font-medium rounded-[4px] transition-colors shrink-0 ml-4">
-                          Edit
-                        </button>
+                        {editingField === "username" ? (
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => setEditingField(null)}
+                              className="px-4 py-2 text-slate-500 hover:text-slate-800 text-[14px] font-medium transition-colors shrink-0"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              onClick={() => handleSaveInlineField("username")}
+                              disabled={isUpdatingProfile || !editValue}
+                              className="px-4 py-2 bg-[#5865f2] hover:bg-[#4752c4] disabled:opacity-50 text-white text-[14px] font-medium rounded-[4px] transition-colors shrink-0 flex items-center gap-2"
+                            >
+                              {isUpdatingProfile ? <Loader2 size={16} className="animate-spin" /> : "Save"}
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => {
+                              setEditingField("username");
+                              setEditValue(authUser?.username || "");
+                            }}
+                            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-[14px] font-medium rounded-[4px] transition-colors shrink-0 ml-4"
+                          >
+                            Edit
+                          </button>
+                        )}
                       </div>
 
+                      {/* Email Field */}
                       <div className="flex items-center justify-between py-3 border-b border-slate-200 last:border-0">
                         <div className="flex-1">
                           <div className="text-[13px] font-bold text-slate-500 uppercase mb-1">
                             Email
                           </div>
-                          <div className="text-[16px] font-medium text-slate-900 flex items-center gap-2">
-                            ***********@gmail.com
-                            <span className="text-[#00a8fc] hover:underline cursor-pointer text-[13px] font-normal">
-                              Reveal
-                            </span>
-                          </div>
+                          {editingField === "email" ? (
+                            <div className="flex flex-col gap-2 mt-2 max-w-[300px]">
+                              <input
+                                type="email"
+                                value={editValue}
+                                onChange={(e) => setEditValue(e.target.value)}
+                                className="w-full bg-white border border-slate-200 rounded-[4px] p-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#00a8fc] text-[15px]"
+                              />
+                            </div>
+                          ) : (
+                            <div className="text-[16px] font-medium text-slate-900 flex items-center gap-2">
+                              {authUser?.email}
+                            </div>
+                          )}
                         </div>
-                        <button className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-[14px] font-medium rounded-[4px] transition-colors shrink-0 ml-4">
-                          Edit
-                        </button>
+                        {editingField === "email" ? (
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => setEditingField(null)}
+                              className="px-4 py-2 text-slate-500 hover:text-slate-800 text-[14px] font-medium transition-colors shrink-0"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              onClick={() => handleSaveInlineField("email")}
+                              disabled={isUpdatingProfile || !editValue}
+                              className="px-4 py-2 bg-[#5865f2] hover:bg-[#4752c4] disabled:opacity-50 text-white text-[14px] font-medium rounded-[4px] transition-colors shrink-0 flex items-center gap-2"
+                            >
+                              {isUpdatingProfile ? <Loader2 size={16} className="animate-spin" /> : "Save"}
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => {
+                              setEditingField("email");
+                              setEditValue(authUser?.email || "");
+                            }}
+                            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-[14px] font-medium rounded-[4px] transition-colors shrink-0 ml-4"
+                          >
+                            Edit
+                          </button>
+                        )}
                       </div>
 
+                      {/* Phone Number Field */}
                       <div className="flex items-center justify-between py-3 border-b border-slate-200 last:border-0">
                         <div className="flex-1">
                           <div className="text-[13px] font-bold text-slate-500 uppercase mb-1">
                             Phone Number
                           </div>
-                          <div className="text-[16px] font-medium text-slate-900">
-                            You haven&apos;t added a phone number yet.
-                          </div>
+                          {editingField === "phone" ? (
+                            <div className="flex flex-col gap-2 mt-2 max-w-[300px]">
+                              <input
+                                type="text"
+                                placeholder="e.g. +1 555 123 4567"
+                                value={editValue}
+                                onChange={(e) => setEditValue(e.target.value)}
+                                className="w-full bg-white border border-slate-200 rounded-[4px] p-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#00a8fc] text-[15px]"
+                              />
+                            </div>
+                          ) : (
+                            <div className="text-[16px] font-medium text-slate-900">
+                              {/* @ts-ignore - Phone is added dynamically */}
+                              {authUser?.phone || "You haven't added a phone number yet."}
+                            </div>
+                          )}
                         </div>
-                        <button className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-[14px] font-medium rounded-[4px] transition-colors shrink-0 ml-4">
-                          Add
-                        </button>
+                        {editingField === "phone" ? (
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => setEditingField(null)}
+                              className="px-4 py-2 text-slate-500 hover:text-slate-800 text-[14px] font-medium transition-colors shrink-0"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              onClick={() => handleSaveInlineField("phone")}
+                              disabled={isUpdatingProfile || !editValue}
+                              className="px-4 py-2 bg-[#5865f2] hover:bg-[#4752c4] disabled:opacity-50 text-white text-[14px] font-medium rounded-[4px] transition-colors shrink-0 flex items-center gap-2"
+                            >
+                              {isUpdatingProfile ? <Loader2 size={16} className="animate-spin" /> : "Save"}
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => {
+                              setEditingField("phone");
+                              // @ts-ignore
+                              setEditValue(authUser?.phone || "");
+                            }}
+                            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-[14px] font-medium rounded-[4px] transition-colors shrink-0 ml-4"
+                          >
+                            {/* @ts-ignore */}
+                            {authUser?.phone ? "Edit" : "Add"}
+                          </button>
+                        )}
                       </div>
                     </div>
 
@@ -2191,13 +2328,63 @@ export default function ChatPage() {
                         Password & Security
                       </h3>
 
-                      <div className="flex items-center justify-between py-3 border-b border-slate-200 last:border-0">
-                        <div className="text-[16px] font-medium text-slate-900">
-                          Password
+                      {/* Password Field */}
+                      <div className="flex items-start justify-between py-3 border-b border-slate-200 last:border-0">
+                        <div className="flex-1">
+                          <div className="text-[16px] font-medium text-slate-900 mb-2">
+                            Password
+                          </div>
+                          {editingField === "password" && (
+                            <div className="flex flex-col gap-3 max-w-[300px]">
+                              <div>
+                                <label className="block text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-1">Current Password</label>
+                                <input
+                                  type="password"
+                                  value={editOldPassword}
+                                  onChange={(e) => setEditOldPassword(e.target.value)}
+                                  className="w-full bg-white border border-slate-200 rounded-[4px] p-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#00a8fc] text-[15px]"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-1">New Password</label>
+                                <input
+                                  type="password"
+                                  value={editNewPassword}
+                                  onChange={(e) => setEditNewPassword(e.target.value)}
+                                  className="w-full bg-white border border-slate-200 rounded-[4px] p-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#00a8fc] text-[15px]"
+                                />
+                              </div>
+                            </div>
+                          )}
                         </div>
-                        <button className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-[14px] font-medium rounded-[4px] transition-colors">
-                          Edit
-                        </button>
+                        {editingField === "password" ? (
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => {
+                                setEditingField(null);
+                                setEditOldPassword("");
+                                setEditNewPassword("");
+                              }}
+                              className="px-4 py-2 text-slate-500 hover:text-slate-800 text-[14px] font-medium transition-colors shrink-0"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              onClick={handleSavePassword}
+                              disabled={isUpdatingProfile || !editOldPassword || !editNewPassword}
+                              className="px-4 py-2 bg-[#5865f2] hover:bg-[#4752c4] disabled:opacity-50 text-white text-[14px] font-medium rounded-[4px] transition-colors shrink-0 flex items-center gap-2"
+                            >
+                              {isUpdatingProfile ? <Loader2 size={16} className="animate-spin" /> : "Save"}
+                            </button>
+                          </div>
+                        ) : (
+                          <button 
+                            onClick={() => setEditingField("password")}
+                            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-[14px] font-medium rounded-[4px] transition-colors shrink-0 ml-4"
+                          >
+                            Edit
+                          </button>
+                        )}
                       </div>
 
                       <div className="flex items-center justify-between py-4 border-b border-slate-200 last:border-0 cursor-pointer group">

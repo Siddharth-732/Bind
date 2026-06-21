@@ -44,6 +44,13 @@ interface AuthState {
     displayName?: string;
     bio?: string;
     avatar?: string;
+    username?: string;
+    email?: string;
+    phone?: string;
+  }) => Promise<boolean>;
+  changePassword: (data: {
+    oldPassword?: string;
+    newPassword?: string;
   }) => Promise<boolean>;
   updateUserAvatar: (file: File) => Promise<boolean>;
   updateUserBanner: (file: File) => Promise<boolean>;
@@ -116,6 +123,23 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const axiosError = error as AxiosError<{ message: string }>;
       toast.error(
         axiosError.response?.data?.message || "Failed to update profile",
+      );
+      return false;
+    } finally {
+      set({ isUpdatingProfile: false });
+    }
+  },
+
+  changePassword: async (data) => {
+    set({ isUpdatingProfile: true });
+    try {
+      await axiosInstance.post("/users/change-password", data);
+      toast.success("Password changed successfully");
+      return true;
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ message: string }>;
+      toast.error(
+        axiosError.response?.data?.message || "Failed to change password",
       );
       return false;
     } finally {

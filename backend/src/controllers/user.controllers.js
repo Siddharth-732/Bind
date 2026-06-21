@@ -7,7 +7,16 @@ import jwt from "jsonwebtoken";
 
 export const registerUser = async (req, res) => {
   try {
-    const { email, password, displayName, username, bio, institute, specialization, avatar } = req.body;
+    const {
+      email,
+      password,
+      displayName,
+      username,
+      bio,
+      institute,
+      specialization,
+      avatar,
+    } = req.body;
 
     if (!displayName || !email || !password || !username) {
       return res.status(400).json({ message: "All fields are required." });
@@ -43,7 +52,8 @@ export const registerUser = async (req, res) => {
       displayName,
       email,
       password,
-      avatar: avatarUrl || avatar || "https://default-avatar-url.com/avatar.png",
+      avatar:
+        avatarUrl || avatar || "https://default-avatar-url.com/avatar.png",
       username: username.toLowerCase(),
       bio: bio || "",
       institute: institute || "Independent Researcher",
@@ -237,24 +247,56 @@ export const refreshAccessToken = async (req, res) => {
 };
 
 export const updateAccountDetails = async (req, res) => {
-  const { displayName, bio, avatar } = req.body;
+  const { displayName, bio, avatar, username, email, phone } = req.body;
 
-  if (!displayName && !bio && !avatar) {
+  if (
+    displayName === undefined &&
+    bio === undefined &&
+    avatar === undefined &&
+    username === undefined &&
+    email === undefined &&
+    phone === undefined
+  ) {
     return res
       .status(400)
       .json({ message: "Please provide details to update." });
+  }
+
+  // Check for uniqueness if trying to update unique fields
+  if (username) {
+    const existing = await User.findOne({ username: username.toLowerCase() });
+    if (existing && existing._id.toString() !== req.user._id.toString()) {
+      return res.status(409).json({ message: "Username is already taken" });
+    }
+  }
+
+  if (email) {
+    const existing = await User.findOne({ email: email.toLowerCase() });
+    if (existing && existing._id.toString() !== req.user._id.toString()) {
+      return res.status(409).json({ message: "Email is already taken" });
+    }
+  }
+
+  if (phone) {
+    const existing = await User.findOne({ phone });
+    if (existing && existing._id.toString() !== req.user._id.toString()) {
+      return res.status(409).json({ message: "Phone number is already registered" });
+    }
   }
 
   const user = await User.findByIdAndUpdate(
     req.user?._id,
     {
       $set: {
-        ...(displayName && { displayName }), // Only update if provided
-        ...(bio && { bio }), // Only update if provided
-        ...(avatar && { avatar }), // Only update if provided
+        ...(displayName !== undefined && { displayName }),
+        ...(bio !== undefined && { bio }),
+        ...(avatar !== undefined && { avatar }),
+        ...(username !== undefined && { username: username.toLowerCase() }),
+        ...(email !== undefined && { email: email.toLowerCase() }),
+        ...(phone !== undefined && { phone }),
       },
     },
-    { returnDocument: "after" },
+    { new: true },
   ).select("-password -refreshToken");
 
   return res
@@ -386,23 +428,29 @@ export const getDiscoverUsers = async (req, res) => {
     const filteredUsers = await User.find(query).select("-password").lean();
 
     // Recommendation Scoring Engine
-    const myInstituteTokens = (currentUser.institute || "").toLowerCase().split(/\s+/);
-    const mySpecTokens = (currentUser.specialization || "").toLowerCase().split(/\s+/);
+    const myInstituteTokens = (currentUser.institute || "")
+      .toLowerCase()
+      .split(/\s+/);
+    const mySpecTokens = (currentUser.specialization || "")
+      .toLowerCase()
+      .split(/\s+/);
 
     filteredUsers.forEach((user) => {
       let score = 0;
       const userInstTokens = (user.institute || "").toLowerCase().split(/\s+/);
-      const userSpecTokens = (user.specialization || "").toLowerCase().split(/\s+/);
+      const userSpecTokens = (user.specialization || "")
+        .toLowerCase()
+        .split(/\s+/);
 
       // Check institute matches (e.g. "iit", "nit")
       const commonInst = userInstTokens.filter(
-        (token) => token.length > 2 && myInstituteTokens.includes(token)
+        (token) => token.length > 2 && myInstituteTokens.includes(token),
       );
       if (commonInst.length > 0) score += 10;
 
       // Check specialization matches
       const commonSpec = userSpecTokens.filter(
-        (token) => token.length > 2 && mySpecTokens.includes(token)
+        (token) => token.length > 2 && mySpecTokens.includes(token),
       );
       if (commonSpec.length > 0) score += 5;
 

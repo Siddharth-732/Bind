@@ -8,6 +8,11 @@ const userSchema = new Schema(
       unique: true,
       sparse: true,
     },
+    phone: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
     email: {
       type: String,
       required: true,
