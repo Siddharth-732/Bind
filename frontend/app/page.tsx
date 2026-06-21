@@ -38,6 +38,10 @@ import {
   Crown,
   Shield,
   Star,
+  UserCircle,
+  Palette,
+  Settings2,
+  Lock,
 } from "lucide-react";
 import PostCard from "../components/PostCard";
 import AvatarSelectionModal from "../components/AvatarSelectionModal";
@@ -238,7 +242,9 @@ export default function ChatPage() {
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const bannerInputRef = useRef<HTMLInputElement>(null);
 
-  const [editingField, setEditingField] = useState<"username" | "email" | "phone" | "password" | null>(null);
+  const [editingField, setEditingField] = useState<
+    "username" | "email" | "phone" | "password" | null
+  >(null);
   const [editValue, setEditValue] = useState("");
   const [editOldPassword, setEditOldPassword] = useState("");
   const [editNewPassword, setEditNewPassword] = useState("");
@@ -345,7 +351,9 @@ export default function ChatPage() {
     setSettingsBannerFile(null);
   };
 
-  const handleSaveInlineField = async (field: "username" | "email" | "phone") => {
+  const handleSaveInlineField = async (
+    field: "username" | "email" | "phone",
+  ) => {
     if (!authUser || !editValue) return;
     const success = await updateAccountDetails({ [field]: editValue });
     if (success) {
@@ -2081,78 +2089,78 @@ export default function ChatPage() {
       {/* Settings Modal */}
       {isSettingsModalOpen && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 lg:p-10 animate-in fade-in zoom-in duration-200">
-          <div className="w-full max-w-6xl h-[85vh] bg-white rounded-2xl shadow-2xl flex overflow-hidden relative">
+          <div className="w-full max-w-5xl h-[85vh] bg-white rounded-2xl shadow-2xl flex overflow-hidden relative">
             {/* Left Sidebar */}
-            <div className="w-[280px] bg-slate-50 border border-slate-200 h-full flex flex-col py-10 px-6 overflow-y-auto shrink-0 border-r border-slate-200">
-              <div className="w-full">
-                <div className="text-[12px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5 px-2.5">
-                  User Settings
+            <div className="w-[280px] bg-[#cff3fd] h-full flex flex-col py-10 px-4 overflow-y-auto shrink-0">
+              <div className="w-full flex flex-col h-full">
+                <div className="text-[12px] font-extrabold text-slate-500 uppercase tracking-wider mb-2 px-4">
+                  Settings
                 </div>
                 <button
                   onClick={() => setActiveSettingsTab("account")}
-                  className={`w-full text-left px-2.5 py-[6px] rounded-[4px] text-[15px] font-medium transition-colors mb-0.5 ${activeSettingsTab === "account" ? "bg-slate-200 text-slate-800" : "text-slate-500 hover:bg-slate-100 hover:text-slate-800"}`}
+                  className={`w-full text-left px-4 py-2 rounded-full text-[15px] font-bold transition-all mb-1 flex items-center gap-3 ${activeSettingsTab === "account" ? "bg-blue-500 text-white shadow-md" : "text-slate-700 hover:bg-white/50 hover:text-slate-900"}`}
                 >
+                  <UserCircle size={18} />
                   Account
                 </button>
                 <button
                   onClick={() => setActiveSettingsTab("profiles")}
-                  className={`w-full text-left px-2.5 py-[6px] rounded-[4px] text-[15px] font-medium transition-colors mb-0.5 ${activeSettingsTab === "profiles" ? "bg-slate-200 text-slate-800" : "text-slate-500 hover:bg-slate-100 hover:text-slate-800"}`}
+                  className={`w-full text-left px-4 py-2 rounded-full text-[15px] font-bold transition-all mb-1 flex items-center gap-3 ${activeSettingsTab === "profiles" ? "bg-blue-500 text-white shadow-md" : "text-slate-700 hover:bg-white/50 hover:text-slate-900"}`}
                 >
+                  <User size={18} />
                   Profiles
                 </button>
                 <button
                   onClick={() => setActiveSettingsTab("data_privacy")}
-                  className={`w-full text-left px-2.5 py-[6px] rounded-[4px] text-[15px] font-medium transition-colors mb-0.5 ${activeSettingsTab === "data_privacy" ? "bg-slate-200 text-slate-800" : "text-slate-500 hover:bg-slate-100 hover:text-slate-800"}`}
+                  className={`w-full text-left px-4 py-2 rounded-full text-[15px] font-bold transition-all mb-1 flex items-center gap-3 ${activeSettingsTab === "data_privacy" ? "bg-blue-500 text-white shadow-md" : "text-slate-700 hover:bg-white/50 hover:text-slate-900"}`}
                 >
-                  Data & Privacy
+                  <Lock size={18} />
+                  Privacy
                 </button>
 
-                <div className="w-full h-[1px] bg-[#3f4147] my-2"></div>
-
-                <div className="text-[12px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5 px-2.5">
+                <div className="text-[12px] font-extrabold text-slate-500 uppercase tracking-wider mt-6 mb-2 px-4">
                   App Settings
                 </div>
                 <button
                   onClick={() => setActiveSettingsTab("appearance")}
-                  className={`w-full text-left px-2.5 py-[6px] rounded-[4px] text-[15px] font-medium transition-colors mb-0.5 ${activeSettingsTab === "appearance" ? "bg-slate-200 text-slate-800" : "text-slate-500 hover:bg-slate-100 hover:text-slate-800"}`}
+                  className={`w-full text-left px-4 py-2 rounded-full text-[15px] font-bold transition-all mb-1 flex items-center gap-3 ${activeSettingsTab === "appearance" ? "bg-blue-500 text-white shadow-md" : "text-slate-700 hover:bg-white/50 hover:text-slate-900"}`}
                 >
+                  <Palette size={18} />
                   Appearance
                 </button>
                 <button
                   onClick={() => setActiveSettingsTab("language")}
-                  className={`w-full text-left px-2.5 py-[6px] rounded-[4px] text-[15px] font-medium transition-colors mb-0.5 ${activeSettingsTab === "language" ? "bg-slate-200 text-slate-800" : "text-slate-500 hover:bg-slate-100 hover:text-slate-800"}`}
+                  className={`w-full text-left px-4 py-2 rounded-full text-[15px] font-bold transition-all mb-1 flex items-center gap-3 ${activeSettingsTab === "language" ? "bg-blue-500 text-white shadow-md" : "text-slate-700 hover:bg-white/50 hover:text-slate-900"}`}
                 >
+                  <Settings2 size={18} />
                   General Preferences
                 </button>
 
-                <div className="w-full h-[1px] bg-[#3f4147] my-2"></div>
-
-                <button
-                  onClick={() => {
-                    setIsSettingsModalOpen(false);
-                    logout();
-                  }}
-                  className="w-full text-left px-2.5 py-[6px] rounded-[4px] text-[15px] font-medium transition-colors mb-0.5 text-[#f23f43] hover:bg-slate-100"
-                >
-                  Log Out
-                </button>
+                <div className="mt-auto px-2">
+                  <button
+                    onClick={() => {
+                      setIsSettingsModalOpen(false);
+                      logout();
+                    }}
+                    className="px-6 py-2 bg-[#f04444] text-white rounded-full font-bold shadow-md hover:bg-[#d93b3b] transition-colors"
+                  >
+                    Log Out
+                  </button>
+                </div>
               </div>
             </div>
 
             {/* Main Content Pane */}
             <div className="flex-1 h-full bg-white relative flex justify-start">
-              <div className="w-full max-w-[740px] px-10 py-14 overflow-y-auto">
+              <div className="p-4 pt-6 flex-2 h-full bg-white relative overflow-y-auto">
                 {/* Close Button Overlay */}
                 <div
-                  className="absolute top-5 right-[5%] flex flex-col items-center gap-1.5 group cursor-pointer"
+                  className="sticky top-2 right-4 float-right flex flex-col items-center gap-1.5 group cursor-pointer z-20 mt-4 ml-4"
                   onClick={() => setIsSettingsModalOpen(false)}
                 >
                   <div className="h-9 w-9 rounded-full border-2 border-slate-300 flex items-center justify-center text-slate-400 group-hover:bg-slate-200 group-hover:text-slate-800 transition-colors">
                     <X size={18} strokeWidth={2.5} />
                   </div>
-                  <span className="text-[13px] font-semibold text-slate-400">
-                    ESC
-                  </span>
                 </div>
 
                 {activeSettingsTab === "account" && (
@@ -2201,7 +2209,11 @@ export default function ChatPage() {
                               disabled={isUpdatingProfile || !editValue}
                               className="px-4 py-2 bg-[#5865f2] hover:bg-[#4752c4] disabled:opacity-50 text-white text-[14px] font-medium rounded-[4px] transition-colors shrink-0 flex items-center gap-2"
                             >
-                              {isUpdatingProfile ? <Loader2 size={16} className="animate-spin" /> : "Save"}
+                              {isUpdatingProfile ? (
+                                <Loader2 size={16} className="animate-spin" />
+                              ) : (
+                                "Save"
+                              )}
                             </button>
                           </div>
                         ) : (
@@ -2210,7 +2222,7 @@ export default function ChatPage() {
                               setEditingField("username");
                               setEditValue(authUser?.username || "");
                             }}
-                            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-[14px] font-medium rounded-[4px] transition-colors shrink-0 ml-4"
+                            className="px-5 py-1.5 bg-[#3b82f6] hover:bg-blue-600 shadow-md text-white text-[14px] font-bold rounded-full transition-colors shrink-0 ml-4"
                           >
                             Edit
                           </button>
@@ -2251,7 +2263,11 @@ export default function ChatPage() {
                               disabled={isUpdatingProfile || !editValue}
                               className="px-4 py-2 bg-[#5865f2] hover:bg-[#4752c4] disabled:opacity-50 text-white text-[14px] font-medium rounded-[4px] transition-colors shrink-0 flex items-center gap-2"
                             >
-                              {isUpdatingProfile ? <Loader2 size={16} className="animate-spin" /> : "Save"}
+                              {isUpdatingProfile ? (
+                                <Loader2 size={16} className="animate-spin" />
+                              ) : (
+                                "Save"
+                              )}
                             </button>
                           </div>
                         ) : (
@@ -2260,7 +2276,7 @@ export default function ChatPage() {
                               setEditingField("email");
                               setEditValue(authUser?.email || "");
                             }}
-                            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-[14px] font-medium rounded-[4px] transition-colors shrink-0 ml-4"
+                            className="px-5 py-1.5 bg-[#3b82f6] hover:bg-blue-600 shadow-md text-white text-[14px] font-bold rounded-full transition-colors shrink-0 ml-4"
                           >
                             Edit
                           </button>
@@ -2286,7 +2302,8 @@ export default function ChatPage() {
                           ) : (
                             <div className="text-[16px] font-medium text-slate-900">
                               {/* @ts-ignore - Phone is added dynamically */}
-                              {authUser?.phone || "You haven't added a phone number yet."}
+                              {authUser?.phone ||
+                                "You haven't added a phone number yet."}
                             </div>
                           )}
                         </div>
@@ -2303,7 +2320,11 @@ export default function ChatPage() {
                               disabled={isUpdatingProfile || !editValue}
                               className="px-4 py-2 bg-[#5865f2] hover:bg-[#4752c4] disabled:opacity-50 text-white text-[14px] font-medium rounded-[4px] transition-colors shrink-0 flex items-center gap-2"
                             >
-                              {isUpdatingProfile ? <Loader2 size={16} className="animate-spin" /> : "Save"}
+                              {isUpdatingProfile ? (
+                                <Loader2 size={16} className="animate-spin" />
+                              ) : (
+                                "Save"
+                              )}
                             </button>
                           </div>
                         ) : (
@@ -2313,7 +2334,7 @@ export default function ChatPage() {
                               // @ts-ignore
                               setEditValue(authUser?.phone || "");
                             }}
-                            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-[14px] font-medium rounded-[4px] transition-colors shrink-0 ml-4"
+                            className="px-5 py-1.5 bg-[#3b82f6] hover:bg-blue-600 shadow-md text-white text-[14px] font-bold rounded-full transition-colors shrink-0 ml-4"
                           >
                             {/* @ts-ignore */}
                             {authUser?.phone ? "Edit" : "Add"}
@@ -2337,20 +2358,28 @@ export default function ChatPage() {
                           {editingField === "password" && (
                             <div className="flex flex-col gap-3 max-w-[300px]">
                               <div>
-                                <label className="block text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-1">Current Password</label>
+                                <label className="block text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                                  Current Password
+                                </label>
                                 <input
                                   type="password"
                                   value={editOldPassword}
-                                  onChange={(e) => setEditOldPassword(e.target.value)}
+                                  onChange={(e) =>
+                                    setEditOldPassword(e.target.value)
+                                  }
                                   className="w-full bg-white border border-slate-200 rounded-[4px] p-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#00a8fc] text-[15px]"
                                 />
                               </div>
                               <div>
-                                <label className="block text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-1">New Password</label>
+                                <label className="block text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                                  New Password
+                                </label>
                                 <input
                                   type="password"
                                   value={editNewPassword}
-                                  onChange={(e) => setEditNewPassword(e.target.value)}
+                                  onChange={(e) =>
+                                    setEditNewPassword(e.target.value)
+                                  }
                                   className="w-full bg-white border border-slate-200 rounded-[4px] p-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#00a8fc] text-[15px]"
                                 />
                               </div>
@@ -2371,16 +2400,24 @@ export default function ChatPage() {
                             </button>
                             <button
                               onClick={handleSavePassword}
-                              disabled={isUpdatingProfile || !editOldPassword || !editNewPassword}
+                              disabled={
+                                isUpdatingProfile ||
+                                !editOldPassword ||
+                                !editNewPassword
+                              }
                               className="px-4 py-2 bg-[#5865f2] hover:bg-[#4752c4] disabled:opacity-50 text-white text-[14px] font-medium rounded-[4px] transition-colors shrink-0 flex items-center gap-2"
                             >
-                              {isUpdatingProfile ? <Loader2 size={16} className="animate-spin" /> : "Save"}
+                              {isUpdatingProfile ? (
+                                <Loader2 size={16} className="animate-spin" />
+                              ) : (
+                                "Save"
+                              )}
                             </button>
                           </div>
                         ) : (
-                          <button 
+                          <button
                             onClick={() => setEditingField("password")}
-                            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-[14px] font-medium rounded-[4px] transition-colors shrink-0 ml-4"
+                            className="px-5 py-1.5 bg-[#3b82f6] hover:bg-blue-600 shadow-md text-white text-[14px] font-bold rounded-full transition-colors shrink-0 ml-4"
                           >
                             Edit
                           </button>
