@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { axiosInstance } from "../lib/axios";
+import { axiosInstance, BASE_URL } from "../lib/axios";
 import toast from "react-hot-toast";
 import { io, Socket } from "socket.io-client";
 import { AxiosError } from "axios";
@@ -201,7 +201,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     if (!authUser || socket?.connected) return;
 
     // dial the backend phone number and pass our User ID
-    const newSocket = io("http://localhost:5000", {
+    const newSocket = io(BASE_URL, {
       query: {
         userId: authUser._id,
       },
