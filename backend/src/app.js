@@ -9,9 +9,13 @@ import postRouter from "./routes/post.routes.js";
 import cookieParser from "cookie-parser";
 const app = express();
 
+const corsOrigin = process.env.CORS_ORIGIN 
+  ? process.env.CORS_ORIGIN.trim().replace(/\/$/, "") 
+  : "";
+
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN,
+    origin: corsOrigin,
     credentials: true,
   }),
 );

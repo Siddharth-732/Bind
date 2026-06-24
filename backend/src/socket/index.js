@@ -7,10 +7,14 @@ export const getReceiverSocketId = (receiverId) => {
   return userSocketMap[receiverId];
 };
 
+const corsOrigin = process.env.CORS_ORIGIN 
+  ? process.env.CORS_ORIGIN.trim().replace(/\/$/, "") 
+  : "";
+
 export const initializeSocket = (server) => {
   io = new Server(server, {
     cors: {
-      origin: process.env.CORS_ORIGIN,
+      origin: corsOrigin,
       credentials: true,
     },
   });

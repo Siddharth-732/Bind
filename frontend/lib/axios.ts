@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const BASE_URL = process.env.NODE_ENV === "development" ? "http://localhost:5000" : "https://bind-g2s3.onrender.com";
+export const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://bind-g2s3.onrender.com";
 
 export const axiosInstance = axios.create({
   // Point this to your backend server
