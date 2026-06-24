@@ -9,13 +9,15 @@ import postRouter from "./routes/post.routes.js";
 import cookieParser from "cookie-parser";
 const app = express();
 
-const corsOrigin = process.env.CORS_ORIGIN 
-  ? process.env.CORS_ORIGIN.trim().replace(/\/$/, "") 
-  : "";
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://pulse-chat-a1a4.vercel.app",
+  process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.trim().replace(/\/$/, "") : ""
+].filter(Boolean);
 
 app.use(
   cors({
-    origin: corsOrigin,
+    origin: allowedOrigins,
     credentials: true,
   }),
 );

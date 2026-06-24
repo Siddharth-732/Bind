@@ -7,14 +7,16 @@ export const getReceiverSocketId = (receiverId) => {
   return userSocketMap[receiverId];
 };
 
-const corsOrigin = process.env.CORS_ORIGIN 
-  ? process.env.CORS_ORIGIN.trim().replace(/\/$/, "") 
-  : "";
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://pulse-chat-a1a4.vercel.app",
+  process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.trim().replace(/\/$/, "") : ""
+].filter(Boolean);
 
 export const initializeSocket = (server) => {
   io = new Server(server, {
     cors: {
-      origin: corsOrigin,
+      origin: allowedOrigins,
       credentials: true,
     },
   });
