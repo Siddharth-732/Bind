@@ -75,8 +75,8 @@ export const registerUser = async (req, res) => {
 
     const options = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict", // security!
+      secure: true,
+      sameSite: "none",
     };
 
     // Send the success response
@@ -139,6 +139,7 @@ export const loginUser = async (req, res) => {
     const cookieOptions = {
       httpOnly: true, // Prevents frontend JavaScript from reading the cookie
       secure: true, // Ensures cookies are only sent over HTTPS (or localhost)
+      sameSite: "none",
     };
 
     return res
@@ -175,6 +176,7 @@ export const logoutUser = async (req, res) => {
     const options = {
       httpOnly: true,
       secure: true,
+      sameSite: "none",
     };
 
     return res
@@ -226,6 +228,7 @@ export const refreshAccessToken = async (req, res) => {
     const options = {
       httpOnly: true,
       secure: true,
+      sameSite: "none",
     };
 
     return res
