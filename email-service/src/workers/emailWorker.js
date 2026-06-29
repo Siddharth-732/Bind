@@ -35,6 +35,11 @@ const emailWorker = new Worker(
   },
   {
     connection: redisClient,
+    // Leaky Bucket process max 1 email every 2 seconds (2000ms)
+    limiter: {
+      max: 1,
+      duration: 2000,
+    },
   },
 );
 
