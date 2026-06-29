@@ -4,6 +4,8 @@ import {
   deleteFromCloudinary,
 } from "../utils/cloudinary.js";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
+import { emailQueue } from "../utils/emailQueue.js";
 
 export const registerUser = async (req, res) => {
   try {
@@ -78,6 +80,16 @@ export const registerUser = async (req, res) => {
       secure: true,
       sameSite: "none",
     };
+
+    // Generate a temporary token for the email link
+    const verificationToken = crypto.randomBytes(20).toString("hex");
+
+    // Push the email job to BullMQ
+    await emailQueue.add("send-verification", {
+      email: createdUser.email,
+      userId: createdUser._id.toString(),
+      token: verificationToken,
+    });
 
     // Send the success response
     return res
@@ -283,7 +295,9 @@ export const updateAccountDetails = async (req, res) => {
   if (phone) {
     const existing = await User.findOne({ phone });
     if (existing && existing._id.toString() !== req.user._id.toString()) {
-      return res.status(409).json({ message: "Phone number is already registered" });
+      return res
+        .status(409)
+        .json({ message: "Phone number is already registered" });
     }
   }
 
