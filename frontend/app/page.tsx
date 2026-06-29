@@ -2301,7 +2301,7 @@ export default function ChatPage() {
                             </div>
                           ) : (
                             <div className="text-[16px] font-medium text-slate-900">
-                              {/* @ts-ignore - Phone is added dynamically */}
+                              {/* @ts-expect-error - Phone is added dynamically */}
                               {authUser?.phone ||
                                 "You haven't added a phone number yet."}
                             </div>
@@ -2331,12 +2331,11 @@ export default function ChatPage() {
                           <button
                             onClick={() => {
                               setEditingField("phone");
-                              // @ts-ignore
+                              // @ts-expect-error - Phone is added dynamically
                               setEditValue(authUser?.phone || "");
                             }}
                             className="px-5 py-1.5 bg-[#3b82f6] hover:bg-blue-600 shadow-md text-white text-[14px] font-bold rounded-full transition-colors shrink-0 ml-4"
                           >
-                            {/* @ts-ignore */}
                             {authUser?.phone ? "Edit" : "Add"}
                           </button>
                         )}
