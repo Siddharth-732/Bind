@@ -13,6 +13,7 @@ if (!redisUrl) {
 // Initialize Redis Client
 const connection = new Redis(redisUrl, {
   maxRetriesPerRequest: null, // Required by BullMQ
+  tls: { rejectUnauthorized: false }, // Force TLS connection for Upstash
 });
 
 connection.on("connect", () => {
