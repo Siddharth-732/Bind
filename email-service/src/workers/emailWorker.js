@@ -2,6 +2,7 @@ import { Worker } from "bullmq";
 import redisClient from "../config/redisClient.js";
 import { sendEmail } from "../config/mailer.js";
 import { getVerificationEmailTemplate } from "../templates/verificationTemplate.js";
+import { EmailLog } from "../models/emailLog.js";
 
 const QUEUE_NAME = "email-queue";
 
@@ -18,6 +19,19 @@ const emailWorker = new Worker(
     // token : verification token
     const { email, userId, token } = job.data;
 
+    // 1. Create a "pending" log in MongoDB
+    let logEntry;
+    try {
+      logEntry = await EmailLog.create({
+        jobId: job.id,
+        recipientEmail: email,
+        jobName: job.name,
+        status: "pending"
+      });
+    } catch (e) {
+      console.error("Failed to create log entry:", e);
+    }
+
     let subject = "";
     let htmlContent = "";
 
@@ -28,10 +42,26 @@ const emailWorker = new Worker(
       throw new Error(`Unknown job name: ${job.name}`);
     }
 
-    // Call Nodemailer to actually send the email
-    const info = await sendEmail(email, subject, htmlContent);
+    try {
+      // 2. Try to actually send the email via Nodemailer
+      const info = await sendEmail(email, subject, htmlContent);
 
-    return { success: true, messageId: info.messageId };
+      // 3. If successful, update MongoDB log to "success"
+      if (logEntry) {
+        logEntry.status = "success";
+        await logEntry.save();
+      }
+
+      return { success: true, messageId: info.messageId };
+    } catch (error) {
+      // 4. If it crashes, update MongoDB log to "failed" with the exact reason
+      if (logEntry) {
+        logEntry.status = "failed";
+        logEntry.errorReason = error.message;
+        await logEntry.save();
+      }
+      throw error;
+    }
   },
   {
     connection: redisClient,
