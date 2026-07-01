@@ -2,6 +2,8 @@ import { Router } from "express";
 import {
   getDiscoverUsers,
   registerUser,
+  sendOTP,
+  verifyOTP,
   checkUsername,
   loginUser,
   logoutUser,
@@ -21,6 +23,8 @@ import {
 import { upload } from "../middleware/multer.middleware.js";
 import { verifyJWT } from "../middleware/auth.middleware.js";
 const router = Router();
+router.route("/send-otp").post(sendOTP);
+router.route("/verify-otp").post(verifyOTP);
 router.route("/check-username").get(checkUsername);
 router.route("/register").post(
   upload.fields([
