@@ -9,7 +9,7 @@ if (!redisUrl) {
 }
 
 // connect the Producer to the same broker
-const connection = new Redis(redisUrl, {
+export const redisClient = new Redis(redisUrl, {
   maxRetriesPerRequest: null,
   tls: { rejectUnauthorized: false }, // Force TLS connection for Upstash
 });
@@ -18,7 +18,7 @@ const connection = new Redis(redisUrl, {
 const QUEUE_NAME = "email-queue";
 
 export const emailQueue = new Queue(QUEUE_NAME, {
-  connection,
+  connection: redisClient,
   defaultJobOptions: {
     removeOnComplete: true,
     removeOnFail: false, // keep failed jobs in Redis for debugging
