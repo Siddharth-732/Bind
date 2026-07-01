@@ -1,7 +1,8 @@
 import { Worker } from "bullmq";
 import redisClient from "../config/redisClient.js";
 import { sendEmail } from "../config/mailer.js";
-import { getVerificationEmailTemplate } from "../templates/verificationTemplate.js";
+import { getOTPEmailTemplate } from "../templates/otpTemplate.js";
+import { getWelcomeEmailTemplate } from "../templates/welcomeTemplate.js";
 import { EmailLog } from "../models/emailLog.js";
 
 const QUEUE_NAME = "email-queue";
@@ -13,11 +14,9 @@ const emailWorker = new Worker(
   async (job) => {
     console.log(`\n Processing job [${job.id}]: ${job.name}`);
 
-    // the producer sends us: { email, userId, token }
-    // email : user email
-    // userId : user id
-    // token : verification token
-    const { email, userId, token } = job.data;
+    // For send-otp: { email, otp }
+    // For send-welcome: { email, name }
+    const { email, otp, name } = job.data;
 
     // 1. Create a "pending" log in MongoDB
     let logEntry;
@@ -26,7 +25,7 @@ const emailWorker = new Worker(
         jobId: job.id,
         recipientEmail: email,
         jobName: job.name,
-        status: "pending"
+        status: "pending",
       });
     } catch (e) {
       console.error("Failed to create log entry:", e);
@@ -35,9 +34,12 @@ const emailWorker = new Worker(
     let subject = "";
     let htmlContent = "";
 
-    if (job.name === "send-verification") {
+    if (job.name === "send-otp") {
       subject = "Verify your Bind Account";
-      htmlContent = getVerificationEmailTemplate(userId, token);
+      htmlContent = getOTPEmailTemplate(otp);
+    } else if (job.name === "send-welcome") {
+      subject = "Welcome to Bind! 🎉";
+      htmlContent = getWelcomeEmailTemplate(name);
     } else {
       throw new Error(`Unknown job name: ${job.name}`);
     }
