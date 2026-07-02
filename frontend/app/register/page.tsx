@@ -39,9 +39,12 @@ export default function RegisterPage() {
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
 
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
-  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(
-    null,
-  );
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+
+  const [otp, setOtp] = useState("");
+  const [emailVerificationToken, setEmailVerificationToken] = useState("");
+  const [isSendingOTP, setIsSendingOTP] = useState(false);
+  const [isVerifyingOTP, setIsVerifyingOTP] = useState(false);
 
   // For the interactive illustration
   const [focusedField, setFocusedField] = useState<
@@ -78,14 +81,50 @@ export default function RegisterPage() {
     setAvatarPreview(url);
   };
 
-  const handleNextStep = (e: React.FormEvent) => {
+  const handleNextStep = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.displayName || !formData.email || !formData.password) {
       setHasError(true);
       setTimeout(() => setHasError(false), 500);
       return toast.error("Please fill in all basic details.");
     }
-    setStep(2);
+    
+    setIsSendingOTP(true);
+    try {
+      await axiosInstance.post("/users/send-otp", { email: formData.email });
+      toast.success("OTP sent to your email!");
+      setStep(2);
+    } catch (error: any) {
+      toast.error(error.response?.data?.error || "Failed to send OTP");
+      setHasError(true);
+      setTimeout(() => setHasError(false), 500);
+    } finally {
+      setIsSendingOTP(false);
+    }
+  };
+
+  const handleVerifyOTP = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (otp.length !== 6) {
+      return toast.error("Please enter a valid 6-digit OTP.");
+    }
+    
+    setIsVerifyingOTP(true);
+    try {
+      const response = await axiosInstance.post("/users/verify-otp", { 
+        email: formData.email, 
+        otp 
+      });
+      setEmailVerificationToken(response.data.emailVerificationToken);
+      toast.success("Email verified!");
+      setStep(3);
+    } catch (error: any) {
+      toast.error(error.response?.data?.error || "Invalid or expired OTP");
+      setHasError(true);
+      setTimeout(() => setHasError(false), 500);
+    } finally {
+      setIsVerifyingOTP(false);
+    }
   };
 
   const handleFinalSubmit = async (e: React.FormEvent) => {
@@ -104,6 +143,8 @@ export default function RegisterPage() {
     submitData.append("bio", formData.bio);
     submitData.append("institute", formData.institute);
     submitData.append("specialization", formData.specialization);
+    submitData.append("emailVerificationToken", emailVerificationToken);
+
     if (avatarFile) {
       submitData.append("avatar", avatarFile);
     } else if (selectedAvatarUrl) {
@@ -144,10 +185,10 @@ export default function RegisterPage() {
             </div>
 
             <h1 className="text-3xl font-bold tracking-tight text-slate-900 mb-2">
-              {step === 1 ? "Create an account" : "Complete your profile"}
+              {step === 1 ? "Create an account" : step === 2 ? "Verify your email" : "Complete your profile"}
             </h1>
             <p className="text-sm font-medium text-slate-500">
-              {step === 1 ? "Step 1 of 2" : "Step 2 of 2"}
+              {step === 1 ? "Step 1 of 3" : step === 2 ? "Step 2 of 3" : "Step 3 of 3"}
             </p>
           </div>
 
@@ -222,9 +263,10 @@ export default function RegisterPage() {
 
               <button
                 type="submit"
-                className="mt-8 w-full flex items-center justify-center rounded-full bg-[#3B82F6] py-3.5 text-[15px] font-bold text-white transition-all hover:bg-[#004255] active:scale-[0.98]"
+                disabled={isSendingOTP}
+                className="mt-8 w-full flex items-center justify-center rounded-full bg-[#3B82F6] py-3.5 text-[15px] font-bold text-white transition-all hover:bg-[#004255] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                Continue
+                {isSendingOTP ? <Loader2 className="animate-spin" size={20} /> : "Continue"}
               </button>
 
               {/* Social Registration */}
@@ -252,8 +294,56 @@ export default function RegisterPage() {
             </form>
           )}
 
-          {/* ================= STEP 2: PROFILE ================= */}
+          {/* ================= STEP 2: VERIFY OTP ================= */}
           {step === 2 && (
+            <form
+              onSubmit={handleVerifyOTP}
+              className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-500"
+            >
+              <div className="text-center mb-6">
+                <p className="text-sm text-slate-600">
+                  We sent a 6-digit code to <br />
+                  <span className="font-bold text-slate-900">{formData.email}</span>
+                </p>
+              </div>
+              
+              <div>
+                <label className="mb-2 block text-sm font-bold text-slate-700 text-center">
+                  Verification Code
+                </label>
+                <input
+                  type="text"
+                  required
+                  maxLength={6}
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, ''))}
+                  className="block w-full text-center border-b-2 border-slate-300 bg-transparent py-4 text-3xl tracking-[1em] text-slate-900 transition-colors placeholder:text-slate-300 focus:border-[#3B82F6] focus:outline-none"
+                  placeholder="------"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isVerifyingOTP || otp.length !== 6}
+                className="mt-8 w-full flex items-center justify-center rounded-full bg-[#3B82F6] py-3.5 text-[15px] font-bold text-white transition-all hover:bg-[#004255] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
+              >
+                {isVerifyingOTP ? <Loader2 className="animate-spin" size={20} /> : "Verify Email"}
+              </button>
+              
+              <div className="mt-4 text-center">
+                <button
+                  type="button"
+                  onClick={() => setStep(1)}
+                  className="text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors"
+                >
+                  Back to edit email
+                </button>
+              </div>
+            </form>
+          )}
+
+          {/* ================= STEP 3: PROFILE ================= */}
+          {step === 3 && (
             <form
               onSubmit={handleFinalSubmit}
               className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-500"
