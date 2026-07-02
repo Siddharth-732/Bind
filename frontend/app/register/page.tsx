@@ -13,6 +13,7 @@ import {
   EyeOff,
 } from "lucide-react";
 import { axiosInstance } from "../../lib/axios";
+import { AxiosError } from "axios";
 import toast from "react-hot-toast";
 import InteractiveIllustration from "../../components/InteractiveIllustration";
 import AvatarSelectionModal from "../../components/AvatarSelectionModal";
@@ -94,8 +95,9 @@ export default function RegisterPage() {
       await axiosInstance.post("/users/send-otp", { email: formData.email });
       toast.success("OTP sent to your email!");
       setStep(2);
-    } catch (error: any) {
-      toast.error(error.response?.data?.error || "Failed to send OTP");
+    } catch (error: unknown) {
+      const err = error as AxiosError<{ error: string }>;
+      toast.error(err.response?.data?.error || "Failed to send OTP");
       setHasError(true);
       setTimeout(() => setHasError(false), 500);
     } finally {
@@ -118,8 +120,9 @@ export default function RegisterPage() {
       setEmailVerificationToken(response.data.emailVerificationToken);
       toast.success("Email verified!");
       setStep(3);
-    } catch (error: any) {
-      toast.error(error.response?.data?.error || "Invalid or expired OTP");
+    } catch (error: unknown) {
+      const err = error as AxiosError<{ error: string }>;
+      toast.error(err.response?.data?.error || "Invalid or expired OTP");
       setHasError(true);
       setTimeout(() => setHasError(false), 500);
     } finally {
