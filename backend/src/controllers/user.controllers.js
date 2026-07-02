@@ -5,7 +5,80 @@ import {
 } from "../utils/cloudinary.js";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
-import { emailQueue } from "../utils/emailQueue.js";
+import { emailQueue, redisClient } from "../utils/emailQueue.js";
+
+export const sendOTP = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: "Email is required" });
+    }
+    
+    const normalizedEmail = email.toLowerCase().trim();
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    const otpHash = crypto.createHash("sha256").update(otp).digest("hex");
+
+    await redisClient.set(`otp:${normalizedEmail}`, otpHash, "EX", 300);
+
+    await emailQueue.add("send-otp", {
+      email: normalizedEmail,
+      otp,
+    });
+
+    return res.status(200).json({ message: "OTP sent successfully" });
+  } catch (error) {
+    console.error("Error in sendOTP:", error);
+    return res.status(500).json({ error: "Failed to send OTP" });
+  }
+};
+
+export const verifyOTP = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+      return res.status(400).json({ error: "Email and OTP are required" });
+    }
+
+    if (otp.toString().length !== 6) {
+      return res.status(400).json({ error: "OTP must be exactly 6 digits" });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+    const storedHash = await redisClient.get(`otp:${normalizedEmail}`);
+
+    if (!storedHash) {
+      return res.status(400).json({ error: "OTP expired or invalid" });
+    }
+
+    const inputHash = crypto
+      .createHash("sha256")
+      .update(otp.toString())
+      .digest("hex");
+
+    if (inputHash !== storedHash) {
+      return res.status(400).json({ error: "Invalid OTP" });
+    }
+
+    await redisClient.del(`otp:${normalizedEmail}`);
+
+    const emailVerificationToken = jwt.sign(
+      { email: normalizedEmail },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: "15m" }, // 15 minutes to finish setting up username/avatar
+    );
+
+    return res.status(200).json({
+      message: "Email verified successfully",
+      emailVerificationToken,
+    });
+  } catch (error) {
+    console.error("Error in verifyOTP:", error);
+    return res.status(500).json({ error: "Failed to verify OTP" });
+  }
+};
 
 export const registerUser = async (req, res) => {
   try {
@@ -18,10 +91,34 @@ export const registerUser = async (req, res) => {
       institute,
       specialization,
       avatar,
+      emailVerificationToken, // REQUIRED NOW
     } = req.body;
 
     if (!displayName || !email || !password || !username) {
       return res.status(400).json({ message: "All fields are required." });
+    }
+
+    if (!emailVerificationToken) {
+      return res
+        .status(400)
+        .json({ message: "Email verification is required." });
+    }
+
+    try {
+      // Decode the temporary token and verify it belongs to this email
+      const decoded = jwt.verify(
+        emailVerificationToken,
+        process.env.ACCESS_TOKEN_SECRET,
+      );
+      if (decoded.email !== email) {
+        return res
+          .status(400)
+          .json({ message: "Invalid verification token for this email." });
+      }
+    } catch (error) {
+      return res
+        .status(400)
+        .json({ message: "Email verification token is invalid or expired." });
     }
 
     const existingUser = await User.findOne({
@@ -81,14 +178,10 @@ export const registerUser = async (req, res) => {
       sameSite: "none",
     };
 
-    // Generate a temporary token for the email link
-    const verificationToken = crypto.randomBytes(20).toString("hex");
-
-    // Push the email job to BullMQ
-    await emailQueue.add("send-verification", {
+    // Push a "Welcome" email job to BullMQ now that registration is fully complete
+    await emailQueue.add("send-welcome", {
       email: createdUser.email,
-      userId: createdUser._id.toString(),
-      token: verificationToken,
+      name: createdUser.displayName,
     });
 
     // Send the success response

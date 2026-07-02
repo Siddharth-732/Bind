@@ -2,6 +2,8 @@ import { Router } from "express";
 import {
   getDiscoverUsers,
   registerUser,
+  sendOTP,
+  verifyOTP,
   checkUsername,
   loginUser,
   logoutUser,
@@ -21,6 +23,8 @@ import {
 import { upload } from "../middleware/multer.middleware.js";
 import { verifyJWT } from "../middleware/auth.middleware.js";
 const router = Router();
+router.route("/send-otp").post(sendOTP);
+router.route("/verify-otp").post(verifyOTP);
 router.route("/check-username").get(checkUsername);
 router.route("/register").post(
   upload.fields([
@@ -42,16 +46,11 @@ router.route("/update-avatar").patch(
   upload.single("avatar"), // multer grabs the single file named "avatar"
   updateUserAvatar,
 );
-router.route("/update-banner").patch(
-  verifyJWT,
-  upload.single("banner"), // multer grabs the single file named "banner"
-  updateUserBanner,
-);
+router
+  .route("/update-banner")
+  .patch(verifyJWT, upload.single("banner"), updateUserBanner);
 
-// Profile
 router.route("/profile/:username").get(verifyJWT, getUserProfile);
-
-// peer Connections
 router.route("/peers").get(verifyJWT, getPeers);
 router.route("/peers/requests").get(verifyJWT, getPeerRequests);
 router.route("/peers/:peerId/request").post(verifyJWT, sendPeerRequest);

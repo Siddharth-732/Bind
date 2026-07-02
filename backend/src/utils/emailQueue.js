@@ -3,13 +3,13 @@ import { Redis } from "ioredis";
 const redisUrl = process.env.REDIS_URL;
 
 if (!redisUrl) {
-  console.warn(
-    "REDIS_URL is not defined in backend .env. The email queue will not work.",
+  throw new Error(
+    "REDIS_URL is not defined in backend .env. Redis connection and email queue will fail.",
   );
 }
 
 // connect the Producer to the same broker
-const connection = new Redis(redisUrl, {
+export const redisClient = new Redis(redisUrl, {
   maxRetriesPerRequest: null,
   tls: { rejectUnauthorized: false }, // Force TLS connection for Upstash
 });
@@ -18,7 +18,7 @@ const connection = new Redis(redisUrl, {
 const QUEUE_NAME = "email-queue";
 
 export const emailQueue = new Queue(QUEUE_NAME, {
-  connection,
+  connection: redisClient,
   defaultJobOptions: {
     removeOnComplete: true,
     removeOnFail: false, // keep failed jobs in Redis for debugging
