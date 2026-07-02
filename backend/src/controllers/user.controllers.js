@@ -14,14 +14,16 @@ export const sendOTP = async (req, res) => {
     if (!email) {
       return res.status(400).json({ error: "Email is required" });
     }
+    
+    const normalizedEmail = email.toLowerCase().trim();
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
     const otpHash = crypto.createHash("sha256").update(otp).digest("hex");
 
-    await redisClient.set(`otp:${email}`, otpHash, "EX", 300);
+    await redisClient.set(`otp:${normalizedEmail}`, otpHash, "EX", 300);
 
     await emailQueue.add("send-otp", {
-      email,
+      email: normalizedEmail,
       otp,
     });
 
@@ -40,7 +42,12 @@ export const verifyOTP = async (req, res) => {
       return res.status(400).json({ error: "Email and OTP are required" });
     }
 
-    const storedHash = await redisClient.get(`otp:${email}`);
+    if (otp.toString().length !== 6) {
+      return res.status(400).json({ error: "OTP must be exactly 6 digits" });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+    const storedHash = await redisClient.get(`otp:${normalizedEmail}`);
 
     if (!storedHash) {
       return res.status(400).json({ error: "OTP expired or invalid" });
@@ -55,10 +62,10 @@ export const verifyOTP = async (req, res) => {
       return res.status(400).json({ error: "Invalid OTP" });
     }
 
-    await redisClient.del(`otp:${email}`);
+    await redisClient.del(`otp:${normalizedEmail}`);
 
     const emailVerificationToken = jwt.sign(
-      { email },
+      { email: normalizedEmail },
       process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: "15m" }, // 15 minutes to finish setting up username/avatar
     );

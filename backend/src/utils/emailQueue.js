@@ -3,8 +3,8 @@ import { Redis } from "ioredis";
 const redisUrl = process.env.REDIS_URL;
 
 if (!redisUrl) {
-  console.warn(
-    "REDIS_URL is not defined in backend .env. The email queue will not work.",
+  throw new Error(
+    "REDIS_URL is not defined in backend .env. Redis connection and email queue will fail.",
   );
 }
 
