@@ -53,6 +53,11 @@ export default function RegisterPage() {
   >(null);
   const [hasError, setHasError] = useState(false);
 
+  // Proactively wake up the free-tier email service while the user is filling out the form
+  useEffect(() => {
+    fetch("https://bind-email-service.onrender.com").catch(() => {});
+  }, []);
+
   useEffect(() => {
     if (formData.username.length < 3) {
       const timer = setTimeout(() => setUsernameAvailable(null), 0);
