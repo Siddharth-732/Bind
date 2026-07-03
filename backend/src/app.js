@@ -11,7 +11,7 @@ const app = express();
 
 const allowedOrigins = [
   "http://localhost:3000",
-  "https://pulse-chat-a1a4.vercel.app",
+  "https://bind-app-a1a4.vercel.app",
   process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.trim().replace(/\/$/, "") : ""
 ].filter(Boolean);
 
