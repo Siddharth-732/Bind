@@ -11,6 +11,11 @@ const transporter = nodemailer.createTransport({
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
+  tls: {
+    rejectUnauthorized: false
+  },
+  // Force IPv4 to prevent ENETUNREACH errors on misconfigured IPv6 networks
+  family: 4,
 });
 
 export const sendEmail = async (to, subject, htmlContent) => {
