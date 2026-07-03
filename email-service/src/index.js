@@ -1,8 +1,5 @@
+import "./setup.js";
 import http from "http";
-import dns from "dns";
-
-// Force Node.js to use IPv4 first. This prevents the "ENETUNREACH" IPv6 error on Render when connecting to Google SMTP.
-dns.setDefaultResultOrder("ipv4first");
 
 import { connectDB } from "./config/db.js";
 import "./config/redisClient.js";
