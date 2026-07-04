@@ -12,6 +12,12 @@ if (!redisUrl) {
 export const redisClient = new Redis(redisUrl, {
   maxRetriesPerRequest: null,
   family: 0,
+  keepAlive: 10000,
+  pingInterval: 120000,
+});
+
+redisClient.on("connect", () => {
+  console.log("Backend Redis client connected successfully.");
 });
 
 redisClient.on("error", (err) => {

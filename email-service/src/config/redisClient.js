@@ -14,6 +14,8 @@ if (!redisUrl) {
 const connection = new Redis(redisUrl, {
   maxRetriesPerRequest: null, // Required by BullMQ
   family: 0, // Helps prevent ECONNRESET issues with Upstash's IPv6/IPv4 resolution
+  keepAlive: 10000,
+  pingInterval: 120000,
 });
 
 connection.on("connect", () => {
