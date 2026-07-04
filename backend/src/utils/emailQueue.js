@@ -34,4 +34,8 @@ export const emailQueue = new Queue(QUEUE_NAME, {
   },
 });
 
+emailQueue.on("error", (err) => {
+  console.error("Backend Queue error:", err.message);
+});
+
 console.log("Backend Email Producer connected to queue.");
