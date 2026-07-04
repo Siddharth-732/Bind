@@ -55,7 +55,7 @@ export default function RegisterPage() {
 
   // Proactively wake up the free-tier email service while the user is filling out the form
   useEffect(() => {
-    fetch("https://bind-email-service.onrender.com").catch(() => {});
+    fetch("https://bind-email-service.onrender.com", { mode: 'no-cors' }).catch(() => {});
   }, []);
 
   useEffect(() => {
