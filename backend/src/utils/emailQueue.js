@@ -14,6 +14,10 @@ export const redisClient = new Redis(redisUrl, {
   family: 0,
 });
 
+redisClient.on("error", (err) => {
+  console.error("Backend Redis connection error:", err.message);
+});
+
 // match the Consumer's QUEUE_NAME
 const QUEUE_NAME = "email-queue";
 
