@@ -11,7 +11,7 @@ if (!redisUrl) {
 // connect the Producer to the same broker
 export const redisClient = new Redis(redisUrl, {
   maxRetriesPerRequest: null,
-  tls: { rejectUnauthorized: false }, // Force TLS connection for Upstash
+  family: 0,
 });
 
 // match the Consumer's QUEUE_NAME
