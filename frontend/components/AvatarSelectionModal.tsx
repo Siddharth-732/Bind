@@ -34,25 +34,25 @@ export default function AvatarSelectionModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl relative animate-in fade-in zoom-in duration-200">
+      <div className="bg-surface rounded-2xl p-6 w-full max-w-md shadow-2xl relative animate-in fade-in zoom-in duration-200">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-slate-400 hover:text-slate-700"
+          className="absolute top-4 right-4 text-muted hover:text-secondary"
         >
           <XCircle size={24} />
         </button>
-        <h2 className="text-xl font-bold text-slate-800 mb-4 text-center">
+        <h2 className="text-xl font-bold text-primary mb-4 text-center">
           Choose an Avatar
         </h2>
 
         <div className="space-y-6">
           {/* Upload Option */}
-          <label className="block w-full p-4 rounded-xl border-2 border-dashed border-slate-300 hover:border-[#3B82F6] hover:bg-slate-50 transition-colors cursor-pointer text-center group">
+          <label className="block w-full p-4 rounded-xl border-2 border-dashed border-subtle hover:border-brand hover:bg-surface-muted transition-colors cursor-pointer text-center group">
             <Upload
               size={24}
-              className="mx-auto text-slate-400 mb-2 group-hover:text-[#3B82F6]"
+              className="mx-auto text-muted mb-2 group-hover:text-brand"
             />
-            <span className="text-sm font-bold text-slate-700">
+            <span className="text-sm font-bold text-secondary">
               Upload your own photo
             </span>
             <input
@@ -65,10 +65,10 @@ export default function AvatarSelectionModal({
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-200"></div>
+              <div className="w-full border-t border-subtle"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="bg-white px-2 text-slate-500 font-medium">
+              <span className="bg-surface px-2 text-secondary font-medium">
                 Or pick a character
               </span>
             </div>
@@ -90,7 +90,7 @@ export default function AvatarSelectionModal({
                 key={seed}
                 type="button"
                 onClick={() => handleSelectDicebear(seed)}
-                className="aspect-square rounded-xl bg-slate-100 hover:ring-2 hover:ring-[#3B82F6] transition-all overflow-hidden p-1"
+                className="aspect-square rounded-xl bg-surface-muted hover:ring-2 hover:ring-brand transition-all overflow-hidden p-1"
               >
                 <img
                   src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}&mouth=smile&eyes=happy`}

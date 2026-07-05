@@ -53,9 +53,9 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col md:flex-row bg-white font-sans">
+    <div className="min-h-screen w-full flex flex-col md:flex-row bg-surface font-sans">
       {/* Left Column: Interactive Illustration */}
-      <div className="w-full md:w-1/2 bg-[#B8F0FF] hidden md:flex flex-col items-center justify-center relative overflow-hidden">
+      <div className="w-full md:w-1/2 bg-[#B8F0FF] dark:bg-[#17233a] hidden md:flex flex-col items-center justify-center relative overflow-hidden">
         <InteractiveIllustration
           focusedField={focusedField}
           hasError={hasError}
@@ -63,19 +63,19 @@ export default function LoginPage() {
       </div>
 
       {/* Right Column: Login Form */}
-      <div className="w-full md:w-1/2 flex items-center justify-center p-8 bg-slate-50 md:bg-white relative">
-        <div className="w-full max-w-[400px] bg-white md:bg-transparent rounded-2xl md:rounded-none p-8 md:p-0 shadow-xl md:shadow-none border border-slate-100 md:border-none">
+      <div className="w-full md:w-1/2 flex items-center justify-center p-8 bg-surface-alt md:bg-surface relative">
+        <div className="w-full max-w-[400px] bg-surface md:bg-transparent rounded-2xl md:rounded-none p-8 md:p-0 shadow-xl md:shadow-none border border-surface-muted md:border-none">
           {/* Header */}
           <div className="mb-10 text-center flex flex-col items-center">
             {/* Logo */}
             <div className="flex items-center gap-2 mb-6">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#3B82F6] text-white font-bold text-lg">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand text-white font-bold text-lg">
                 B
               </div>
-              <span className="text-xl font-bold text-slate-800">Bind</span>
+              <span className="text-xl font-bold text-primary">Bind</span>
             </div>
 
-            <h1 className="text-3xl font-bold tracking-tight text-slate-900 mb-2">
+            <h1 className="text-3xl font-bold tracking-tight text-primary mb-2">
               Welcome back!
             </h1>
           </div>
@@ -83,13 +83,13 @@ export default function LoginPage() {
           <form onSubmit={handleLogin} className="space-y-6">
             {/* Email Input */}
             <div>
-              <label className="mb-2 block text-sm font-bold text-slate-700">
+              <label className="mb-2 block text-sm font-bold text-secondary">
                 Email
               </label>
               <input
                 type="email"
                 required
-                className="block w-full border-b-2 border-slate-300 bg-transparent py-2 px-1 text-[15px] text-slate-900 transition-colors placeholder:text-slate-400 focus:border-[#3B82F6] focus:outline-none"
+                className="block w-full border-b-2 border-subtle bg-transparent py-2 px-1 text-[15px] text-primary transition-colors placeholder:text-muted focus:border-brand focus:outline-none"
                 placeholder="name@university.edu"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -100,14 +100,14 @@ export default function LoginPage() {
 
             {/* Password Input */}
             <div>
-              <label className="mb-2 block text-sm font-bold text-slate-700">
+              <label className="mb-2 block text-sm font-bold text-secondary">
                 Password
               </label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
                   required
-                  className="block w-full border-b-2 border-slate-300 bg-transparent py-2 pl-1 pr-10 text-[15px] text-slate-900 transition-colors placeholder:text-slate-400 focus:border-[#3B82F6] focus:outline-none"
+                  className="block w-full border-b-2 border-subtle bg-transparent py-2 pl-1 pr-10 text-[15px] text-primary transition-colors placeholder:text-muted focus:border-brand focus:outline-none"
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -117,7 +117,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 flex items-center pr-2 text-[#3B82F6] hover:text-[#004255] transition-colors"
+                  className="absolute inset-y-0 right-0 flex items-center pr-2 text-brand hover:text-brand-hover transition-colors"
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
@@ -130,18 +130,18 @@ export default function LoginPage() {
                 <input
                   id="remember-me"
                   type="checkbox"
-                  className="h-4 w-4 rounded border-slate-300 text-[#3B82F6] focus:ring-[#3B82F6]"
+                  className="h-4 w-4 rounded border-subtle text-brand focus:ring-brand"
                 />
                 <label
                   htmlFor="remember-me"
-                  className="ml-2 block text-sm text-slate-600"
+                  className="ml-2 block text-sm text-secondary"
                 >
                   Remember for 30 days
                 </label>
               </div>
               <Link
                 href="#"
-                className="text-sm font-bold text-[#3B82F6] hover:underline"
+                className="text-sm font-bold text-brand hover:underline"
               >
                 Forgot password?
               </Link>
@@ -150,7 +150,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoggingIn}
-              className="mt-6 w-full flex items-center justify-center rounded-full bg-[#3B82F6] py-3.5 text-[15px] font-bold text-white transition-all hover:bg-[#004255] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
+              className="mt-6 w-full flex items-center justify-center rounded-full bg-brand py-3.5 text-[15px] font-bold text-white transition-all hover:bg-brand-hover active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {isLoggingIn ? (
                 <Loader2 size={20} className="animate-spin" />
@@ -161,7 +161,7 @@ export default function LoginPage() {
           </form>
 
           {/* Social Login */}
-          <button className="mt-4 flex w-full items-center justify-center gap-3 rounded-full bg-[#F3F4F6] py-3.5 text-[15px] font-bold text-slate-700 transition-colors hover:bg-[#E5E7EB]">
+          <button className="mt-4 flex w-full items-center justify-center gap-3 rounded-full bg-surface-muted py-3.5 text-[15px] font-bold text-secondary transition-colors hover:bg-[#E5E7EB]">
             <img
               src="https://www.google.com/favicon.ico"
               alt="Google"
@@ -170,11 +170,11 @@ export default function LoginPage() {
             Log in with Google
           </button>
 
-          <div className="mt-8 text-center text-sm text-slate-600">
+          <div className="mt-8 text-center text-sm text-secondary">
             Don&apos;t have an account?{" "}
             <Link
               href="/register"
-              className="font-bold text-slate-900 hover:underline"
+              className="font-bold text-primary hover:underline"
             >
               Sign Up
             </Link>

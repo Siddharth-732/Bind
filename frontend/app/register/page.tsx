@@ -36,11 +36,15 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
-  const [selectedAvatarUrl, setSelectedAvatarUrl] = useState<string | null>(null);
+  const [selectedAvatarUrl, setSelectedAvatarUrl] = useState<string | null>(
+    null,
+  );
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
 
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
-  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(
+    null,
+  );
 
   const [otp, setOtp] = useState("");
   const [emailVerificationToken, setEmailVerificationToken] = useState("");
@@ -55,7 +59,9 @@ export default function RegisterPage() {
 
   // Proactively wake up the free-tier email service while the user is filling out the form
   useEffect(() => {
-    fetch("https://bind-email-service.onrender.com", { mode: 'no-cors' }).catch(() => {});
+    fetch("https://bind-email-service.onrender.com", { mode: "no-cors" }).catch(
+      () => {},
+    );
   }, []);
 
   useEffect(() => {
@@ -94,7 +100,7 @@ export default function RegisterPage() {
       setTimeout(() => setHasError(false), 500);
       return toast.error("Please fill in all basic details.");
     }
-    
+
     setIsSendingOTP(true);
     try {
       await axiosInstance.post("/users/send-otp", { email: formData.email });
@@ -115,12 +121,12 @@ export default function RegisterPage() {
     if (otp.length !== 6) {
       return toast.error("Please enter a valid 6-digit OTP.");
     }
-    
+
     setIsVerifyingOTP(true);
     try {
-      const response = await axiosInstance.post("/users/verify-otp", { 
-        email: formData.email, 
-        otp 
+      const response = await axiosInstance.post("/users/verify-otp", {
+        email: formData.email,
+        otp,
       });
       setEmailVerificationToken(response.data.emailVerificationToken);
       toast.success("Email verified!");
@@ -170,9 +176,9 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col md:flex-row bg-white font-sans">
+    <div className="min-h-screen w-full flex flex-col md:flex-row bg-surface font-sans">
       {/* Left Column: Interactive Illustration */}
-      <div className="w-full md:w-1/2 bg-[#B8F0FF] hidden md:flex flex-col items-center justify-center relative overflow-hidden">
+      <div className="w-full md:w-1/2 bg-[#B8F0FF] dark:bg-[#17233a] hidden md:flex flex-col items-center justify-center relative overflow-hidden">
         <InteractiveIllustration
           focusedField={focusedField}
           hasError={hasError}
@@ -180,23 +186,31 @@ export default function RegisterPage() {
       </div>
 
       {/* Right Column: Register Form */}
-      <div className="w-full md:w-1/2 flex items-center justify-center p-8 bg-slate-50 md:bg-white relative overflow-y-auto">
-        <div className="w-full max-w-[400px] bg-white md:bg-transparent rounded-2xl md:rounded-none p-8 md:p-0 shadow-xl md:shadow-none border border-slate-100 md:border-none my-8">
+      <div className="w-full md:w-1/2 flex items-center justify-center p-8 bg-surface-alt md:bg-surface relative overflow-y-auto">
+        <div className="w-full max-w-[400px] bg-surface md:bg-transparent rounded-2xl md:rounded-none p-8 md:p-0 shadow-xl md:shadow-none border border-surface-muted md:border-none my-8">
           {/* Header */}
           <div className="mb-8 text-center flex flex-col items-center">
             {/* Logo */}
             <div className="flex items-center gap-2 mb-6">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#3B82F6] text-white font-bold text-lg">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand text-white font-bold text-lg">
                 B
               </div>
-              <span className="text-xl font-bold text-slate-800">Bind</span>
+              <span className="text-xl font-bold text-primary">Bind</span>
             </div>
 
-            <h1 className="text-3xl font-bold tracking-tight text-slate-900 mb-2">
-              {step === 1 ? "Create an account" : step === 2 ? "Verify your email" : "Complete your profile"}
+            <h1 className="text-3xl font-bold tracking-tight text-primary mb-2">
+              {step === 1
+                ? "Create an account"
+                : step === 2
+                  ? "Verify your email"
+                  : "Complete your profile"}
             </h1>
-            <p className="text-sm font-medium text-slate-500">
-              {step === 1 ? "Step 1 of 3" : step === 2 ? "Step 2 of 3" : "Step 3 of 3"}
+            <p className="text-sm font-medium text-muted">
+              {step === 1
+                ? "Step 1 of 3"
+                : step === 2
+                  ? "Step 2 of 3"
+                  : "Step 3 of 3"}
             </p>
           </div>
 
@@ -207,7 +221,7 @@ export default function RegisterPage() {
               className="space-y-5 animate-in fade-in slide-in-from-left-4 duration-500"
             >
               <div>
-                <label className="mb-2 block text-sm font-bold text-slate-700">
+                <label className="mb-2 block text-sm font-bold text-secondary">
                   Full Name
                 </label>
                 <input
@@ -219,13 +233,13 @@ export default function RegisterPage() {
                   }
                   onFocus={() => setFocusedField("name")}
                   onBlur={() => setFocusedField(null)}
-                  className="block w-full border-b-2 border-slate-300 bg-transparent py-2 px-1 text-[15px] text-slate-900 transition-colors placeholder:text-slate-400 focus:border-[#3B82F6] focus:outline-none"
+                  className="block w-full border-b-2 border-subtle bg-transparent py-2 px-1 text-[15px] text-primary transition-colors placeholder:text-muted focus:border-brand focus:outline-none"
                   placeholder="Enter your full name"
                 />
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-bold text-slate-700">
+                <label className="mb-2 block text-sm font-bold text-secondary">
                   Email
                 </label>
                 <input
@@ -237,13 +251,13 @@ export default function RegisterPage() {
                   }
                   onFocus={() => setFocusedField("email")}
                   onBlur={() => setFocusedField(null)}
-                  className="block w-full border-b-2 border-slate-300 bg-transparent py-2 px-1 text-[15px] text-slate-900 transition-colors placeholder:text-slate-400 focus:border-[#3B82F6] focus:outline-none"
+                  className="block w-full border-b-2 border-subtle bg-transparent py-2 px-1 text-[15px] text-primary transition-colors placeholder:text-muted focus:border-brand focus:outline-none"
                   placeholder="name@university.edu"
                 />
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-bold text-slate-700">
+                <label className="mb-2 block text-sm font-bold text-secondary">
                   Password
                 </label>
                 <div className="relative">
@@ -256,13 +270,13 @@ export default function RegisterPage() {
                     }
                     onFocus={() => setFocusedField("password")}
                     onBlur={() => setFocusedField(null)}
-                    className="block w-full border-b-2 border-slate-300 bg-transparent py-2 pl-1 pr-10 text-[15px] text-slate-900 transition-colors placeholder:text-slate-400 focus:border-[#3B82F6] focus:outline-none"
+                    className="block w-full border-b-2 border-subtle bg-transparent py-2 pl-1 pr-10 text-[15px] text-primary transition-colors placeholder:text-muted focus:border-brand focus:outline-none"
                     placeholder="Min. 8 characters"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 flex items-center pr-2 text-[#3B82F6] hover:text-[#004255] transition-colors"
+                    className="absolute inset-y-0 right-0 flex items-center pr-2 text-brand hover:text-brand-hover transition-colors"
                   >
                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
@@ -272,15 +286,19 @@ export default function RegisterPage() {
               <button
                 type="submit"
                 disabled={isSendingOTP}
-                className="mt-8 w-full flex items-center justify-center rounded-full bg-[#3B82F6] py-3.5 text-[15px] font-bold text-white transition-all hover:bg-[#004255] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
+                className="mt-8 w-full flex items-center justify-center rounded-full bg-brand py-3.5 text-[15px] font-bold text-white transition-all hover:bg-brand-hover active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                {isSendingOTP ? <Loader2 className="animate-spin" size={20} /> : "Continue"}
+                {isSendingOTP ? (
+                  <Loader2 className="animate-spin" size={20} />
+                ) : (
+                  "Continue"
+                )}
               </button>
 
               {/* Social Registration */}
               <button
                 type="button"
-                className="mt-4 flex w-full items-center justify-center gap-3 rounded-full bg-[#F3F4F6] py-3.5 text-[15px] font-bold text-slate-700 transition-colors hover:bg-[#E5E7EB]"
+                className="mt-4 flex w-full items-center justify-center gap-3 rounded-full bg-surface-muted py-3.5 text-[15px] font-bold text-secondary transition-colors hover:bg-[#E5E7EB]"
               >
                 <img
                   src="https://www.google.com/favicon.ico"
@@ -290,11 +308,11 @@ export default function RegisterPage() {
                 Sign up with Google
               </button>
 
-              <div className="mt-8 text-center text-sm text-slate-600">
+              <div className="mt-8 text-center text-sm text-secondary">
                 Already have an account?{" "}
                 <Link
                   href="/login"
-                  className="font-bold text-slate-900 hover:underline"
+                  className="font-bold text-primary hover:underline"
                 >
                   Log in
                 </Link>
@@ -309,14 +327,16 @@ export default function RegisterPage() {
               className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-500"
             >
               <div className="text-center mb-6">
-                <p className="text-sm text-slate-600">
+                <p className="text-sm text-secondary">
                   We sent a 6-digit code to <br />
-                  <span className="font-bold text-slate-900">{formData.email}</span>
+                  <span className="font-bold text-primary">
+                    {formData.email}
+                  </span>
                 </p>
               </div>
-              
+
               <div>
-                <label className="mb-2 block text-sm font-bold text-slate-700 text-center">
+                <label className="mb-2 block text-sm font-bold text-secondary text-center">
                   Verification Code
                 </label>
                 <input
@@ -324,8 +344,10 @@ export default function RegisterPage() {
                   required
                   maxLength={6}
                   value={otp}
-                  onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, ''))}
-                  className="block w-full text-center border-b-2 border-slate-300 bg-transparent py-4 text-3xl tracking-[1em] text-slate-900 transition-colors placeholder:text-slate-300 focus:border-[#3B82F6] focus:outline-none"
+                  onChange={(e) =>
+                    setOtp(e.target.value.replace(/[^0-9]/g, ""))
+                  }
+                  className="block w-full text-center border-b-2 border-subtle bg-transparent py-4 text-3xl tracking-[1em] text-primary transition-colors placeholder:text-muted focus:border-brand focus:outline-none"
                   placeholder="------"
                 />
               </div>
@@ -333,16 +355,20 @@ export default function RegisterPage() {
               <button
                 type="submit"
                 disabled={isVerifyingOTP || otp.length !== 6}
-                className="mt-8 w-full flex items-center justify-center rounded-full bg-[#3B82F6] py-3.5 text-[15px] font-bold text-white transition-all hover:bg-[#004255] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
+                className="mt-8 w-full flex items-center justify-center rounded-full bg-brand py-3.5 text-[15px] font-bold text-white transition-all hover:bg-brand-hover active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                {isVerifyingOTP ? <Loader2 className="animate-spin" size={20} /> : "Verify Email"}
+                {isVerifyingOTP ? (
+                  <Loader2 className="animate-spin" size={20} />
+                ) : (
+                  "Verify Email"
+                )}
               </button>
-              
+
               <div className="mt-4 text-center">
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors"
+                  className="text-sm font-bold text-muted hover:text-secondary transition-colors"
                 >
                   Back to edit email
                 </button>
@@ -357,9 +383,12 @@ export default function RegisterPage() {
               className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-500"
             >
               <div className="flex flex-col items-center mb-6">
-                <div className="cursor-pointer relative group" onClick={() => setIsAvatarModalOpen(true)}>
+                <div
+                  className="cursor-pointer relative group"
+                  onClick={() => setIsAvatarModalOpen(true)}
+                >
                   <div
-                    className={`h-20 w-20 rounded-full border-[3px] flex items-center justify-center overflow-hidden transition-all ${avatarPreview ? "border-[#3B82F6]" : "border-slate-200 group-hover:border-[#3B82F6] bg-slate-50"}`}
+                    className={`h-20 w-20 rounded-full border-[3px] flex items-center justify-center overflow-hidden transition-all ${avatarPreview ? "border-brand" : "border-subtle group-hover:border-brand bg-surface-alt"}`}
                   >
                     {avatarPreview ? (
                       <img
@@ -370,25 +399,25 @@ export default function RegisterPage() {
                     ) : (
                       <User
                         size={32}
-                        className="text-slate-300 group-hover:text-[#3B82F6] transition-colors"
+                        className="text-muted group-hover:text-brand transition-colors"
                       />
                     )}
                   </div>
-                  <div className="absolute bottom-0 right-0 h-6 w-6 bg-[#3B82F6] text-white rounded-full flex items-center justify-center border-2 border-white shadow-sm">
+                  <div className="absolute bottom-0 right-0 h-6 w-6 bg-brand text-white rounded-full flex items-center justify-center border-2 border-white shadow-sm">
                     <Upload size={10} />
                   </div>
                 </div>
-                <span className="mt-3 text-[11px] font-bold uppercase tracking-widest text-slate-500">
+                <span className="mt-3 text-[11px] font-bold uppercase tracking-widest text-muted">
                   Upload Photo
                 </span>
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-bold text-slate-700">
+                <label className="mb-2 block text-sm font-bold text-secondary">
                   Username
                 </label>
                 <div className="relative">
-                  <span className="absolute left-1 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">
+                  <span className="absolute left-1 top-1/2 -translate-y-1/2 text-muted font-bold text-sm">
                     @
                   </span>
                   <input
@@ -405,21 +434,18 @@ export default function RegisterPage() {
                     }
                     onFocus={() => setFocusedField("name")}
                     onBlur={() => setFocusedField(null)}
-                    className={`block w-full border-b-2 bg-transparent py-2 pl-6 pr-10 text-[15px] text-slate-900 transition-colors focus:outline-none ${
+                    className={`block w-full border-b-2 bg-transparent py-2 pl-6 pr-10 text-[15px] text-primary transition-colors focus:outline-none ${
                       usernameAvailable === true
                         ? "border-green-400 focus:border-green-500"
                         : usernameAvailable === false
                           ? "border-red-400 focus:border-red-500"
-                          : "border-slate-300 focus:border-[#3B82F6]"
+                          : "border-subtle focus:border-brand"
                     }`}
                     placeholder="Scholar_Lodge_24"
                   />
                   <div className="absolute right-2 top-1/2 -translate-y-1/2">
                     {isCheckingUsername ? (
-                      <Loader2
-                        size={18}
-                        className="animate-spin text-slate-400"
-                      />
+                      <Loader2 size={18} className="animate-spin text-muted" />
                     ) : usernameAvailable === true ? (
                       <CheckCircle size={18} className="text-green-500" />
                     ) : usernameAvailable === false ? (
@@ -430,7 +456,7 @@ export default function RegisterPage() {
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-bold text-slate-700">
+                <label className="mb-2 block text-sm font-bold text-secondary">
                   Bio
                 </label>
                 <textarea
@@ -440,13 +466,13 @@ export default function RegisterPage() {
                   }
                   onFocus={() => setFocusedField("email")} // Just to trigger some looking behavior
                   onBlur={() => setFocusedField(null)}
-                  className="block w-full border-b-2 border-slate-300 bg-transparent py-2 px-1 text-[15px] text-slate-900 transition-colors placeholder:text-slate-400 focus:border-[#3B82F6] focus:outline-none h-14 resize-none"
+                  className="block w-full border-b-2 border-subtle bg-transparent py-2 px-1 text-[15px] text-primary transition-colors placeholder:text-muted focus:border-brand focus:outline-none h-14 resize-none"
                   placeholder="Your research interests..."
                 />
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-bold text-slate-700">
+                <label className="mb-2 block text-sm font-bold text-secondary">
                   Institute / University
                 </label>
                 <input
@@ -455,13 +481,13 @@ export default function RegisterPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, institute: e.target.value })
                   }
-                  className="block w-full border-b-2 border-slate-300 bg-transparent py-2 px-1 text-[15px] text-slate-900 transition-colors placeholder:text-slate-400 focus:border-[#3B82F6] focus:outline-none"
+                  className="block w-full border-b-2 border-subtle bg-transparent py-2 px-1 text-[15px] text-primary transition-colors placeholder:text-muted focus:border-brand focus:outline-none"
                   placeholder="e.g. MIT, Stanford"
                 />
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-bold text-slate-700">
+                <label className="mb-2 block text-sm font-bold text-secondary">
                   Specialization
                 </label>
                 <input
@@ -470,7 +496,7 @@ export default function RegisterPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, specialization: e.target.value })
                   }
-                  className="block w-full border-b-2 border-slate-300 bg-transparent py-2 px-1 text-[15px] text-slate-900 transition-colors placeholder:text-slate-400 focus:border-[#3B82F6] focus:outline-none"
+                  className="block w-full border-b-2 border-subtle bg-transparent py-2 px-1 text-[15px] text-primary transition-colors placeholder:text-muted focus:border-brand focus:outline-none"
                   placeholder="e.g. Machine Learning"
                 />
               </div>
@@ -479,7 +505,7 @@ export default function RegisterPage() {
                 <button
                   type="submit"
                   disabled={isRegistering || usernameAvailable === false}
-                  className="w-full flex items-center justify-center rounded-full bg-[#3B82F6] py-3.5 text-[15px] font-bold text-white transition-all hover:bg-[#004255] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
+                  className="w-full flex items-center justify-center rounded-full bg-brand py-3.5 text-[15px] font-bold text-white transition-all hover:bg-brand-hover active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   {isRegistering ? (
                     <Loader2 size={20} className="animate-spin" />
@@ -490,7 +516,7 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="mt-6 w-full text-sm font-bold text-slate-500 hover:text-slate-700"
+                  className="mt-6 w-full text-sm font-bold text-muted hover:text-secondary"
                 >
                   ← Back to basics
                 </button>

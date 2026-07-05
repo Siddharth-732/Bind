@@ -26,27 +26,27 @@ export default function ConfirmModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
-      <div 
-        className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200"
+      <div
+        className="bg-surface rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-6">
           <div className="flex justify-between items-start mb-4">
-            <h3 className="text-xl font-bold text-slate-900">{title}</h3>
+            <h3 className="text-xl font-bold text-primary">{title}</h3>
             <button
               onClick={onClose}
-              className="text-slate-400 hover:text-slate-600 transition-colors p-1 rounded-lg hover:bg-slate-100"
+              className="text-muted hover:text-secondary transition-colors p-1 rounded-lg hover:bg-surface-muted"
             >
               <X size={20} />
             </button>
           </div>
-          
-          <p className="text-slate-600 mb-8">{message}</p>
-          
+
+          <p className="text-secondary mb-8">{message}</p>
+
           <div className="flex items-center justify-end gap-3">
             <button
               onClick={onClose}
-              className="px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
+              className="px-4 py-2 text-sm font-bold text-secondary hover:bg-surface-muted rounded-xl transition-colors"
             >
               {cancelText}
             </button>
