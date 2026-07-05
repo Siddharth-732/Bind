@@ -497,7 +497,6 @@ export default function ChatPage() {
               Settings
             </span>
           </button>
-          <ThemeToggle />
           <button
             onClick={logout}
             className="flex items-center gap-4 py-3 px-6 text-slate-500 hover:text-red-500 hover:bg-red-50 rounded-r-xl font-bold transition-all"
@@ -852,18 +851,10 @@ export default function ChatPage() {
             </div>
             <div className="flex items-center gap-4 text-secondary">
               <button className="h-10 w-10 bg-surface-muted hover:bg-subtle rounded-full flex items-center justify-center transition-colors">
-                <Phone
-                  size={18}
-                  fill="currentColor"
-                  className="text-muted"
-                />
+                <Phone size={18} fill="currentColor" className="text-muted" />
               </button>
               <button className="h-10 w-10 bg-surface-muted hover:bg-subtle rounded-full flex items-center justify-center transition-colors">
-                <Video
-                  size={20}
-                  fill="currentColor"
-                  className="text-muted"
-                />
+                <Video size={20} fill="currentColor" className="text-muted" />
               </button>
               <button className="h-10 w-10 bg-surface-muted hover:bg-subtle rounded-full flex items-center justify-center transition-colors">
                 <Info size={20} className="text-muted" />
@@ -1500,10 +1491,8 @@ export default function ChatPage() {
                             down to Junior members.
                           </li>
                           <li>
-                            <strong className="text-primary">
-                              # general
-                            </strong>
-                            : Where the day-to-day casual chat happens.
+                            <strong className="text-primary"># general</strong>:
+                            Where the day-to-day casual chat happens.
                           </li>
                         </ul>
                       </div>
@@ -2026,12 +2015,8 @@ export default function ChatPage() {
                   publicLodges.slice(0, 3).map((lodge, index) => {
                     const isEven = index % 2 === 0;
                     const iconBg = isEven ? "bg-brand-tint" : "bg-[#FFF7ED]";
-                    const iconColor = isEven
-                      ? "text-brand"
-                      : "text-[#F97316]";
-                    const progressClass = isEven
-                      ? "bg-brand"
-                      : "bg-[#F97316]";
+                    const iconColor = isEven ? "text-brand" : "text-[#F97316]";
+                    const progressClass = isEven ? "bg-brand" : "bg-[#F97316]";
                     const progressWidth = isEven ? "75%" : "100%";
 
                     return (
@@ -2675,7 +2660,9 @@ export default function ChatPage() {
                         <button
                           onClick={() => setTheme("dark")}
                           className={`flex-1 bg-surface border-2 rounded-[8px] p-4 cursor-pointer relative transition-colors ${
-                            currentTheme === "dark" ? "border-brand" : "border-transparent"
+                            currentTheme === "dark"
+                              ? "border-brand"
+                              : "border-transparent"
                           }`}
                         >
                           {currentTheme === "dark" && (
@@ -2698,7 +2685,9 @@ export default function ChatPage() {
                         <button
                           onClick={() => setTheme("light")}
                           className={`flex-1 bg-surface border-2 rounded-[8px] p-4 cursor-pointer relative transition-colors ${
-                            currentTheme === "light" ? "border-brand" : "border-transparent"
+                            currentTheme === "light"
+                              ? "border-brand"
+                              : "border-transparent"
                           }`}
                         >
                           {currentTheme === "light" && (

@@ -55,7 +55,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen w-full flex flex-col md:flex-row bg-surface font-sans">
       {/* Left Column: Interactive Illustration */}
-      <div className="w-full md:w-1/2 bg-[#B8F0FF] hidden md:flex flex-col items-center justify-center relative overflow-hidden">
+      <div className="w-full md:w-1/2 bg-[#B8F0FF] dark:bg-[#17233a] hidden md:flex flex-col items-center justify-center relative overflow-hidden">
         <InteractiveIllustration
           focusedField={focusedField}
           hasError={hasError}

@@ -36,11 +36,15 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
-  const [selectedAvatarUrl, setSelectedAvatarUrl] = useState<string | null>(null);
+  const [selectedAvatarUrl, setSelectedAvatarUrl] = useState<string | null>(
+    null,
+  );
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
 
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
-  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(
+    null,
+  );
 
   const [otp, setOtp] = useState("");
   const [emailVerificationToken, setEmailVerificationToken] = useState("");
@@ -55,7 +59,9 @@ export default function RegisterPage() {
 
   // Proactively wake up the free-tier email service while the user is filling out the form
   useEffect(() => {
-    fetch("https://bind-email-service.onrender.com", { mode: 'no-cors' }).catch(() => {});
+    fetch("https://bind-email-service.onrender.com", { mode: "no-cors" }).catch(
+      () => {},
+    );
   }, []);
 
   useEffect(() => {
@@ -94,7 +100,7 @@ export default function RegisterPage() {
       setTimeout(() => setHasError(false), 500);
       return toast.error("Please fill in all basic details.");
     }
-    
+
     setIsSendingOTP(true);
     try {
       await axiosInstance.post("/users/send-otp", { email: formData.email });
@@ -115,12 +121,12 @@ export default function RegisterPage() {
     if (otp.length !== 6) {
       return toast.error("Please enter a valid 6-digit OTP.");
     }
-    
+
     setIsVerifyingOTP(true);
     try {
-      const response = await axiosInstance.post("/users/verify-otp", { 
-        email: formData.email, 
-        otp 
+      const response = await axiosInstance.post("/users/verify-otp", {
+        email: formData.email,
+        otp,
       });
       setEmailVerificationToken(response.data.emailVerificationToken);
       toast.success("Email verified!");
@@ -172,7 +178,7 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen w-full flex flex-col md:flex-row bg-surface font-sans">
       {/* Left Column: Interactive Illustration */}
-      <div className="w-full md:w-1/2 bg-[#B8F0FF] hidden md:flex flex-col items-center justify-center relative overflow-hidden">
+      <div className="w-full md:w-1/2 bg-[#B8F0FF] dark:bg-[#17233a] hidden md:flex flex-col items-center justify-center relative overflow-hidden">
         <InteractiveIllustration
           focusedField={focusedField}
           hasError={hasError}
@@ -193,10 +199,18 @@ export default function RegisterPage() {
             </div>
 
             <h1 className="text-3xl font-bold tracking-tight text-primary mb-2">
-              {step === 1 ? "Create an account" : step === 2 ? "Verify your email" : "Complete your profile"}
+              {step === 1
+                ? "Create an account"
+                : step === 2
+                  ? "Verify your email"
+                  : "Complete your profile"}
             </h1>
             <p className="text-sm font-medium text-muted">
-              {step === 1 ? "Step 1 of 3" : step === 2 ? "Step 2 of 3" : "Step 3 of 3"}
+              {step === 1
+                ? "Step 1 of 3"
+                : step === 2
+                  ? "Step 2 of 3"
+                  : "Step 3 of 3"}
             </p>
           </div>
 
@@ -274,7 +288,11 @@ export default function RegisterPage() {
                 disabled={isSendingOTP}
                 className="mt-8 w-full flex items-center justify-center rounded-full bg-brand py-3.5 text-[15px] font-bold text-white transition-all hover:bg-brand-hover active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                {isSendingOTP ? <Loader2 className="animate-spin" size={20} /> : "Continue"}
+                {isSendingOTP ? (
+                  <Loader2 className="animate-spin" size={20} />
+                ) : (
+                  "Continue"
+                )}
               </button>
 
               {/* Social Registration */}
@@ -311,7 +329,9 @@ export default function RegisterPage() {
               <div className="text-center mb-6">
                 <p className="text-sm text-secondary">
                   We sent a 6-digit code to <br />
-                  <span className="font-bold text-primary">{formData.email}</span>
+                  <span className="font-bold text-primary">
+                    {formData.email}
+                  </span>
                 </p>
               </div>
 
@@ -324,7 +344,9 @@ export default function RegisterPage() {
                   required
                   maxLength={6}
                   value={otp}
-                  onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, ''))}
+                  onChange={(e) =>
+                    setOtp(e.target.value.replace(/[^0-9]/g, ""))
+                  }
                   className="block w-full text-center border-b-2 border-subtle bg-transparent py-4 text-3xl tracking-[1em] text-primary transition-colors placeholder:text-muted focus:border-brand focus:outline-none"
                   placeholder="------"
                 />
@@ -335,7 +357,11 @@ export default function RegisterPage() {
                 disabled={isVerifyingOTP || otp.length !== 6}
                 className="mt-8 w-full flex items-center justify-center rounded-full bg-brand py-3.5 text-[15px] font-bold text-white transition-all hover:bg-brand-hover active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                {isVerifyingOTP ? <Loader2 className="animate-spin" size={20} /> : "Verify Email"}
+                {isVerifyingOTP ? (
+                  <Loader2 className="animate-spin" size={20} />
+                ) : (
+                  "Verify Email"
+                )}
               </button>
 
               <div className="mt-4 text-center">
@@ -357,7 +383,10 @@ export default function RegisterPage() {
               className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-500"
             >
               <div className="flex flex-col items-center mb-6">
-                <div className="cursor-pointer relative group" onClick={() => setIsAvatarModalOpen(true)}>
+                <div
+                  className="cursor-pointer relative group"
+                  onClick={() => setIsAvatarModalOpen(true)}
+                >
                   <div
                     className={`h-20 w-20 rounded-full border-[3px] flex items-center justify-center overflow-hidden transition-all ${avatarPreview ? "border-brand" : "border-subtle group-hover:border-brand bg-surface-alt"}`}
                   >
@@ -416,10 +445,7 @@ export default function RegisterPage() {
                   />
                   <div className="absolute right-2 top-1/2 -translate-y-1/2">
                     {isCheckingUsername ? (
-                      <Loader2
-                        size={18}
-                        className="animate-spin text-muted"
-                      />
+                      <Loader2 size={18} className="animate-spin text-muted" />
                     ) : usernameAvailable === true ? (
                       <CheckCircle size={18} className="text-green-500" />
                     ) : usernameAvailable === false ? (

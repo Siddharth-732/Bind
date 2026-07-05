@@ -102,7 +102,7 @@ export default function InteractiveIllustration({
 
   useEffect(() => {
     let resetTimer: ReturnType<typeof setTimeout>;
-    
+
     const timer = setTimeout(() => {
       if (hasError) {
         setIsWorried(true);
@@ -133,10 +133,8 @@ export default function InteractiveIllustration({
     };
   }, [focusedField, hasError]);
 
-
-
   return (
-    <div className="w-full h-full flex items-center justify-center bg-[#B8F0FF] overflow-hidden">
+    <div className="w-full h-full flex items-center justify-center bg-transparent overflow-hidden">
       <motion.div
         className="relative w-[400px] h-[400px] scale-[1.25] md:scale-[1.4]"
         initial={false}
@@ -158,8 +156,22 @@ export default function InteractiveIllustration({
               style={{ originX: 0.5, originY: 1 }}
             >
               <rect width="110" height="220" fill="#4A90E2" rx="4" />
-              <Eye x={50} y={30} eyebrowTilt={1} isEyesClosed={isEyesClosed} isWorried={isWorried} pupilOffset={pupilOffset} />
-              <Eye x={70} y={30} eyebrowTilt={-1} isEyesClosed={isEyesClosed} isWorried={isWorried} pupilOffset={pupilOffset} />
+              <Eye
+                x={50}
+                y={30}
+                eyebrowTilt={1}
+                isEyesClosed={isEyesClosed}
+                isWorried={isWorried}
+                pupilOffset={pupilOffset}
+              />
+              <Eye
+                x={70}
+                y={30}
+                eyebrowTilt={-1}
+                isEyesClosed={isEyesClosed}
+                isWorried={isWorried}
+                pupilOffset={pupilOffset}
+              />
               {/* Small smile / beak morph */}
               <motion.path
                 initial={false}
@@ -179,8 +191,24 @@ export default function InteractiveIllustration({
           {/* Black Block (Medium, middle) */}
           <g transform="translate(160, 150)">
             <rect width="90" height="150" fill="#212121" rx="4" />
-            <Eye x={40} y={30} isDark eyebrowTilt={1} isEyesClosed={isEyesClosed} isWorried={isWorried} pupilOffset={pupilOffset} />
-            <Eye x={60} y={30} isDark eyebrowTilt={-1} isEyesClosed={isEyesClosed} isWorried={isWorried} pupilOffset={pupilOffset} />
+            <Eye
+              x={40}
+              y={30}
+              isDark
+              eyebrowTilt={1}
+              isEyesClosed={isEyesClosed}
+              isWorried={isWorried}
+              pupilOffset={pupilOffset}
+            />
+            <Eye
+              x={60}
+              y={30}
+              isDark
+              eyebrowTilt={-1}
+              isEyesClosed={isEyesClosed}
+              isWorried={isWorried}
+              pupilOffset={pupilOffset}
+            />
             {/* Expression morph */}
             <motion.path
               initial={false}
@@ -208,7 +236,14 @@ export default function InteractiveIllustration({
                 d="M 0 50 A 50 50 0 0 1 100 50 L 100 110 L 0 110 Z"
                 fill="#F7CA18"
               />
-              <Eye x={30} y={40} eyebrowTilt={1} isEyesClosed={isEyesClosed} isWorried={isWorried} pupilOffset={pupilOffset} />
+              <Eye
+                x={30}
+                y={40}
+                eyebrowTilt={1}
+                isEyesClosed={isEyesClosed}
+                isWorried={isWorried}
+                pupilOffset={pupilOffset}
+              />
               {/* Long Beak (Chuck style) - morphs to worried mouth */}
               <motion.path
                 initial={false}
@@ -235,8 +270,22 @@ export default function InteractiveIllustration({
             >
               <path d="M 0 100 A 100 100 0 0 1 200 100 Z" fill="#E23636" />
               <g transform="translate(100, 50)">
-                <Eye x={0} y={0} eyebrowTilt={1} isEyesClosed={isEyesClosed} isWorried={isWorried} pupilOffset={pupilOffset} />
-                <Eye x={24} y={0} eyebrowTilt={-1} isEyesClosed={isEyesClosed} isWorried={isWorried} pupilOffset={pupilOffset} />
+                <Eye
+                  x={0}
+                  y={0}
+                  eyebrowTilt={1}
+                  isEyesClosed={isEyesClosed}
+                  isWorried={isWorried}
+                  pupilOffset={pupilOffset}
+                />
+                <Eye
+                  x={24}
+                  y={0}
+                  eyebrowTilt={-1}
+                  isEyesClosed={isEyesClosed}
+                  isWorried={isWorried}
+                  pupilOffset={pupilOffset}
+                />
                 {/* Beak Morph */}
                 <motion.path
                   initial={false}
