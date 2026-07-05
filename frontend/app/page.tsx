@@ -5,6 +5,7 @@ import { useLodgeStore } from "../store/useLodgeStore";
 import { useStatusStore } from "../store/useStatusStore";
 import { usePeerStore } from "../store/usePeerStore";
 import { usePostStore } from "../store/usePostStore";
+import { useThemeStore } from "../store/useThemeStore";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
@@ -45,6 +46,7 @@ import {
 } from "lucide-react";
 import PostCard from "../components/PostCard";
 import AvatarSelectionModal from "../components/AvatarSelectionModal";
+import ThemeToggle from "../components/ThemeToggle";
 
 export default function ChatPage() {
   const {
@@ -114,6 +116,9 @@ export default function ChatPage() {
     createPost,
     toggleLike,
   } = usePostStore();
+
+  // THEME STORE
+  const { theme: currentTheme, setTheme } = useThemeStore();
 
   const router = useRouter();
 
@@ -383,19 +388,19 @@ export default function ChatPage() {
     currentLodgeMembers?.filter((m) => m.role !== "captain") || [];
 
   return (
-    <div className="flex h-screen bg-white text-slate-800 font-sans overflow-hidden">
+    <div className="flex h-screen bg-app text-primary font-sans overflow-hidden">
       {/* ================= PANE 1: GLOBAL NAVIGATION ================= */}
-      <div className="w-[88px] hover:w-[260px] group transition-all duration-300 overflow-hidden bg-white flex flex-col justify-between py-6 shrink-0 z-20 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
+      <div className="w-[88px] hover:w-[260px] group transition-all duration-300 overflow-hidden bg-surface flex flex-col justify-between py-6 shrink-0 z-20 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
         <div>
           <div className="px-6 mb-10 flex items-center gap-3">
-            <div className="h-10 w-10 shrink-0 bg-[#3B82F6] text-white rounded-[10px] flex items-center justify-center font-bold text-xl">
+            <div className="h-10 w-10 shrink-0 bg-brand text-white rounded-[10px] flex items-center justify-center font-bold text-xl">
               B
             </div>
             <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
-              <h1 className="text-xl font-extrabold text-slate-900 leading-tight">
+              <h1 className="text-xl font-extrabold text-primary leading-tight">
                 Bind
               </h1>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-muted">
                 Connect to Build
               </p>
             </div>
@@ -404,10 +409,10 @@ export default function ChatPage() {
           <nav className="flex flex-col pr-4 gap-1">
             <button
               onClick={() => setActiveTab("chat")}
-              className={`flex items-center gap-4 py-3 px-6 rounded-r-xl font-bold transition-all relative ${activeTab === "chat" ? "bg-[#EFF6FF] text-[#3B82F6]" : "text-slate-600 hover:bg-slate-50"}`}
+              className={`flex items-center gap-4 py-3 px-6 rounded-r-xl font-bold transition-all relative ${activeTab === "chat" ? "bg-brand-tint text-brand" : "text-secondary hover:bg-surface-alt"}`}
             >
               {activeTab === "chat" && (
-                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#3B82F6] rounded-r-full"></div>
+                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-brand rounded-r-full"></div>
               )}
               <div className="shrink-0">
                 <MessageCircle size={20} strokeWidth={2} />
@@ -418,10 +423,10 @@ export default function ChatPage() {
             </button>
             <button
               onClick={() => setActiveTab("lodge")}
-              className={`flex items-center gap-4 py-3 px-6 rounded-r-xl font-bold transition-all relative ${activeTab === "lodge" ? "bg-[#EFF6FF] text-[#3B82F6] " : "text-slate-600 hover:bg-slate-50"}`}
+              className={`flex items-center gap-4 py-3 px-6 rounded-r-xl font-bold transition-all relative ${activeTab === "lodge" ? "bg-brand-tint text-brand " : "text-secondary hover:bg-surface-alt"}`}
             >
               {activeTab === "lodge" && (
-                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#3B82F6] rounded-r-full"></div>
+                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-brand rounded-r-full"></div>
               )}
               <div className="shrink-0">
                 <Building2 size={20} strokeWidth={2} />
@@ -432,7 +437,7 @@ export default function ChatPage() {
             </button>
             <button
               onClick={() => setActiveTab("explore")}
-              className={`flex items-center gap-4 py-3 px-6 rounded-r-xl font-bold transition-all ${activeTab === "explore" ? "bg-[#EFF6FF] text-[#3B82F6] border-l-4 border-blue-500" : "text-slate-600 hover:bg-slate-50"}`}
+              className={`flex items-center gap-4 py-3 px-6 rounded-r-xl font-bold transition-all ${activeTab === "explore" ? "bg-brand-tint text-brand border-l-4 border-brand" : "text-secondary hover:bg-surface-alt"}`}
             >
               <div className="shrink-0">
                 <Compass size={20} strokeWidth={2} />
@@ -443,7 +448,7 @@ export default function ChatPage() {
             </button>
             <button
               onClick={() => setActiveTab("notifications")}
-              className={`flex items-center gap-4 py-3 px-6 rounded-r-xl font-bold transition-all relative ${activeTab === "notifications" ? "bg-[#EFF6FF] text-[#3B82F6] border-l-4 border-blue-500" : "text-slate-600 hover:bg-slate-50"}`}
+              className={`flex items-center gap-4 py-3 px-6 rounded-r-xl font-bold transition-all relative ${activeTab === "notifications" ? "bg-brand-tint text-brand border-l-4 border-brand" : "text-secondary hover:bg-surface-alt"}`}
             >
               <div className="shrink-0">
                 <Bell size={20} strokeWidth={2} />
@@ -462,7 +467,7 @@ export default function ChatPage() {
                   `/profile/${encodeURIComponent(authUser.username)}`,
                 );
               }}
-              className="flex items-center gap-4 py-3 px-6 text-slate-600 hover:bg-slate-50 rounded-r-xl font-bold transition-all"
+              className="flex items-center gap-4 py-3 px-6 text-secondary hover:bg-surface-alt rounded-r-xl font-bold transition-all"
             >
               <div className="shrink-0">
                 <User size={20} strokeWidth={2} />
@@ -483,7 +488,7 @@ export default function ChatPage() {
               setSettingsBannerPreview(authUser?.banner || "");
               setIsSettingsModalOpen(true);
             }}
-            className="flex items-center gap-4 py-3 px-6 text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-r-xl font-bold transition-all"
+            className="flex items-center gap-4 py-3 px-6 text-secondary hover:text-primary hover:bg-surface-alt rounded-r-xl font-bold transition-all"
           >
             <div className="shrink-0">
               <Settings size={20} strokeWidth={2} />
@@ -492,6 +497,7 @@ export default function ChatPage() {
               Settings
             </span>
           </button>
+          <ThemeToggle />
           <button
             onClick={logout}
             className="flex items-center gap-4 py-3 px-6 text-slate-500 hover:text-red-500 hover:bg-red-50 rounded-r-xl font-bold transition-all"
@@ -508,7 +514,7 @@ export default function ChatPage() {
 
       {/* ================= PANE 2: SIDEBAR LIST ================= */}
       {activeTab === "lodge" ? (
-        <div className="w-[72px] bg-slate-50 border-r border-slate-200 flex flex-col items-center py-4 shrink-0 z-10 gap-3 overflow-y-auto">
+        <div className="w-[72px] bg-surface-alt border-r border-subtle flex flex-col items-center py-4 shrink-0 z-10 gap-3 overflow-y-auto">
           {myLodges.map((lodge) => {
             const isSelected = selectedLodge?._id === lodge._id;
             return (
@@ -519,16 +525,16 @@ export default function ChatPage() {
                 title={lodge.name}
               >
                 {isSelected && (
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-[#3B82F6] rounded-r-full"></div>
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-brand rounded-r-full"></div>
                 )}
                 {!isSelected && (
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-2 bg-slate-300 rounded-r-full opacity-0 group-hover:opacity-100 group-hover:h-5 transition-all duration-300"></div>
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-2 bg-surface-muted rounded-r-full opacity-0 group-hover:opacity-100 group-hover:h-5 transition-all duration-300"></div>
                 )}
                 <div
                   className={`w-12 h-12 flex items-center justify-center font-bold text-lg overflow-hidden transition-all duration-300 ${
                     isSelected
-                      ? "rounded-[16px] bg-[#3B82F6] text-white shadow-md"
-                      : "rounded-full bg-white text-slate-500 border border-slate-200 group-hover:rounded-[16px] group-hover:bg-[#3B82F6] group-hover:text-white group-hover:border-transparent group-hover:shadow-md"
+                      ? "rounded-[16px] bg-brand text-white shadow-md"
+                      : "rounded-full bg-surface text-muted border border-subtle group-hover:rounded-[16px] group-hover:bg-brand group-hover:text-white group-hover:border-transparent group-hover:shadow-md"
                   }`}
                 >
                   {lodge.avatar && !lodge.avatar.includes("default") ? (
@@ -544,19 +550,19 @@ export default function ChatPage() {
               </button>
             );
           })}
-          <div className="w-8 h-[2px] bg-slate-200 my-1 rounded-full shrink-0"></div>
+          <div className="w-8 h-[2px] bg-surface-muted my-1 rounded-full shrink-0"></div>
           <button
             onClick={() => setIsLodgeModalOpen(true)}
-            className="w-12 h-12 rounded-full flex items-center justify-center border border-dashed border-slate-300 text-slate-400 hover:text-[#3B82F6] hover:border-[#3B82F6] hover:bg-blue-50 transition-all duration-300 shrink-0"
+            className="w-12 h-12 rounded-full flex items-center justify-center border border-dashed border-subtle text-muted hover:text-brand hover:border-brand hover:bg-brand-tint transition-all duration-300 shrink-0"
             title="Add a Lodge"
           >
             <Plus size={24} />
           </button>
         </div>
       ) : activeTab === "explore" ? null : (
-        <div className="w-[320px] bg-[#F4F7F9] border-l border-r border-slate-200 flex flex-col shrink-0 z-10">
+        <div className="w-[320px] bg-app border-l border-r border-subtle flex flex-col shrink-0 z-10">
           <div className="p-6 pb-4">
-            <h2 className="text-2xl font-extrabold text-slate-900 mb-6">
+            <h2 className="text-2xl font-extrabold text-primary mb-6">
               {activeTab === "chat"
                 ? "Chat"
                 : activeTab === "notifications"
@@ -565,7 +571,7 @@ export default function ChatPage() {
             </h2>
             <div className="relative">
               <Search
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-muted"
                 size={18}
               />
               <input
@@ -575,7 +581,7 @@ export default function ChatPage() {
                 }
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-white border border-slate-200 rounded-full py-3 pl-12 pr-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent shadow-sm placeholder:text-slate-400"
+                className="w-full bg-surface border border-subtle rounded-full py-3 pl-12 pr-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent shadow-sm placeholder:text-muted"
               />
             </div>
           </div>
@@ -584,7 +590,7 @@ export default function ChatPage() {
             {activeTab === "chat" && (
               <div className="space-y-3">
                 {peers.length === 0 ? (
-                  <p className="text-center text-sm text-slate-400 mt-10">
+                  <p className="text-center text-sm text-muted mt-10">
                     No peers found. Head to Explore to find friends!
                   </p>
                 ) : (
@@ -606,12 +612,12 @@ export default function ChatPage() {
                           onClick={() => setSelectedUser(user)}
                           className={`w-full flex items-center gap-3 p-4 rounded-[20px] transition-all text-left ${
                             isSelected
-                              ? "bg-[#EFF6FF] shadow-sm border border-blue-200/60"
-                              : "bg-white border border-slate-100 hover:bg-slate-50 shadow-sm"
+                              ? "bg-brand-tint shadow-sm border border-brand/30"
+                              : "bg-surface border border-subtle hover:bg-surface-alt shadow-sm"
                           }`}
                         >
                           <div className="relative shrink-0">
-                            <div className="h-12 w-12 rounded-full bg-[#3B82F6] flex items-center justify-center font-bold text-white text-lg overflow-hidden">
+                            <div className="h-12 w-12 rounded-full bg-brand flex items-center justify-center font-bold text-white text-lg overflow-hidden">
                               {user.avatar &&
                               !user.avatar.includes("default") ? (
                                 <img
@@ -629,15 +635,15 @@ export default function ChatPage() {
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex justify-between items-center mb-0.5">
-                              <p className="text-sm font-bold text-slate-900 truncate pr-2">
+                              <p className="text-sm font-bold text-primary truncate pr-2">
                                 {user.displayName}
                               </p>
-                              <span className="text-[10px] font-bold text-slate-500 shrink-0">
+                              <span className="text-[10px] font-bold text-muted shrink-0">
                                 10:42 AM
                               </span>
                             </div>
                             <p
-                              className={`text-xs truncate ${isSelected ? "text-[#3B82F6]/80 font-medium" : "text-slate-500"}`}
+                              className={`text-xs truncate ${isSelected ? "text-brand/80 font-medium" : "text-muted"}`}
                             >
                               Tap to view conversation...
                             </p>
@@ -651,22 +657,22 @@ export default function ChatPage() {
             {/* NOTIFICATIONS TAB */}
             {activeTab === "notifications" && (
               <div>
-                <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider mb-3 px-2">
+                <h3 className="text-xs font-extrabold text-muted uppercase tracking-wider mb-3 px-2">
                   Pending Requests
                 </h3>
                 <div className="space-y-3">
                   {peerRequests.length === 0 ? (
-                    <p className="text-center text-sm text-slate-400 mt-6">
+                    <p className="text-center text-sm text-muted mt-6">
                       No new notifications.
                     </p>
                   ) : (
                     peerRequests.map((request) => (
                       <div
                         key={request._id}
-                        className="flex flex-col gap-3 p-4 bg-white border border-slate-100 rounded-[20px] shadow-sm"
+                        className="flex flex-col gap-3 p-4 bg-surface border border-subtle rounded-[20px] shadow-sm"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-slate-200 overflow-hidden shrink-0">
+                          <div className="w-10 h-10 rounded-full bg-surface-muted overflow-hidden shrink-0">
                             {request.avatar &&
                             !request.avatar.includes("default") ? (
                               <img
@@ -675,16 +681,16 @@ export default function ChatPage() {
                                 className="w-full h-full object-cover"
                               />
                             ) : (
-                              <div className="w-full h-full bg-[#3B82F6] flex items-center justify-center text-white font-bold">
+                              <div className="w-full h-full bg-brand flex items-center justify-center text-white font-bold">
                                 {request.displayName?.charAt(0).toUpperCase()}
                               </div>
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-bold text-slate-900 truncate">
+                            <p className="text-sm font-bold text-primary truncate">
                               {request.displayName}
                             </p>
-                            <p className="text-xs text-slate-500">
+                            <p className="text-xs text-muted">
                               wants to connect
                             </p>
                           </div>
@@ -692,7 +698,7 @@ export default function ChatPage() {
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => acceptPeerRequest(request._id)}
-                            className="flex-1 py-2 bg-blue-50 text-[#3B82F6] hover:bg-blue-100 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1"
+                            className="flex-1 py-2 bg-brand-tint text-brand hover:bg-brand/20 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1"
                           >
                             <Plus size={14} /> Accept
                           </button>
@@ -717,18 +723,18 @@ export default function ChatPage() {
 
       {/* State 1: CHAT is active but no user selected */}
       {activeTab === "chat" && !selectedUser && (
-        <div className="flex-1 flex flex-col bg-white">
+        <div className="flex-1 flex flex-col bg-surface">
           {/* STORIES STRIP (Only visible in Chat Tab) */}
-          <div className="h-28 border-b border-slate-200 flex items-center px-8 gap-6 overflow-x-auto shrink-0 bg-white shadow-sm z-10">
+          <div className="h-28 border-b border-subtle flex items-center px-8 gap-6 overflow-x-auto shrink-0 bg-surface shadow-sm z-10">
             {/* Add Story Button */}
             <button
               onClick={handleAddStoryClick}
               className="flex flex-col items-center gap-2 shrink-0 group"
             >
-              <div className="h-14 w-14 rounded-full border-2 border-dashed border-[#0099B3] flex items-center justify-center text-[#3B82F6] group-hover:bg-[#EFF6FF] transition-colors bg-white relative">
+              <div className="h-14 w-14 rounded-full border-2 border-dashed border-brand flex items-center justify-center text-brand group-hover:bg-brand-tint transition-colors bg-surface relative">
                 <Plus size={24} />
               </div>
-              <span className="text-[10px] font-bold text-slate-700">
+              <span className="text-[10px] font-bold text-secondary">
                 Add Story
               </span>
             </button>
@@ -741,7 +747,7 @@ export default function ChatPage() {
                 className="flex flex-col items-center gap-2 shrink-0 group"
               >
                 <div className="h-14 w-14 rounded-full p-[2px] bg-gradient-to-tr from-orange-400 to-[#0099B3]">
-                  <div className="h-full w-full rounded-full border-2 border-white bg-slate-200 overflow-hidden">
+                  <div className="h-full w-full rounded-full border-2 border-surface bg-surface-muted overflow-hidden">
                     <img
                       src={
                         status.user?.avatar ||
@@ -752,21 +758,21 @@ export default function ChatPage() {
                     />
                   </div>
                 </div>
-                <span className="text-[10px] font-bold text-slate-700 w-16 truncate text-center">
+                <span className="text-[10px] font-bold text-secondary w-16 truncate text-center">
                   {status.user?.displayName || "Unknown"}
                 </span>
               </button>
             ))}
           </div>
 
-          <div className="flex-1 flex flex-col items-center justify-center text-center px-4 bg-slate-50/30">
-            <div className="h-24 w-24 bg-slate-100 rounded-full flex items-center justify-center text-slate-300 mb-6">
+          <div className="flex-1 flex flex-col items-center justify-center text-center px-4 bg-surface-alt">
+            <div className="h-24 w-24 bg-surface-muted rounded-full flex items-center justify-center text-muted mb-6">
               <MessageSquare size={40} />
             </div>
-            <h3 className="text-2xl font-bold text-slate-800">
+            <h3 className="text-2xl font-bold text-primary">
               Your Academic Townhall
             </h3>
-            <p className="text-slate-500 mt-2 max-w-md font-medium">
+            <p className="text-muted mt-2 max-w-md font-medium">
               Select a peer from the sidebar to continue the conversation, share
               resources, or collaborate on your latest study.
             </p>
@@ -776,18 +782,18 @@ export default function ChatPage() {
 
       {/* State 2: CHAT is active and user selected */}
       {activeTab === "chat" && selectedUser && (
-        <div className="flex-1 flex flex-col relative bg-white">
+        <div className="flex-1 flex flex-col relative bg-surface">
           {/* STORIES STRIP (Only visible in Chat Tab) */}
-          <div className="h-28 border-b border-slate-200 flex items-center px-8 gap-6 overflow-x-auto shrink-0 bg-white z-10">
+          <div className="h-28 border-b border-subtle flex items-center px-8 gap-6 overflow-x-auto shrink-0 bg-surface z-10">
             {/* Add Story Button */}
             <button
               onClick={handleAddStoryClick}
               className="flex flex-col items-center gap-2 shrink-0 group"
             >
-              <div className="h-14 w-14 rounded-full border-2 border-dashed border-[#0099B3] flex items-center justify-center text-[#3B82F6] group-hover:bg-[#EFF6FF] transition-colors bg-white relative">
+              <div className="h-14 w-14 rounded-full border-2 border-dashed border-brand flex items-center justify-center text-brand group-hover:bg-brand-tint transition-colors bg-surface relative">
                 <Plus size={24} />
               </div>
-              <span className="text-[10px] font-bold text-slate-800">
+              <span className="text-[10px] font-bold text-primary">
                 Add Story
               </span>
             </button>
@@ -800,7 +806,7 @@ export default function ChatPage() {
                 className="flex flex-col items-center gap-2 shrink-0 group"
               >
                 <div className="h-14 w-14 rounded-full p-[2px] bg-gradient-to-tr from-[#0099B3] to-orange-500 shadow-sm group-hover:scale-105 transition-transform">
-                  <div className="h-full w-full rounded-full border-2 border-white bg-slate-200 overflow-hidden">
+                  <div className="h-full w-full rounded-full border-2 border-surface bg-surface-muted overflow-hidden">
                     <img
                       src={
                         status.user?.avatar ||
@@ -811,7 +817,7 @@ export default function ChatPage() {
                     />
                   </div>
                 </div>
-                <span className="text-[10px] font-bold text-slate-800 w-16 truncate text-center">
+                <span className="text-[10px] font-bold text-primary w-16 truncate text-center">
                   {status.user?.displayName || "Unknown"}
                 </span>
               </button>
@@ -819,9 +825,9 @@ export default function ChatPage() {
           </div>
 
           {/* CHAT HEADER */}
-          <div className="h-[88px] bg-gray-100 border-b border-slate-100 flex items-center justify-between px-8 z-10 shrink-0">
+          <div className="h-[88px] bg-surface border-b border-subtle flex items-center justify-between px-8 z-10 shrink-0">
             <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-full bg-[#3B82F6] flex items-center justify-center font-bold text-white text-xl overflow-hidden">
+              <div className="h-12 w-12 rounded-full bg-brand flex items-center justify-center font-bold text-white text-xl overflow-hidden">
                 {selectedUser.avatar &&
                 !selectedUser.avatar.includes("default") ? (
                   <img
@@ -834,39 +840,39 @@ export default function ChatPage() {
                 )}
               </div>
               <div>
-                <h3 className="font-extrabold text-lg text-slate-900">
+                <h3 className="font-extrabold text-lg text-primary">
                   {selectedUser.displayName}
                 </h3>
-                <p className="text-[11px] font-bold text-slate-500">
+                <p className="text-[11px] font-bold text-muted">
                   {onlineUsers.includes(selectedUser._id)
                     ? "Active Now"
                     : "Offline"}
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-4 text-slate-600">
-              <button className="h-10 w-10 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center transition-colors">
+            <div className="flex items-center gap-4 text-secondary">
+              <button className="h-10 w-10 bg-surface-muted hover:bg-subtle rounded-full flex items-center justify-center transition-colors">
                 <Phone
                   size={18}
                   fill="currentColor"
-                  className="text-slate-500"
+                  className="text-muted"
                 />
               </button>
-              <button className="h-10 w-10 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center transition-colors">
+              <button className="h-10 w-10 bg-surface-muted hover:bg-subtle rounded-full flex items-center justify-center transition-colors">
                 <Video
                   size={20}
                   fill="currentColor"
-                  className="text-slate-500"
+                  className="text-muted"
                 />
               </button>
-              <button className="h-10 w-10 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center transition-colors">
-                <Info size={20} className="text-slate-500" />
+              <button className="h-10 w-10 bg-surface-muted hover:bg-subtle rounded-full flex items-center justify-center transition-colors">
+                <Info size={20} className="text-muted" />
               </button>
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-8 pb-32 flex flex-col bg-white">
-            <div className="text-center text-[13px] font-bold text-slate-600 mb-10">
+          <div className="flex-1 overflow-y-auto p-8 pb-32 flex flex-col bg-surface">
+            <div className="text-center text-[13px] font-bold text-secondary mb-10">
               This is the beginning of your conversation with{" "}
               {selectedUser.displayName}.
             </div>
@@ -892,18 +898,18 @@ export default function ChatPage() {
                       className={`flex items-center gap-2 mb-2 ${isMe ? "mr-14" : "ml-14"}`}
                     >
                       {!isMe && (
-                        <span className="font-bold text-sm text-slate-900">
+                        <span className="font-bold text-sm text-primary">
                           {selectedUser.displayName}
                         </span>
                       )}
-                      <span className="text-[10px] font-bold text-slate-500">
+                      <span className="text-[10px] font-bold text-muted">
                         {new Date(msg.createdAt).toLocaleTimeString([], {
                           hour: "2-digit",
                           minute: "2-digit",
                         })}
                       </span>
                       {isMe && (
-                        <span className="font-bold text-sm text-[#3B82F6]">
+                        <span className="font-bold text-sm text-brand">
                           You
                         </span>
                       )}
@@ -913,7 +919,7 @@ export default function ChatPage() {
                       className={`flex gap-4 max-w-[80%] ${isMe ? "justify-end" : ""}`}
                     >
                       {!isMe && (
-                        <div className="h-10 w-10 rounded-[14px] bg-[#3B82F6] flex items-center justify-center text-white shrink-0 overflow-hidden font-bold">
+                        <div className="h-10 w-10 rounded-[14px] bg-brand flex items-center justify-center text-white shrink-0 overflow-hidden font-bold">
                           {selectedUser.avatar &&
                           !selectedUser.avatar.includes("default") ? (
                             <img
@@ -932,19 +938,19 @@ export default function ChatPage() {
                       <div
                         className={`px-5 py-4 text-[15px] leading-relaxed transition-all duration-500 ${
                           !isMe
-                            ? "bg-white border border-slate-200 text-slate-700 rounded-[20px] rounded-tl-sm shadow-sm"
+                            ? "bg-surface border border-subtle text-secondary rounded-[20px] rounded-tl-sm shadow-sm"
                             : msg.isRead
-                              ? "bg-gradient-to-r from-[#0099B3] to-[#0099B3] text-white rounded-[20px] rounded-tr-sm shadow-md shadow-[#0099B3]/20"
+                              ? "bg-gradient-to-r from-accent to-accent text-white rounded-[20px] rounded-tr-sm shadow-md shadow-[#0099B3]/20"
                               : msg.isDelivered
-                                ? "bg-[#E6EAFC] text-slate-800 rounded-[20px] rounded-tr-sm border border-transparent"
-                                : "bg-slate-50 border border-slate-200 text-slate-500 rounded-[20px] rounded-tr-sm"
+                                ? "bg-brand-tint text-primary rounded-[20px] rounded-tr-sm border border-transparent"
+                                : "bg-surface-alt border border-subtle text-muted rounded-[20px] rounded-tr-sm"
                         }`}
                       >
                         {msg.content}
                       </div>
 
                       {isMe && (
-                        <div className="h-10 w-10 rounded-[14px] bg-slate-800 flex items-center justify-center text-white shrink-0 overflow-hidden font-bold">
+                        <div className="h-10 w-10 rounded-[14px] bg-brand flex items-center justify-center text-white shrink-0 overflow-hidden font-bold">
                           {authUser?.avatar &&
                           !authUser.avatar.includes("default") ? (
                             <img
@@ -969,15 +975,15 @@ export default function ChatPage() {
             {isTyping && (
               <div className="flex flex-col mb-6 w-full items-start">
                 <div className="flex items-center gap-2 mb-2 ml-14">
-                  <span className="font-bold text-sm text-slate-900">
+                  <span className="font-bold text-sm text-primary">
                     {selectedUser.displayName}
                   </span>
-                  <span className="text-[10px] font-bold text-slate-500 italic">
+                  <span className="text-[10px] font-bold text-muted italic">
                     typing...
                   </span>
                 </div>
                 <div className="flex gap-4 max-w-[80%]">
-                  <div className="h-10 w-10 rounded-[14px] bg-[#3B82F6] flex items-center justify-center text-white shrink-0 overflow-hidden font-bold">
+                  <div className="h-10 w-10 rounded-[14px] bg-brand flex items-center justify-center text-white shrink-0 overflow-hidden font-bold">
                     {selectedUser.avatar &&
                     !selectedUser.avatar.includes("default") ? (
                       <img
@@ -991,17 +997,17 @@ export default function ChatPage() {
                       )
                     )}
                   </div>
-                  <div className="px-5 py-4 h-10 flex items-center justify-center bg-white border border-slate-200 text-slate-700 rounded-[20px] rounded-tl-sm shadow-sm gap-1">
+                  <div className="px-5 py-4 h-10 flex items-center justify-center bg-surface border border-subtle text-secondary rounded-[20px] rounded-tl-sm shadow-sm gap-1">
                     <span
-                      className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"
+                      className="w-1.5 h-1.5 bg-secondary rounded-full animate-bounce"
                       style={{ animationDelay: "0ms" }}
                     ></span>
                     <span
-                      className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"
+                      className="w-1.5 h-1.5 bg-secondary rounded-full animate-bounce"
                       style={{ animationDelay: "150ms" }}
                     ></span>
                     <span
-                      className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"
+                      className="w-1.5 h-1.5 bg-secondary rounded-full animate-bounce"
                       style={{ animationDelay: "300ms" }}
                     ></span>
                   </div>
@@ -1014,8 +1020,8 @@ export default function ChatPage() {
 
           {/* CHAT INPUT */}
           <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-full max-w-3xl px-8 z-20">
-            <div className="bg-white rounded-full shadow-lg border border-slate-200 flex items-center p-2 pl-4">
-              <button className="p-2 text-slate-400 hover:text-slate-600 transition-colors shrink-0">
+            <div className="bg-surface rounded-full shadow-lg border border-subtle flex items-center p-2 pl-4">
+              <button className="p-2 text-muted hover:text-primary transition-colors shrink-0">
                 <Paperclip size={20} />
               </button>
               <input
@@ -1026,16 +1032,16 @@ export default function ChatPage() {
                   if (e.key === "Enter") handleSendChatMessage();
                 }}
                 placeholder="Contribute to the conversation..."
-                className="flex-1 bg-transparent px-4 py-2 focus:outline-none text-slate-700 font-medium placeholder:text-slate-500 text-[15px]"
+                className="flex-1 bg-transparent px-4 py-2 focus:outline-none text-primary font-medium placeholder:text-muted text-[15px]"
               />
               <div className="flex items-center gap-2 pr-1 shrink-0">
-                <button className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
+                <button className="p-2 text-muted hover:text-primary transition-colors">
                   <Smile size={22} />
                 </button>
                 <button
                   onClick={handleSendChatMessage}
                   disabled={isSendingMessage}
-                  className="h-10 w-10 bg-[#3B82F6] hover:bg-[#3B82F6] disabled:opacity-50 disabled:cursor-not-allowed rounded-full flex items-center justify-center text-white shadow-md transition-colors"
+                  className="h-10 w-10 bg-brand hover:bg-brand-hover disabled:opacity-50 disabled:cursor-not-allowed rounded-full flex items-center justify-center text-white shadow-md transition-colors"
                 >
                   {isSendingMessage ? (
                     <Loader2 size={18} className="animate-spin" />
@@ -1051,16 +1057,16 @@ export default function ChatPage() {
 
       {/* State 3 & 4: LODGE is active */}
       {activeTab === "lodge" && (
-        <div className="flex-1 flex bg-white">
+        <div className="flex-1 flex bg-surface">
           {/* Lodge Channels Sidebar */}
-          <div className="w-60 bg-[#E2E8F0]/30 border-r border-slate-200 flex flex-col justify-between shrink-0">
+          <div className="w-60 bg-surface-alt border-r border-subtle flex flex-col justify-between shrink-0">
             {selectedLodge ? (
               <div className="flex flex-col h-full overflow-hidden">
-                <div className="p-4 border-b border-slate-200/50 hover:bg-slate-200/30 cursor-pointer transition-colors flex items-center justify-between">
-                  <h3 className="font-extrabold text-[15px] text-slate-800 truncate">
+                <div className="p-4 border-b border-subtle hover:bg-subtle cursor-pointer transition-colors flex items-center justify-between">
+                  <h3 className="font-extrabold text-[15px] text-primary truncate">
                     {selectedLodge.name}
                   </h3>
-                  <div className="text-slate-500">
+                  <div className="text-muted">
                     <svg
                       width="18"
                       height="18"
@@ -1077,7 +1083,7 @@ export default function ChatPage() {
                 </div>
                 <div className="flex-1 overflow-y-auto p-3 space-y-1">
                   <div className="flex items-center justify-between px-1 mt-2 mb-1 group cursor-pointer">
-                    <div className="text-[11px] font-bold text-slate-500 hover:text-slate-700 transition-colors flex items-center gap-1 uppercase">
+                    <div className="text-[11px] font-bold text-muted hover:text-primary transition-colors flex items-center gap-1 uppercase">
                       <svg
                         width="12"
                         height="12"
@@ -1095,7 +1101,7 @@ export default function ChatPage() {
                     {selectedLodge.myRole === "captain" && (
                       <Plus
                         size={14}
-                        className="text-slate-400 hover:text-slate-700"
+                        className="text-muted hover:text-primary"
                       />
                     )}
                   </div>
@@ -1103,15 +1109,15 @@ export default function ChatPage() {
                     <button
                       key={channel._id}
                       onClick={() => setSelectedChannel(channel)}
-                      className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-[14px] font-semibold transition-colors ${selectedChannel?._id === channel._id ? "bg-[#E6F7FF]/60 text-slate-800" : "text-slate-500 hover:bg-slate-200/50 hover:text-slate-700"}`}
+                      className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-[14px] font-semibold transition-colors ${selectedChannel?._id === channel._id ? "bg-brand-tint text-primary" : "text-muted hover:bg-subtle hover:text-primary"}`}
                     >
-                      <Hash size={18} className="text-slate-400 shrink-0" />
+                      <Hash size={18} className="text-muted shrink-0" />
                       <span className="truncate">{channel.name}</span>
                     </button>
                   ))}
 
                   <div className="flex items-center justify-between px-1 mt-6 mb-1 group cursor-pointer">
-                    <div className="text-[11px] font-bold text-slate-500 hover:text-slate-700 transition-colors flex items-center gap-1 uppercase">
+                    <div className="text-[11px] font-bold text-muted hover:text-primary transition-colors flex items-center gap-1 uppercase">
                       <svg
                         width="12"
                         height="12"
@@ -1127,7 +1133,7 @@ export default function ChatPage() {
                       VOICE
                     </div>
                   </div>
-                  <button className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-[14px] font-semibold text-slate-500 hover:bg-slate-200/50 hover:text-slate-700 transition-colors">
+                  <button className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-[14px] font-semibold text-muted hover:bg-subtle hover:text-primary transition-colors">
                     <svg
                       width="18"
                       height="18"
@@ -1146,13 +1152,13 @@ export default function ChatPage() {
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col h-full overflow-hidden bg-slate-50 text-slate-500 border-r border-slate-200 w-60">
+              <div className="flex flex-col h-full overflow-hidden bg-surface-alt text-muted border-r border-subtle w-60">
                 {/* Default Server Header */}
-                <div className="p-4 border-b border-slate-200 hover:bg-slate-100 cursor-pointer transition-colors flex items-center justify-between text-slate-900 shadow-sm">
+                <div className="p-4 border-b border-subtle hover:bg-subtle cursor-pointer transition-colors flex items-center justify-between text-primary shadow-sm">
                   <h3 className="font-extrabold text-[15px] truncate">
                     Welcome
                   </h3>
-                  <div className="text-slate-400">
+                  <div className="text-muted">
                     <svg
                       width="18"
                       height="18"
@@ -1171,7 +1177,7 @@ export default function ChatPage() {
                 <div className="flex-1 overflow-y-auto p-3 space-y-4 custom-scrollbar">
                   {/* Category: Welcome */}
                   <div>
-                    <div className="flex items-center px-1 mb-1 group cursor-pointer hover:text-slate-700">
+                    <div className="flex items-center px-1 mb-1 group cursor-pointer hover:text-primary">
                       <svg
                         width="12"
                         height="12"
@@ -1191,7 +1197,7 @@ export default function ChatPage() {
                     </div>
                     <button
                       onClick={() => setDefaultLodgeChannel("Lodge Info")}
-                      className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-[15px] font-medium transition-colors ${defaultLodgeChannel === "Lodge Info" ? "bg-blue-50 text-blue-600" : "hover:bg-slate-200/50 hover:text-slate-800"}`}
+                      className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-[15px] font-medium transition-colors ${defaultLodgeChannel === "Lodge Info" ? "bg-brand-tint text-brand" : "hover:bg-subtle hover:text-primary"}`}
                     >
                       <span className="text-xl shrink-0">🌞</span>
                       <span className="truncate">Lodge Info</span>
@@ -1200,7 +1206,7 @@ export default function ChatPage() {
 
                   {/* Category: General */}
                   <div>
-                    <div className="flex items-center px-1 mb-1 group cursor-pointer hover:text-slate-700">
+                    <div className="flex items-center px-1 mb-1 group cursor-pointer hover:text-primary">
                       <svg
                         width="12"
                         height="12"
@@ -1232,7 +1238,7 @@ export default function ChatPage() {
                       <button
                         key={ch.id}
                         onClick={() => setDefaultLodgeChannel(ch.id)}
-                        className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-[15px] font-medium transition-colors ${defaultLodgeChannel === ch.id ? "bg-blue-50 text-blue-600" : "hover:bg-slate-200/50 hover:text-slate-800"}`}
+                        className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-[15px] font-medium transition-colors ${defaultLodgeChannel === ch.id ? "bg-brand-tint text-brand" : "hover:bg-subtle hover:text-primary"}`}
                       >
                         <span className="text-lg shrink-0 w-6 text-center">
                           {ch.icon}
@@ -1247,17 +1253,17 @@ export default function ChatPage() {
           </div>
 
           {/* Lodge Chat Window */}
-          <div className="flex-1 flex bg-white overflow-hidden">
+          <div className="flex-1 flex bg-surface overflow-hidden">
             <div className="flex-1 flex flex-col min-w-0 relative">
               {selectedChannel ? (
                 <>
-                  <div className="h-12 border-b border-slate-100 flex items-center justify-between px-4 shrink-0 shadow-sm">
-                    <h3 className="font-bold text-[15px] text-slate-800 flex items-center gap-2">
-                      <Hash size={20} className="text-slate-400" />
+                  <div className="h-12 border-b border-subtle flex items-center justify-between px-4 shrink-0 shadow-sm">
+                    <h3 className="font-bold text-[15px] text-primary flex items-center gap-2">
+                      <Hash size={20} className="text-muted" />
                       {selectedChannel.name}
                     </h3>
-                    <div className="flex items-center gap-3 text-slate-400">
-                      <button className="hover:text-slate-600 transition-colors">
+                    <div className="flex items-center gap-3 text-muted">
+                      <button className="hover:text-primary transition-colors">
                         <svg
                           width="20"
                           height="20"
@@ -1272,7 +1278,7 @@ export default function ChatPage() {
                           <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                         </svg>
                       </button>
-                      <button className="hover:text-slate-600 transition-colors">
+                      <button className="hover:text-primary transition-colors">
                         <svg
                           width="20"
                           height="20"
@@ -1291,22 +1297,22 @@ export default function ChatPage() {
                         onClick={() =>
                           setIsMembersSidebarOpen(!isMembersSidebarOpen)
                         }
-                        className={`transition-colors ${isMembersSidebarOpen ? "text-[#3B82F6]" : "hover:text-slate-600"}`}
+                        className={`transition-colors ${isMembersSidebarOpen ? "text-brand" : "hover:text-primary"}`}
                       >
                         <Users size={20} />
                       </button>
                       <div className="relative ml-2">
                         <Search
-                          className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400"
+                          className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted"
                           size={14}
                         />
                         <input
                           type="text"
                           placeholder="Search..."
-                          className="w-36 bg-slate-100 border border-transparent rounded-md py-1 pl-8 pr-2 text-xs focus:outline-none focus:bg-white focus:border-slate-300 focus:ring-1 focus:ring-slate-300 transition-all placeholder:text-slate-400"
+                          className="w-36 bg-surface-muted border border-transparent rounded-md py-1 pl-8 pr-2 text-xs focus:outline-none focus:bg-surface focus:border-subtle focus:ring-1 focus:ring-brand transition-all placeholder:text-muted"
                         />
                       </div>
-                      <button className="hover:text-slate-600 transition-colors ml-2">
+                      <button className="hover:text-primary transition-colors ml-2">
                         <svg
                           width="20"
                           height="20"
@@ -1326,13 +1332,13 @@ export default function ChatPage() {
                   </div>
                   <div className="flex-1 overflow-y-auto p-6 pb-32 flex flex-col">
                     <div className="mt-6 mb-8">
-                      <div className="h-16 w-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
-                        <Hash size={32} className="text-slate-400" />
+                      <div className="h-16 w-16 bg-surface-muted rounded-full flex items-center justify-center mb-4">
+                        <Hash size={32} className="text-muted" />
                       </div>
-                      <h2 className="text-3xl font-extrabold text-slate-900">
+                      <h2 className="text-3xl font-extrabold text-primary">
                         Welcome to #{selectedChannel.name}!
                       </h2>
-                      <p className="text-[15px] font-medium text-slate-500 mt-2">
+                      <p className="text-[15px] font-medium text-muted mt-2">
                         This is the start of the #{selectedChannel.name}{" "}
                         channel.
                       </p>
@@ -1358,11 +1364,11 @@ export default function ChatPage() {
                               className={`flex items-center gap-2 mb-2 ${isMe ? "mr-14" : "ml-14"}`}
                             >
                               {!isMe && (
-                                <span className="font-bold text-sm text-slate-900">
+                                <span className="font-bold text-sm text-primary">
                                   {msg.senderId?.displayName || "Unknown"}
                                 </span>
                               )}
-                              <span className="text-[10px] font-bold text-slate-500">
+                              <span className="text-[10px] font-bold text-muted">
                                 {new Date(msg.createdAt).toLocaleTimeString(
                                   [],
                                   {
@@ -1372,7 +1378,7 @@ export default function ChatPage() {
                                 )}
                               </span>
                               {isMe && (
-                                <span className="font-bold text-sm text-[#3B82F6]">
+                                <span className="font-bold text-sm text-brand">
                                   You
                                 </span>
                               )}
@@ -1382,7 +1388,7 @@ export default function ChatPage() {
                               className={`flex gap-4 max-w-[80%] ${isMe ? "justify-end" : ""}`}
                             >
                               {!isMe && (
-                                <div className="h-10 w-10 rounded-[14px] bg-[#3B82F6] flex items-center justify-center text-white shrink-0 overflow-hidden font-bold">
+                                <div className="h-10 w-10 rounded-[14px] bg-brand flex items-center justify-center text-white shrink-0 overflow-hidden font-bold">
                                   {msg.senderId?.avatar &&
                                   !msg.senderId.avatar.includes("default") ? (
                                     <img
@@ -1401,15 +1407,15 @@ export default function ChatPage() {
                               <div
                                 className={`px-5 py-4 text-[15px] leading-relaxed transition-all duration-500 ${
                                   !isMe
-                                    ? "bg-white border border-slate-200 text-slate-700 rounded-[20px] rounded-tl-sm shadow-sm"
-                                    : "bg-[#E6EAFC] text-slate-800 rounded-[20px] rounded-tr-sm border border-transparent"
+                                    ? "bg-surface border border-subtle text-secondary rounded-[20px] rounded-tl-sm shadow-sm"
+                                    : "bg-brand-tint text-primary rounded-[20px] rounded-tr-sm border border-transparent"
                                 }`}
                               >
                                 {msg.content}
                               </div>
 
                               {isMe && (
-                                <div className="h-10 w-10 rounded-[14px] bg-slate-800 flex items-center justify-center text-white shrink-0 overflow-hidden font-bold">
+                                <div className="h-10 w-10 rounded-[14px] bg-brand flex items-center justify-center text-white shrink-0 overflow-hidden font-bold">
                                   {authUser?.avatar &&
                                   !authUser.avatar.includes("default") ? (
                                     <img
@@ -1431,8 +1437,8 @@ export default function ChatPage() {
                     )}
                   </div>
                   <div className="absolute bottom-6 left-6 right-6">
-                    <div className="bg-slate-100 rounded-lg flex items-center p-1 pl-3 focus-within:ring-2 focus-within:ring-blue-400 transition-all">
-                      <button className="p-2 text-slate-400 hover:text-slate-600 transition-colors rounded-full shrink-0">
+                    <div className="bg-surface-muted rounded-lg flex items-center p-1 pl-3 focus-within:ring-2 focus-within:ring-brand transition-all">
+                      <button className="p-2 text-muted hover:text-primary transition-colors rounded-full shrink-0">
                         <Plus size={20} />
                       </button>
                       <input
@@ -1443,10 +1449,10 @@ export default function ChatPage() {
                           if (e.key === "Enter") handleSendChannelMessage();
                         }}
                         placeholder={`Message #${selectedChannel.name}`}
-                        className="flex-1 bg-transparent px-3 py-2.5 focus:outline-none text-slate-700 font-medium text-[15px] placeholder:text-slate-500"
+                        className="flex-1 bg-transparent px-3 py-2.5 focus:outline-none text-primary font-medium text-[15px] placeholder:text-muted"
                       />
                       <div className="flex items-center gap-1 pr-2 shrink-0">
-                        <button className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
+                        <button className="p-2 text-muted hover:text-primary transition-colors">
                           <Smile size={20} />
                         </button>
                       </div>
@@ -1454,47 +1460,47 @@ export default function ChatPage() {
                   </div>
                 </>
               ) : (
-                <div className="flex-1 flex flex-col items-center justify-center text-slate-800 bg-white h-full p-8">
+                <div className="flex-1 flex flex-col items-center justify-center text-primary bg-surface h-full p-8">
                   {/* Mock content based on defaultLodgeChannel */}
                   {defaultLodgeChannel === "Lodge Info" && (
                     <div className="max-w-2xl text-center space-y-6">
-                      <div className="w-24 h-24 bg-[#3B82F6] rounded-3xl flex items-center justify-center mx-auto shadow-lg mb-8">
+                      <div className="w-24 h-24 bg-brand rounded-3xl flex items-center justify-center mx-auto shadow-lg mb-8">
                         <span className="text-5xl">🌞</span>
                       </div>
-                      <h2 className="text-4xl font-extrabold text-slate-900">
+                      <h2 className="text-4xl font-extrabold text-primary">
                         Welcome to the Lodge Space!
                       </h2>
-                      <p className="text-slate-600 text-lg leading-relaxed font-medium">
+                      <p className="text-secondary text-lg leading-relaxed font-medium">
                         A Lodge is a dedicated community hub designed for you
                         and your peers to connect, collaborate, and share ideas.
                         Whether you are studying together, building a project,
                         or just hanging out, Lodges give you the structured
                         environment you need to thrive.
                       </p>
-                      <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 text-left mt-8 shadow-sm">
-                        <h4 className="text-slate-900 font-bold mb-3 flex items-center gap-2">
-                          <Info size={18} className="text-[#3B82F6]" /> Getting
+                      <div className="bg-surface-alt p-6 rounded-2xl border border-subtle text-left mt-8 shadow-sm">
+                        <h4 className="text-primary font-bold mb-3 flex items-center gap-2">
+                          <Info size={18} className="text-brand" /> Getting
                           Started
                         </h4>
-                        <p className="text-slate-600 text-sm leading-relaxed mb-4">
+                        <p className="text-secondary text-sm leading-relaxed mb-4">
                           We&apos;ve set up a few template channels to show you
                           how a Lodge is organized. Take a look around:
                         </p>
-                        <ul className="text-slate-600 text-sm space-y-3 list-disc pl-5">
+                        <ul className="text-secondary text-sm space-y-3 list-disc pl-5">
                           <li>
-                            <strong className="text-slate-900">
+                            <strong className="text-primary">
                               # announcements
                             </strong>
                             : Check out how server owners can broadcast
                             important updates to all members.
                           </li>
                           <li>
-                            <strong className="text-slate-900"># roles</strong>:
+                            <strong className="text-primary"># roles</strong>:
                             Discover how Lodge hierarchies work, from Captain
                             down to Junior members.
                           </li>
                           <li>
-                            <strong className="text-slate-900">
+                            <strong className="text-primary">
                               # general
                             </strong>
                             : Where the day-to-day casual chat happens.
@@ -1505,25 +1511,25 @@ export default function ChatPage() {
                   )}
                   {defaultLodgeChannel === "announcements" && (
                     <div className="w-full max-w-4xl h-full flex flex-col justify-end pb-8">
-                      <h2 className="text-3xl font-extrabold text-slate-900 mb-2">
+                      <h2 className="text-3xl font-extrabold text-primary mb-2">
                         Welcome to #announcements!
                       </h2>
-                      <p className="text-slate-500 font-medium mb-8">
+                      <p className="text-muted font-medium mb-8">
                         This is the start of the #announcements channel.
                       </p>
 
-                      <div className="flex gap-4 mt-6 hover:bg-slate-50 p-3 rounded-xl border border-transparent hover:border-slate-100 transition-colors">
-                        <div className="w-10 h-10 rounded-full bg-[#3B82F6] flex items-center justify-center text-white font-bold shrink-0">
+                      <div className="flex gap-4 mt-6 hover:bg-surface-alt p-3 rounded-xl border border-transparent hover:border-subtle transition-colors">
+                        <div className="w-10 h-10 rounded-full bg-brand flex items-center justify-center text-white font-bold shrink-0">
                           D
                         </div>
                         <div>
-                          <p className="font-bold text-slate-900 flex items-baseline gap-2">
+                          <p className="font-bold text-primary flex items-baseline gap-2">
                             Developer{" "}
-                            <span className="text-xs font-medium text-slate-400">
+                            <span className="text-xs font-medium text-muted">
                               Today at 10:00 AM
                             </span>
                           </p>
-                          <p className="text-slate-700 mt-1">
+                          <p className="text-secondary mt-1">
                             Welcome everyone! We&apos;ve just launched the new
                             Global Feed feature. Check it out on the Explore
                             tab!
@@ -1534,10 +1540,10 @@ export default function ChatPage() {
                   )}
                   {defaultLodgeChannel === "roles" && (
                     <div className="w-full max-w-4xl h-full flex flex-col justify-start pt-4 pb-8 overflow-y-auto">
-                      <h2 className="text-3xl font-extrabold text-slate-900 mb-4 shrink-0">
+                      <h2 className="text-3xl font-extrabold text-primary mb-4 shrink-0">
                         Lodge Hierarchy & Roles
                       </h2>
-                      <p className="text-slate-600 font-medium text-lg mb-8 leading-relaxed shrink-0">
+                      <p className="text-secondary font-medium text-lg mb-8 leading-relaxed shrink-0">
                         A lodge is a space for brilliant minds to come together
                         to build something great or to discuss something new or
                         maybe just relax and have a fun chat. But every group
@@ -1547,11 +1553,11 @@ export default function ChatPage() {
 
                       <div className="flex flex-col gap-4">
                         <div className="bg-amber-50 p-5 rounded-2xl border border-amber-200">
-                          <h3 className="font-extrabold text-lg text-slate-900 flex items-center gap-2 mb-2">
+                          <h3 className="font-extrabold text-lg text-[#0f172a] flex items-center gap-2 mb-2">
                             <Crown size={20} className="text-amber-500" />{" "}
                             Captain
                           </h3>
-                          <p className="text-slate-600 text-sm leading-relaxed">
+                          <p className="text-[#475569] text-sm leading-relaxed">
                             The creator of the lodge. There can be only one
                             captain. The captain can only pass their position to
                             a Vice Captain. (Moderator).
@@ -1559,21 +1565,21 @@ export default function ChatPage() {
                         </div>
 
                         <div className="bg-blue-50 p-5 rounded-2xl border border-blue-200">
-                          <h3 className="font-extrabold text-lg text-slate-900 flex items-center gap-2 mb-2">
+                          <h3 className="font-extrabold text-lg text-[#0f172a] flex items-center gap-2 mb-2">
                             <Shield size={20} className="text-blue-500" /> Vice
                             Captain
                           </h3>
-                          <p className="text-slate-600 text-sm leading-relaxed">
+                          <p className="text-[#475569] text-sm leading-relaxed">
                             Second in power after the Captain. Has the power of
                             a moderator.
                           </p>
                         </div>
 
                         <div className="bg-purple-50 p-5 rounded-2xl border border-purple-200">
-                          <h3 className="font-extrabold text-lg text-slate-900 flex items-center gap-2 mb-2">
+                          <h3 className="font-extrabold text-lg text-[#0f172a] flex items-center gap-2 mb-2">
                             <Star size={20} className="text-purple-500" /> Elder
                           </h3>
-                          <p className="text-slate-600 text-sm leading-relaxed">
+                          <p className="text-[#475569] text-sm leading-relaxed">
                             Trusted members can be promoted to the rank of
                             &apos;elder&apos;. They do not possess moderator
                             power, although they can invoke a vote for a
@@ -1581,11 +1587,11 @@ export default function ChatPage() {
                           </p>
                         </div>
 
-                        <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200">
-                          <h3 className="font-extrabold text-lg text-slate-900 flex items-center gap-2 mb-2">
-                            <User size={20} className="text-slate-400" /> Junior
+                        <div className="bg-surface-alt p-5 rounded-2xl border border-subtle">
+                          <h3 className="font-extrabold text-lg text-primary flex items-center gap-2 mb-2">
+                            <User size={20} className="text-muted" /> Junior
                           </h3>
-                          <p className="text-slate-600 text-sm leading-relaxed">
+                          <p className="text-secondary text-sm leading-relaxed">
                             Just a new fellow, nothing much... The starting
                             point for everyone joining the lodge!
                           </p>
@@ -1595,25 +1601,25 @@ export default function ChatPage() {
                   )}
                   {defaultLodgeChannel === "rules" && (
                     <div className="w-full max-w-4xl h-full flex flex-col justify-start pt-4 pb-8 overflow-y-auto">
-                      <h2 className="text-3xl font-extrabold text-slate-900 mb-4 shrink-0">
+                      <h2 className="text-3xl font-extrabold text-primary mb-4 shrink-0">
                         Lodge Rules
                       </h2>
-                      <p className="text-slate-600 font-medium text-lg mb-8 leading-relaxed shrink-0">
+                      <p className="text-secondary font-medium text-lg mb-8 leading-relaxed shrink-0">
                         To keep this Lodge a safe and welcoming space for
                         everyone, please adhere to the following rules:
                       </p>
 
-                      <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                      <div className="bg-surface-alt p-6 rounded-2xl border border-subtle">
                         <ul className="space-y-4">
                           <li className="flex items-start gap-3">
-                            <span className="font-bold text-blue-500 text-lg mt-0.5">
+                            <span className="font-bold text-brand text-lg mt-0.5">
                               1.
                             </span>
                             <div>
-                              <strong className="text-slate-900 block mb-1">
+                              <strong className="text-primary block mb-1">
                                 Be Kind and Respectful
                               </strong>
-                              <p className="text-slate-600 text-sm">
+                              <p className="text-secondary text-sm">
                                 Treat all members with respect. No harassment,
                                 sexism, racism, or hate speech will be
                                 tolerated.
@@ -1621,14 +1627,14 @@ export default function ChatPage() {
                             </div>
                           </li>
                           <li className="flex items-start gap-3">
-                            <span className="font-bold text-blue-500 text-lg mt-0.5">
+                            <span className="font-bold text-brand text-lg mt-0.5">
                               2.
                             </span>
                             <div>
-                              <strong className="text-slate-900 block mb-1">
+                              <strong className="text-primary block mb-1">
                                 No Bullying
                               </strong>
-                              <p className="text-slate-600 text-sm">
+                              <p className="text-secondary text-sm">
                                 Bullying of any kind is strictly prohibited. If
                                 you see someone being bullied, please report it
                                 to a Moderator.
@@ -1636,28 +1642,28 @@ export default function ChatPage() {
                             </div>
                           </li>
                           <li className="flex items-start gap-3">
-                            <span className="font-bold text-blue-500 text-lg mt-0.5">
+                            <span className="font-bold text-brand text-lg mt-0.5">
                               3.
                             </span>
                             <div>
-                              <strong className="text-slate-900 block mb-1">
+                              <strong className="text-primary block mb-1">
                                 No NSFW Content
                               </strong>
-                              <p className="text-slate-600 text-sm">
+                              <p className="text-secondary text-sm">
                                 This is an academic environment. Keep all
                                 content appropriate and safe for work.
                               </p>
                             </div>
                           </li>
                           <li className="flex items-start gap-3">
-                            <span className="font-bold text-blue-500 text-lg mt-0.5">
+                            <span className="font-bold text-brand text-lg mt-0.5">
                               4.
                             </span>
                             <div>
-                              <strong className="text-slate-900 block mb-1">
+                              <strong className="text-primary block mb-1">
                                 Stay On Topic
                               </strong>
-                              <p className="text-slate-600 text-sm">
+                              <p className="text-secondary text-sm">
                                 Use the appropriate channels for your
                                 discussions. Do not derail ongoing
                                 conversations.
@@ -1665,14 +1671,14 @@ export default function ChatPage() {
                             </div>
                           </li>
                           <li className="flex items-start gap-3">
-                            <span className="font-bold text-blue-500 text-lg mt-0.5">
+                            <span className="font-bold text-brand text-lg mt-0.5">
                               5.
                             </span>
                             <div>
-                              <strong className="text-slate-900 block mb-1">
+                              <strong className="text-primary block mb-1">
                                 No Spam or Self-Promotion
                               </strong>
-                              <p className="text-slate-600 text-sm">
+                              <p className="text-secondary text-sm">
                                 Avoid spamming messages. Keep self-promotion
                                 strictly to the designated #self-promo channel.
                               </p>
@@ -1687,20 +1693,20 @@ export default function ChatPage() {
                     defaultLodgeChannel,
                   ) && (
                     <div className="w-full max-w-3xl h-full flex flex-col justify-center items-center text-center pb-8">
-                      <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mb-6">
-                        <Hash size={32} className="text-slate-400" />
+                      <div className="w-20 h-20 bg-surface-muted rounded-full flex items-center justify-center mb-6">
+                        <Hash size={32} className="text-muted" />
                       </div>
-                      <h2 className="text-3xl font-extrabold text-slate-900 mb-4">
+                      <h2 className="text-3xl font-extrabold text-primary mb-4">
                         #{defaultLodgeChannel}
                       </h2>
-                      <p className="text-slate-600 font-medium text-lg leading-relaxed max-w-xl">
+                      <p className="text-secondary font-medium text-lg leading-relaxed max-w-xl">
                         {defaultLodgeChannel === "general"
                           ? "This is where all the casual conversation happens! Once you join a real lodge, you&apos;ll be able to chat with peers about anything and everything here."
                           : defaultLodgeChannel === "self-promo"
                             ? "Share your projects, side-hustles, and achievements! In a real lodge, this channel keeps the main chat clean while giving you a dedicated place to shine."
                             : `This is an example of a dedicated #${defaultLodgeChannel} channel.`}
                       </p>
-                      <div className="mt-8 px-6 py-4 bg-blue-50 border border-blue-100 rounded-xl text-blue-600 text-sm font-bold flex items-center gap-2">
+                      <div className="mt-8 px-6 py-4 bg-brand-tint border border-brand/30 rounded-xl text-brand text-sm font-bold flex items-center gap-2">
                         <Info size={16} />
                         This is just a preview. Join a real lodge to start
                         chatting!
@@ -1713,11 +1719,11 @@ export default function ChatPage() {
 
             {/* Right Members Sidebar */}
             {isMembersSidebarOpen && (
-              <div className="w-64 bg-[#EFF6FF]/40 border-l border-slate-200 flex flex-col shrink-0 overflow-y-auto hidden lg:flex">
+              <div className="w-64 bg-brand-tint border-l border-subtle flex flex-col shrink-0 overflow-y-auto hidden lg:flex">
                 <div className="p-4">
                   {currentLodgeMembers.length > 0 && (
                     <>
-                      <h4 className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider mb-4">
+                      <h4 className="text-[11px] font-extrabold text-muted uppercase tracking-wider mb-4">
                         Moderators — {currentLodgeMembers.length}
                       </h4>
                       <div className="space-y-1 mb-6">
@@ -1727,7 +1733,7 @@ export default function ChatPage() {
                           ) => (
                             <div
                               key={member._id}
-                              className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-100 cursor-pointer transition-colors group"
+                              className="flex items-center gap-3 p-2 rounded-lg hover:bg-subtle cursor-pointer transition-colors group"
                             >
                               <div className="relative shrink-0">
                                 <div className="h-9 w-9 rounded-full overflow-hidden flex items-center justify-center font-bold text-white bg-[#00BAE6]">
@@ -1744,13 +1750,13 @@ export default function ChatPage() {
                                       .toUpperCase() || <User size={14} />
                                   )}
                                 </div>
-                                <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 border-2 border-white rounded-full"></div>
+                                <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 border-2 border-surface rounded-full"></div>
                               </div>
                               <div className="min-w-0 flex-1">
-                                <p className="text-[13px] font-bold text-[#3B82F6] truncate group-hover:underline">
+                                <p className="text-[13px] font-bold text-brand truncate group-hover:underline">
                                   {member.user?.displayName}
                                 </p>
-                                <p className="text-[10px] text-slate-500 truncate">
+                                <p className="text-[10px] text-muted truncate">
                                   Captain
                                 </p>
                               </div>
@@ -1763,7 +1769,7 @@ export default function ChatPage() {
 
                   {members.length > 0 && (
                     <>
-                      <h4 className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider mb-4">
+                      <h4 className="text-[11px] font-extrabold text-muted uppercase tracking-wider mb-4">
                         Members — {members.length}
                       </h4>
                       <div className="space-y-1 mb-6">
@@ -1773,10 +1779,10 @@ export default function ChatPage() {
                           ) => (
                             <div
                               key={member._id}
-                              className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-200/50 cursor-pointer transition-colors group"
+                              className="flex items-center gap-3 p-2 rounded-lg hover:bg-subtle cursor-pointer transition-colors group"
                             >
                               <div className="relative shrink-0">
-                                <div className="h-9 w-9 rounded-full overflow-hidden flex items-center justify-center font-bold text-white bg-[#3B82F6]">
+                                <div className="h-9 w-9 rounded-full overflow-hidden flex items-center justify-center font-bold text-white bg-brand">
                                   {member.user?.avatar &&
                                   !member.user.avatar.includes("default") ? (
                                     <img
@@ -1790,13 +1796,13 @@ export default function ChatPage() {
                                       .toUpperCase() || <User size={14} />
                                   )}
                                 </div>
-                                <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 border-2 border-[#EFF6FF] rounded-full"></div>
+                                <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 border-2 border-brand-tint rounded-full"></div>
                               </div>
                               <div className="min-w-0 flex-1">
-                                <p className="text-[13px] font-bold text-slate-700 truncate group-hover:underline">
+                                <p className="text-[13px] font-bold text-secondary truncate group-hover:underline">
                                   {member.user?.displayName}
                                 </p>
-                                <p className="text-[10px] text-slate-500 truncate">
+                                <p className="text-[10px] text-muted truncate">
                                   Member
                                 </p>
                               </div>
@@ -1815,17 +1821,17 @@ export default function ChatPage() {
 
       {/* State 4: EXPLORE is active */}
       {activeTab === "explore" && (
-        <div className="flex-1 flex bg-white relative overflow-hidden">
+        <div className="flex-1 flex bg-app relative overflow-hidden">
           {/* Main Content (Center) */}
-          <div className="flex-1 flex flex-col min-w-0 border-r border-slate-200">
+          <div className="flex-1 flex flex-col min-w-0 border-r border-subtle">
             {/* Header / Search Area */}
-            <div className="p-6 border-b border-slate-200 bg-white sticky top-0 z-10">
-              <h2 className="text-2xl font-extrabold text-slate-900 mb-4">
+            <div className="p-6 border-b border-subtle bg-app sticky top-0 z-10">
+              <h2 className="text-2xl font-extrabold text-primary mb-4">
                 Explore Bind
               </h2>
               <div className="relative">
                 <Search
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-muted"
                   size={18}
                 />
                 <input
@@ -1833,17 +1839,17 @@ export default function ChatPage() {
                   placeholder="Search peers and lodges..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-slate-100 border-none rounded-full py-3 pl-12 pr-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-inner placeholder:text-slate-500"
+                  className="w-full bg-surface-muted border-none rounded-full py-3 pl-12 pr-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand shadow-inner placeholder:text-muted"
                 />
               </div>
             </div>
 
             {/* Feed Area */}
-            <div className="flex-1 overflow-y-auto bg-slate-50/50 flex flex-col custom-scrollbar relative">
+            <div className="flex-1 overflow-y-auto bg-surface-alt flex flex-col custom-scrollbar relative">
               {/* Create Post Box */}
-              <div className="p-6 bg-white border-b border-slate-200">
+              <div className="p-6 bg-surface border-b border-subtle">
                 <div className="flex gap-4">
-                  <div className="w-10 h-10 rounded-full bg-[#3B82F6] flex items-center justify-center text-white font-bold shrink-0">
+                  <div className="w-10 h-10 rounded-full bg-brand flex items-center justify-center text-white font-bold shrink-0">
                     {authUser?.displayName?.charAt(0).toUpperCase()}
                   </div>
                   <div className="flex-1">
@@ -1851,7 +1857,7 @@ export default function ChatPage() {
                       placeholder="What's on your mind?"
                       value={postContent}
                       onChange={(e) => setPostContent(e.target.value)}
-                      className="w-full bg-transparent resize-none outline-none text-slate-800 placeholder:text-slate-400 min-h-[60px]"
+                      className="w-full bg-transparent resize-none outline-none text-primary placeholder:text-muted min-h-[60px]"
                     />
 
                     {postImage && (
@@ -1871,13 +1877,13 @@ export default function ChatPage() {
                     )}
 
                     <div className="flex items-center gap-2 mt-2">
-                      <Tag size={16} className="text-slate-400" />
+                      <Tag size={16} className="text-muted" />
                       <input
                         type="text"
                         placeholder="Tags (comma separated, e.g. AI, Engineering)"
                         value={postTags}
                         onChange={(e) => setPostTags(e.target.value)}
-                        className="flex-1 bg-slate-100 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-1 focus:ring-blue-400"
+                        className="flex-1 bg-surface-muted rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-1 focus:ring-brand"
                       />
                     </div>
 
@@ -1895,7 +1901,7 @@ export default function ChatPage() {
                         />
                         <button
                           onClick={() => postImageInputRef.current?.click()}
-                          className="p-2 text-slate-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
+                          className="p-2 text-muted hover:text-brand hover:bg-brand-tint rounded-lg transition-colors"
                           title="Add Image"
                         >
                           <ImageIcon size={20} />
@@ -1904,7 +1910,7 @@ export default function ChatPage() {
                       <button
                         onClick={handleCreatePost}
                         disabled={isCreatingPost || !postContent.trim()}
-                        className="px-6 py-2 bg-[#3B82F6] text-white font-bold rounded-full hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        className="px-6 py-2 bg-brand text-white font-bold rounded-full hover:bg-brand-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                       >
                         {isCreatingPost ? (
                           <Loader2 className="animate-spin" size={16} />
@@ -1924,7 +1930,7 @@ export default function ChatPage() {
                     <Loader2 className="animate-spin text-blue-500" size={32} />
                   </div>
                 ) : posts.length === 0 ? (
-                  <div className="text-center p-12 text-slate-500">
+                  <div className="text-center p-12 text-muted">
                     <p className="font-medium">No posts yet.</p>
                     <p className="text-sm">Be the first to share something!</p>
                   </div>
@@ -1943,21 +1949,21 @@ export default function ChatPage() {
           </div>
 
           {/* Right Sidebar */}
-          <div className="w-[380px] flex flex-col bg-slate-50 shrink-0 overflow-y-auto custom-scrollbar p-6">
+          <div className="w-[380px] flex flex-col bg-surface-alt shrink-0 overflow-y-auto custom-scrollbar p-6">
             {/* Connect with Peers Container */}
-            <div className="bg-white rounded-[24px] border border-slate-200 p-6 shadow-sm mb-6">
+            <div className="bg-surface rounded-[24px] border border-subtle p-6 shadow-sm mb-6">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="font-extrabold text-slate-900 text-lg">
+                <h3 className="font-extrabold text-primary text-lg">
                   Connect with Peers
                 </h3>
-                <button className="text-[#3B82F6] font-bold text-sm hover:underline">
+                <button className="text-brand font-bold text-sm hover:underline">
                   View all
                 </button>
               </div>
 
               <div className="space-y-5">
                 {suggestedPeers.length === 0 ? (
-                  <p className="text-sm text-slate-400">
+                  <p className="text-sm text-muted">
                     No new peers to discover right now.
                   </p>
                 ) : (
@@ -1970,7 +1976,7 @@ export default function ChatPage() {
                         href={`/profile/${user.username}`}
                         className="flex items-center gap-3 min-w-0 hover:opacity-80 transition-opacity"
                       >
-                        <div className="h-10 w-10 rounded-full bg-slate-200 overflow-hidden shrink-0">
+                        <div className="h-10 w-10 rounded-full bg-surface-muted overflow-hidden shrink-0">
                           {user.avatar && !user.avatar.includes("default") ? (
                             <img
                               src={user.avatar}
@@ -1978,23 +1984,23 @@ export default function ChatPage() {
                               className="w-full h-full object-cover"
                             />
                           ) : (
-                            <div className="w-full h-full bg-[#3B82F6] flex items-center justify-center text-white font-bold text-sm">
+                            <div className="w-full h-full bg-brand flex items-center justify-center text-white font-bold text-sm">
                               {user.displayName?.charAt(0).toUpperCase()}
                             </div>
                           )}
                         </div>
                         <div className="min-w-0">
-                          <p className="font-bold text-sm text-slate-900 truncate">
+                          <p className="font-bold text-sm text-primary truncate">
                             {user.displayName}
                           </p>
-                          <p className="text-[12px] font-medium text-slate-500 truncate">
+                          <p className="text-[12px] font-medium text-muted truncate">
                             {user.specialization || "Student"} • Recommended
                           </p>
                         </div>
                       </Link>
                       <button
                         onClick={() => sendPeerRequest(user._id)}
-                        className="w-10 h-10 rounded-full border border-blue-200 text-[#3B82F6] flex items-center justify-center shrink-0 hover:bg-blue-50 transition-colors ml-2"
+                        className="w-10 h-10 rounded-full border border-brand/30 text-brand flex items-center justify-center shrink-0 hover:bg-brand-tint transition-colors ml-2"
                         title="Connect"
                       >
                         <UserPlus size={18} />
@@ -2006,28 +2012,25 @@ export default function ChatPage() {
             </div>
 
             {/* Popular Lodges Container */}
-            <div className="bg-white rounded-[24px] border border-slate-200 p-6 shadow-sm">
-              <h3 className="font-extrabold text-slate-900 text-lg mb-6">
+            <div className="bg-surface rounded-[24px] border border-subtle p-6 shadow-sm">
+              <h3 className="font-extrabold text-primary text-lg mb-6">
                 Popular Lodges
               </h3>
 
               <div className="space-y-6">
                 {publicLodges.length === 0 ? (
-                  <p className="text-sm text-slate-400">
+                  <p className="text-sm text-muted">
                     No public lodges available.
                   </p>
                 ) : (
                   publicLodges.slice(0, 3).map((lodge, index) => {
                     const isEven = index % 2 === 0;
-                    const iconBg = isEven ? "bg-[#EFF6FF]" : "bg-[#FFF7ED]";
+                    const iconBg = isEven ? "bg-brand-tint" : "bg-[#FFF7ED]";
                     const iconColor = isEven
-                      ? "text-[#3B82F6]"
+                      ? "text-brand"
                       : "text-[#F97316]";
-                    const progressBg = isEven
-                      ? "bg-[#3B82F6]"
-                      : "text-[#F97316]"; // using text color hex
                     const progressClass = isEven
-                      ? "bg-[#3B82F6]"
+                      ? "bg-brand"
                       : "bg-[#F97316]";
                     const progressWidth = isEven ? "75%" : "100%";
 
@@ -2040,15 +2043,15 @@ export default function ChatPage() {
                             <Users size={24} />
                           </div>
                           <div className="min-w-0 flex-1">
-                            <p className="font-bold text-sm text-slate-900 truncate">
+                            <p className="font-bold text-sm text-primary truncate">
                               {lodge.name}
                             </p>
-                            <p className="text-[12px] font-medium text-slate-500 truncate">
+                            <p className="text-[12px] font-medium text-muted truncate">
                               {lodge.members?.length || 1} members • Recommended
                             </p>
                           </div>
                         </div>
-                        <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden">
+                        <div className="w-full h-1 bg-surface-muted rounded-full overflow-hidden">
                           <div
                             className={`h-full ${progressClass}`}
                             style={{ width: progressWidth }}
@@ -2060,7 +2063,7 @@ export default function ChatPage() {
                 )}
               </div>
 
-              <button className="w-full py-3 mt-6 rounded-[16px] border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-colors">
+              <button className="w-full py-3 mt-6 rounded-[16px] border border-subtle text-secondary font-bold text-sm hover:bg-surface-alt transition-colors">
                 Browse Lodges
               </button>
             </div>
@@ -2070,14 +2073,14 @@ export default function ChatPage() {
 
       {/* State 5: NOTIFICATIONS is active */}
       {activeTab === "notifications" && (
-        <div className="flex-1 flex flex-col bg-white items-center justify-center text-center px-4">
-          <div className="h-24 w-24 bg-slate-100 rounded-full flex items-center justify-center text-slate-300 mb-6">
+        <div className="flex-1 flex flex-col bg-app items-center justify-center text-center px-4">
+          <div className="h-24 w-24 bg-surface-muted rounded-full flex items-center justify-center text-muted mb-6">
             <Bell size={40} />
           </div>
-          <h3 className="text-2xl font-bold text-slate-800">
+          <h3 className="text-2xl font-bold text-primary">
             Notifications Center
           </h3>
-          <p className="text-slate-500 mt-2 max-w-md font-medium">
+          <p className="text-muted mt-2 max-w-md font-medium">
             Manage your peer connection requests from the sidebar. Accept
             requests to grow your network and start chatting!
           </p>
@@ -2089,48 +2092,48 @@ export default function ChatPage() {
       {/* Settings Modal */}
       {isSettingsModalOpen && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 lg:p-10 animate-in fade-in zoom-in duration-200">
-          <div className="w-full max-w-5xl h-[85vh] bg-white rounded-2xl shadow-2xl flex overflow-hidden relative">
+          <div className="w-full max-w-5xl h-[85vh] bg-surface rounded-2xl shadow-2xl flex overflow-hidden relative">
             {/* Left Sidebar */}
-            <div className="w-[280px] bg-[#cff3fd] h-full flex flex-col py-10 px-4 overflow-y-auto shrink-0">
+            <div className="w-[280px] bg-brand-tint h-full flex flex-col py-10 px-4 overflow-y-auto shrink-0">
               <div className="w-full flex flex-col h-full">
-                <div className="text-[12px] font-extrabold text-slate-500 uppercase tracking-wider mb-2 px-4">
+                <div className="text-[12px] font-extrabold text-muted uppercase tracking-wider mb-2 px-4">
                   Settings
                 </div>
                 <button
                   onClick={() => setActiveSettingsTab("account")}
-                  className={`w-full text-left px-4 py-2 rounded-full text-[15px] font-bold transition-all mb-1 flex items-center gap-3 ${activeSettingsTab === "account" ? "bg-blue-500 text-white shadow-md" : "text-slate-700 hover:bg-white/50 hover:text-slate-900"}`}
+                  className={`w-full text-left px-4 py-2 rounded-full text-[15px] font-bold transition-all mb-1 flex items-center gap-3 ${activeSettingsTab === "account" ? "bg-brand text-white shadow-md" : "text-secondary hover:bg-surface/50 hover:text-primary"}`}
                 >
                   <UserCircle size={18} />
                   Account
                 </button>
                 <button
                   onClick={() => setActiveSettingsTab("profiles")}
-                  className={`w-full text-left px-4 py-2 rounded-full text-[15px] font-bold transition-all mb-1 flex items-center gap-3 ${activeSettingsTab === "profiles" ? "bg-blue-500 text-white shadow-md" : "text-slate-700 hover:bg-white/50 hover:text-slate-900"}`}
+                  className={`w-full text-left px-4 py-2 rounded-full text-[15px] font-bold transition-all mb-1 flex items-center gap-3 ${activeSettingsTab === "profiles" ? "bg-brand text-white shadow-md" : "text-secondary hover:bg-surface/50 hover:text-primary"}`}
                 >
                   <User size={18} />
                   Profiles
                 </button>
                 <button
                   onClick={() => setActiveSettingsTab("data_privacy")}
-                  className={`w-full text-left px-4 py-2 rounded-full text-[15px] font-bold transition-all mb-1 flex items-center gap-3 ${activeSettingsTab === "data_privacy" ? "bg-blue-500 text-white shadow-md" : "text-slate-700 hover:bg-white/50 hover:text-slate-900"}`}
+                  className={`w-full text-left px-4 py-2 rounded-full text-[15px] font-bold transition-all mb-1 flex items-center gap-3 ${activeSettingsTab === "data_privacy" ? "bg-brand text-white shadow-md" : "text-secondary hover:bg-surface/50 hover:text-primary"}`}
                 >
                   <Lock size={18} />
                   Privacy
                 </button>
 
-                <div className="text-[12px] font-extrabold text-slate-500 uppercase tracking-wider mt-6 mb-2 px-4">
+                <div className="text-[12px] font-extrabold text-muted uppercase tracking-wider mt-6 mb-2 px-4">
                   App Settings
                 </div>
                 <button
                   onClick={() => setActiveSettingsTab("appearance")}
-                  className={`w-full text-left px-4 py-2 rounded-full text-[15px] font-bold transition-all mb-1 flex items-center gap-3 ${activeSettingsTab === "appearance" ? "bg-blue-500 text-white shadow-md" : "text-slate-700 hover:bg-white/50 hover:text-slate-900"}`}
+                  className={`w-full text-left px-4 py-2 rounded-full text-[15px] font-bold transition-all mb-1 flex items-center gap-3 ${activeSettingsTab === "appearance" ? "bg-brand text-white shadow-md" : "text-secondary hover:bg-surface/50 hover:text-primary"}`}
                 >
                   <Palette size={18} />
                   Appearance
                 </button>
                 <button
                   onClick={() => setActiveSettingsTab("language")}
-                  className={`w-full text-left px-4 py-2 rounded-full text-[15px] font-bold transition-all mb-1 flex items-center gap-3 ${activeSettingsTab === "language" ? "bg-blue-500 text-white shadow-md" : "text-slate-700 hover:bg-white/50 hover:text-slate-900"}`}
+                  className={`w-full text-left px-4 py-2 rounded-full text-[15px] font-bold transition-all mb-1 flex items-center gap-3 ${activeSettingsTab === "language" ? "bg-brand text-white shadow-md" : "text-secondary hover:bg-surface/50 hover:text-primary"}`}
                 >
                   <Settings2 size={18} />
                   General Preferences
@@ -2151,34 +2154,34 @@ export default function ChatPage() {
             </div>
 
             {/* Main Content Pane */}
-            <div className="flex-1 h-full bg-white relative flex justify-start">
-              <div className="p-4 pt-6 flex-2 h-full bg-white relative overflow-y-auto">
+            <div className="flex-1 h-full bg-surface relative flex justify-start">
+              <div className="p-4 pt-6 flex-2 h-full bg-surface relative overflow-y-auto">
                 {/* Close Button Overlay */}
                 <div
                   className="sticky top-2 right-4 float-right flex flex-col items-center gap-1.5 group cursor-pointer z-20 mt-4 ml-4"
                   onClick={() => setIsSettingsModalOpen(false)}
                 >
-                  <div className="h-9 w-9 rounded-full border-2 border-slate-300 flex items-center justify-center text-slate-400 group-hover:bg-slate-200 group-hover:text-slate-800 transition-colors">
+                  <div className="h-9 w-9 rounded-full border-2 border-subtle flex items-center justify-center text-muted group-hover:bg-surface-muted group-hover:text-primary transition-colors">
                     <X size={18} strokeWidth={2.5} />
                   </div>
                 </div>
 
                 {activeSettingsTab === "account" && (
                   <div className="max-w-[600px]">
-                    <h2 className="text-[20px] font-bold text-slate-900 mb-6">
+                    <h2 className="text-[20px] font-bold text-primary mb-6">
                       My Account
                     </h2>
 
                     {/* Account Info Card */}
-                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 mb-6">
-                      <h3 className="text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-4">
+                    <div className="bg-surface-alt border border-subtle rounded-xl p-5 mb-6">
+                      <h3 className="text-[12px] font-bold text-muted uppercase tracking-wider mb-4">
                         Account Info
                       </h3>
 
                       {/* Username Field */}
-                      <div className="flex items-center justify-between py-3 border-b border-slate-200 last:border-0">
+                      <div className="flex items-center justify-between py-3 border-b border-subtle last:border-0">
                         <div className="flex-1">
-                          <div className="text-[13px] font-bold text-slate-500 uppercase mb-1">
+                          <div className="text-[13px] font-bold text-muted uppercase mb-1">
                             Username
                           </div>
                           {editingField === "username" ? (
@@ -2187,11 +2190,11 @@ export default function ChatPage() {
                                 type="text"
                                 value={editValue}
                                 onChange={(e) => setEditValue(e.target.value)}
-                                className="w-full bg-white border border-slate-200 rounded-[4px] p-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#00a8fc] text-[15px]"
+                                className="w-full bg-surface border border-subtle rounded-[4px] p-2 text-primary focus:outline-none focus:ring-1 focus:ring-brand text-[15px]"
                               />
                             </div>
                           ) : (
-                            <div className="text-[16px] font-medium text-slate-900">
+                            <div className="text-[16px] font-medium text-primary">
                               {authUser?.username}
                             </div>
                           )}
@@ -2200,7 +2203,7 @@ export default function ChatPage() {
                           <div className="flex gap-2">
                             <button
                               onClick={() => setEditingField(null)}
-                              className="px-4 py-2 text-slate-500 hover:text-slate-800 text-[14px] font-medium transition-colors shrink-0"
+                              className="px-4 py-2 text-muted hover:text-primary text-[14px] font-medium transition-colors shrink-0"
                             >
                               Cancel
                             </button>
@@ -2222,7 +2225,7 @@ export default function ChatPage() {
                               setEditingField("username");
                               setEditValue(authUser?.username || "");
                             }}
-                            className="px-5 py-1.5 bg-[#3b82f6] hover:bg-blue-600 shadow-md text-white text-[14px] font-bold rounded-full transition-colors shrink-0 ml-4"
+                            className="px-5 py-1.5 bg-brand hover:bg-brand-hover shadow-md text-white text-[14px] font-bold rounded-full transition-colors shrink-0 ml-4"
                           >
                             Edit
                           </button>
@@ -2230,9 +2233,9 @@ export default function ChatPage() {
                       </div>
 
                       {/* Email Field */}
-                      <div className="flex items-center justify-between py-3 border-b border-slate-200 last:border-0">
+                      <div className="flex items-center justify-between py-3 border-b border-subtle last:border-0">
                         <div className="flex-1">
-                          <div className="text-[13px] font-bold text-slate-500 uppercase mb-1">
+                          <div className="text-[13px] font-bold text-muted uppercase mb-1">
                             Email
                           </div>
                           {editingField === "email" ? (
@@ -2241,11 +2244,11 @@ export default function ChatPage() {
                                 type="email"
                                 value={editValue}
                                 onChange={(e) => setEditValue(e.target.value)}
-                                className="w-full bg-white border border-slate-200 rounded-[4px] p-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#00a8fc] text-[15px]"
+                                className="w-full bg-surface border border-subtle rounded-[4px] p-2 text-primary focus:outline-none focus:ring-1 focus:ring-brand text-[15px]"
                               />
                             </div>
                           ) : (
-                            <div className="text-[16px] font-medium text-slate-900 flex items-center gap-2">
+                            <div className="text-[16px] font-medium text-primary flex items-center gap-2">
                               {authUser?.email}
                             </div>
                           )}
@@ -2254,7 +2257,7 @@ export default function ChatPage() {
                           <div className="flex gap-2">
                             <button
                               onClick={() => setEditingField(null)}
-                              className="px-4 py-2 text-slate-500 hover:text-slate-800 text-[14px] font-medium transition-colors shrink-0"
+                              className="px-4 py-2 text-muted hover:text-primary text-[14px] font-medium transition-colors shrink-0"
                             >
                               Cancel
                             </button>
@@ -2276,7 +2279,7 @@ export default function ChatPage() {
                               setEditingField("email");
                               setEditValue(authUser?.email || "");
                             }}
-                            className="px-5 py-1.5 bg-[#3b82f6] hover:bg-blue-600 shadow-md text-white text-[14px] font-bold rounded-full transition-colors shrink-0 ml-4"
+                            className="px-5 py-1.5 bg-brand hover:bg-brand-hover shadow-md text-white text-[14px] font-bold rounded-full transition-colors shrink-0 ml-4"
                           >
                             Edit
                           </button>
@@ -2284,9 +2287,9 @@ export default function ChatPage() {
                       </div>
 
                       {/* Phone Number Field */}
-                      <div className="flex items-center justify-between py-3 border-b border-slate-200 last:border-0">
+                      <div className="flex items-center justify-between py-3 border-b border-subtle last:border-0">
                         <div className="flex-1">
-                          <div className="text-[13px] font-bold text-slate-500 uppercase mb-1">
+                          <div className="text-[13px] font-bold text-muted uppercase mb-1">
                             Phone Number
                           </div>
                           {editingField === "phone" ? (
@@ -2296,11 +2299,11 @@ export default function ChatPage() {
                                 placeholder="e.g. +1 555 123 4567"
                                 value={editValue}
                                 onChange={(e) => setEditValue(e.target.value)}
-                                className="w-full bg-white border border-slate-200 rounded-[4px] p-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#00a8fc] text-[15px]"
+                                className="w-full bg-surface border border-subtle rounded-[4px] p-2 text-primary focus:outline-none focus:ring-1 focus:ring-brand text-[15px]"
                               />
                             </div>
                           ) : (
-                            <div className="text-[16px] font-medium text-slate-900">
+                            <div className="text-[16px] font-medium text-primary">
                               {/* @ts-expect-error - Phone is added dynamically */}
                               {authUser?.phone ||
                                 "You haven't added a phone number yet."}
@@ -2311,7 +2314,7 @@ export default function ChatPage() {
                           <div className="flex gap-2">
                             <button
                               onClick={() => setEditingField(null)}
-                              className="px-4 py-2 text-slate-500 hover:text-slate-800 text-[14px] font-medium transition-colors shrink-0"
+                              className="px-4 py-2 text-muted hover:text-primary text-[14px] font-medium transition-colors shrink-0"
                             >
                               Cancel
                             </button>
@@ -2334,7 +2337,7 @@ export default function ChatPage() {
                               // @ts-expect-error - Phone is added dynamically
                               setEditValue(authUser?.phone || "");
                             }}
-                            className="px-5 py-1.5 bg-[#3b82f6] hover:bg-blue-600 shadow-md text-white text-[14px] font-bold rounded-full transition-colors shrink-0 ml-4"
+                            className="px-5 py-1.5 bg-brand hover:bg-brand-hover shadow-md text-white text-[14px] font-bold rounded-full transition-colors shrink-0 ml-4"
                           >
                             {authUser?.phone ? "Edit" : "Add"}
                           </button>
@@ -2343,21 +2346,21 @@ export default function ChatPage() {
                     </div>
 
                     {/* Password & Security Card */}
-                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 mb-6">
-                      <h3 className="text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-4">
+                    <div className="bg-surface-alt border border-subtle rounded-xl p-5 mb-6">
+                      <h3 className="text-[12px] font-bold text-muted uppercase tracking-wider mb-4">
                         Password & Security
                       </h3>
 
                       {/* Password Field */}
-                      <div className="flex items-start justify-between py-3 border-b border-slate-200 last:border-0">
+                      <div className="flex items-start justify-between py-3 border-b border-subtle last:border-0">
                         <div className="flex-1">
-                          <div className="text-[16px] font-medium text-slate-900 mb-2">
+                          <div className="text-[16px] font-medium text-primary mb-2">
                             Password
                           </div>
                           {editingField === "password" && (
                             <div className="flex flex-col gap-3 max-w-[300px]">
                               <div>
-                                <label className="block text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                                <label className="block text-[12px] font-bold text-muted uppercase tracking-wider mb-1">
                                   Current Password
                                 </label>
                                 <input
@@ -2366,11 +2369,11 @@ export default function ChatPage() {
                                   onChange={(e) =>
                                     setEditOldPassword(e.target.value)
                                   }
-                                  className="w-full bg-white border border-slate-200 rounded-[4px] p-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#00a8fc] text-[15px]"
+                                  className="w-full bg-surface border border-subtle rounded-[4px] p-2 text-primary focus:outline-none focus:ring-1 focus:ring-brand text-[15px]"
                                 />
                               </div>
                               <div>
-                                <label className="block text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                                <label className="block text-[12px] font-bold text-muted uppercase tracking-wider mb-1">
                                   New Password
                                 </label>
                                 <input
@@ -2379,7 +2382,7 @@ export default function ChatPage() {
                                   onChange={(e) =>
                                     setEditNewPassword(e.target.value)
                                   }
-                                  className="w-full bg-white border border-slate-200 rounded-[4px] p-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#00a8fc] text-[15px]"
+                                  className="w-full bg-surface border border-subtle rounded-[4px] p-2 text-primary focus:outline-none focus:ring-1 focus:ring-brand text-[15px]"
                                 />
                               </div>
                             </div>
@@ -2393,7 +2396,7 @@ export default function ChatPage() {
                                 setEditOldPassword("");
                                 setEditNewPassword("");
                               }}
-                              className="px-4 py-2 text-slate-500 hover:text-slate-800 text-[14px] font-medium transition-colors shrink-0"
+                              className="px-4 py-2 text-muted hover:text-primary text-[14px] font-medium transition-colors shrink-0"
                             >
                               Cancel
                             </button>
@@ -2416,18 +2419,18 @@ export default function ChatPage() {
                         ) : (
                           <button
                             onClick={() => setEditingField("password")}
-                            className="px-5 py-1.5 bg-[#3b82f6] hover:bg-blue-600 shadow-md text-white text-[14px] font-bold rounded-full transition-colors shrink-0 ml-4"
+                            className="px-5 py-1.5 bg-brand hover:bg-brand-hover shadow-md text-white text-[14px] font-bold rounded-full transition-colors shrink-0 ml-4"
                           >
                             Edit
                           </button>
                         )}
                       </div>
 
-                      <div className="flex items-center justify-between py-4 border-b border-slate-200 last:border-0 cursor-pointer group">
-                        <div className="text-[16px] font-medium text-slate-900">
+                      <div className="flex items-center justify-between py-4 border-b border-subtle last:border-0 cursor-pointer group">
+                        <div className="text-[16px] font-medium text-primary">
                           Multi-Factor Authentication
                         </div>
-                        <div className="flex items-center gap-2 text-slate-500 group-hover:text-slate-800 transition-colors">
+                        <div className="flex items-center gap-2 text-muted group-hover:text-primary transition-colors">
                           <span className="text-[15px] font-medium">
                             Set up
                           </span>
@@ -2435,11 +2438,11 @@ export default function ChatPage() {
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between py-4 border-b border-slate-200 last:border-0 cursor-pointer group">
-                        <div className="text-[16px] font-medium text-slate-900">
+                      <div className="flex items-center justify-between py-4 border-b border-subtle last:border-0 cursor-pointer group">
+                        <div className="text-[16px] font-medium text-primary">
                           Logged-in Devices
                         </div>
-                        <div className="flex items-center gap-2 text-slate-500 group-hover:text-slate-800 transition-colors">
+                        <div className="flex items-center gap-2 text-muted group-hover:text-primary transition-colors">
                           <span className="text-[15px] font-medium">
                             1 device
                           </span>
@@ -2449,8 +2452,8 @@ export default function ChatPage() {
                     </div>
 
                     {/* Account Standing Card */}
-                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 mb-6">
-                      <h3 className="text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-4">
+                    <div className="bg-surface-alt border border-subtle rounded-xl p-5 mb-6">
+                      <h3 className="text-[12px] font-bold text-muted uppercase tracking-wider mb-4">
                         Account Standing
                       </h3>
                       <div className="py-1">
@@ -2464,14 +2467,14 @@ export default function ChatPage() {
 
                 {activeSettingsTab === "profiles" && (
                   <div className="max-w-[600px]">
-                    <h2 className="text-[20px] font-bold text-slate-900 mb-6">
+                    <h2 className="text-[20px] font-bold text-primary mb-6">
                       Profiles
                     </h2>
 
-                    <div className="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden mb-6 border border-slate-200">
+                    <div className="bg-surface-alt border border-subtle rounded-xl overflow-hidden mb-6 border border-subtle">
                       {/* Banner Area */}
                       <div
-                        className="h-[120px] w-full bg-white border border-slate-200 relative group cursor-pointer overflow-hidden"
+                        className="h-[120px] w-full bg-surface border border-subtle relative group cursor-pointer overflow-hidden"
                         onClick={() => bannerInputRef.current?.click()}
                       >
                         {settingsBannerPreview ? (
@@ -2512,7 +2515,7 @@ export default function ChatPage() {
                       <div className="relative px-6 pb-6">
                         <div className="absolute -top-12 flex items-end">
                           <div
-                            className="h-[100px] w-[100px] rounded-full bg-slate-50 border border-slate-200 border-[6px] border-[#2b2d31] shadow-lg relative group cursor-pointer overflow-hidden"
+                            className="h-[100px] w-[100px] rounded-full bg-surface-alt border border-subtle border-[6px] border-[#2b2d31] shadow-lg relative group cursor-pointer overflow-hidden"
                             onClick={() => setIsSettingsAvatarModalOpen(true)}
                           >
                             <img
@@ -2541,7 +2544,7 @@ export default function ChatPage() {
                         <div className="pt-16 space-y-5">
                           {/* Name */}
                           <div>
-                            <label className="block text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-2">
+                            <label className="block text-[12px] font-bold text-muted uppercase tracking-wider mb-2">
                               Display Name
                             </label>
                             <input
@@ -2550,19 +2553,19 @@ export default function ChatPage() {
                               onChange={(e) =>
                                 setSettingsDisplayName(e.target.value)
                               }
-                              className="w-full bg-white border border-slate-200 border-none rounded-[4px] p-2.5 text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#00a8fc] text-[15px]"
+                              className="w-full bg-surface border border-subtle border-none rounded-[4px] p-2.5 text-primary focus:outline-none focus:ring-1 focus:ring-brand text-[15px]"
                             />
                           </div>
 
                           {/* Bio */}
                           <div>
-                            <label className="block text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-2">
+                            <label className="block text-[12px] font-bold text-muted uppercase tracking-wider mb-2">
                               About Me
                             </label>
                             <textarea
                               value={settingsBio}
                               onChange={(e) => setSettingsBio(e.target.value)}
-                              className="w-full bg-white border border-slate-200 border-none rounded-[4px] p-2.5 h-24 resize-none text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#00a8fc] text-[15px]"
+                              className="w-full bg-surface border border-subtle border-none rounded-[4px] p-2.5 h-24 resize-none text-primary focus:outline-none focus:ring-1 focus:ring-brand text-[15px]"
                             />
                           </div>
                         </div>
@@ -2587,21 +2590,21 @@ export default function ChatPage() {
 
                 {activeSettingsTab === "data_privacy" && (
                   <div className="max-w-[600px]">
-                    <h2 className="text-[20px] font-bold text-slate-900 mb-6">
+                    <h2 className="text-[20px] font-bold text-primary mb-6">
                       Data & Privacy
                     </h2>
 
                     <div className="mb-8">
-                      <h3 className="text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-4">
+                      <h3 className="text-[12px] font-bold text-muted uppercase tracking-wider mb-4">
                         How We Use Your Data
                       </h3>
 
-                      <div className="flex items-start justify-between py-4 border-b border-slate-200">
+                      <div className="flex items-start justify-between py-4 border-b border-subtle">
                         <div className="pr-8">
-                          <div className="text-[16px] font-medium text-slate-900 mb-1">
+                          <div className="text-[16px] font-medium text-primary mb-1">
                             Use data to improve Talk
                           </div>
-                          <div className="text-[14px] text-slate-500">
+                          <div className="text-[14px] text-muted">
                             This setting allows us to use and process
                             information about how you navigate and use Talk for
                             analytical purposes.
@@ -2612,12 +2615,12 @@ export default function ChatPage() {
                         </div>
                       </div>
 
-                      <div className="flex items-start justify-between py-4 border-b border-slate-200">
+                      <div className="flex items-start justify-between py-4 border-b border-subtle">
                         <div className="pr-8">
-                          <div className="text-[16px] font-medium text-slate-900 mb-1">
+                          <div className="text-[16px] font-medium text-primary mb-1">
                             Use data to customize my experience
                           </div>
-                          <div className="text-[14px] text-slate-500">
+                          <div className="text-[14px] text-muted">
                             This setting allows us to use information to
                             customize your experience on Talk.
                           </div>
@@ -2627,12 +2630,12 @@ export default function ChatPage() {
                         </div>
                       </div>
 
-                      <div className="flex items-start justify-between py-4 border-b border-slate-200">
+                      <div className="flex items-start justify-between py-4 border-b border-subtle">
                         <div className="pr-8">
-                          <div className="text-[16px] font-medium text-slate-900 mb-1">
+                          <div className="text-[16px] font-medium text-primary mb-1">
                             Allow direct messages from server members
                           </div>
-                          <div className="text-[14px] text-slate-500">
+                          <div className="text-[14px] text-muted">
                             This setting is applied when you join a new server.
                             It does not affect your existing servers.
                           </div>
@@ -2644,10 +2647,10 @@ export default function ChatPage() {
                     </div>
 
                     <div>
-                      <h3 className="text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-4">
+                      <h3 className="text-[12px] font-bold text-muted uppercase tracking-wider mb-4">
                         Request Data
                       </h3>
-                      <div className="text-[14px] text-slate-500 mb-4">
+                      <div className="text-[14px] text-muted mb-4">
                         You can request a copy of your personal data. It may
                         take up to 30 days to process your request.
                       </div>
@@ -2660,32 +2663,49 @@ export default function ChatPage() {
 
                 {activeSettingsTab === "appearance" && (
                   <div className="max-w-[600px]">
-                    <h2 className="text-[20px] font-bold text-slate-900 mb-6">
+                    <h2 className="text-[20px] font-bold text-primary mb-6">
                       Appearance
                     </h2>
 
                     <div className="mb-8">
-                      <h3 className="text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-4">
+                      <h3 className="text-[12px] font-bold text-muted uppercase tracking-wider mb-4">
                         Theme
                       </h3>
                       <div className="flex gap-4">
-                        <div className="flex-1 bg-white border border-slate-200 border-2 border-[#5865f2] rounded-[8px] p-4 cursor-pointer relative">
-                          <div className="absolute top-2 right-2 w-5 h-5 bg-[#5865f2] rounded-full flex items-center justify-center">
-                            <div className="w-2 h-2 bg-white rounded-full"></div>
-                          </div>
-                          <div className="w-full h-[60px] bg-white rounded-md mb-3 flex items-center px-3">
-                            <div className="w-6 h-6 rounded-full bg-slate-50 border border-slate-200 shrink-0 mr-3"></div>
+                        <button
+                          onClick={() => setTheme("dark")}
+                          className={`flex-1 bg-surface border-2 rounded-[8px] p-4 cursor-pointer relative transition-colors ${
+                            currentTheme === "dark" ? "border-brand" : "border-transparent"
+                          }`}
+                        >
+                          {currentTheme === "dark" && (
+                            <div className="absolute top-2 right-2 w-5 h-5 bg-brand rounded-full flex items-center justify-center">
+                              <div className="w-2 h-2 bg-white rounded-full"></div>
+                            </div>
+                          )}
+                          <div className="w-full h-[60px] bg-[#12171f] rounded-md mb-3 flex items-center px-3">
+                            <div className="w-6 h-6 rounded-full bg-[#1c2330] border border-[#262e3d] shrink-0 mr-3"></div>
                             <div className="flex-1 space-y-1.5">
-                              <div className="w-16 h-2 bg-slate-50 border border-slate-200 rounded-full"></div>
-                              <div className="w-full h-2 bg-slate-50 border border-slate-200 rounded-full"></div>
+                              <div className="w-16 h-2 bg-[#1c2330] border border-[#262e3d] rounded-full"></div>
+                              <div className="w-full h-2 bg-[#1c2330] border border-[#262e3d] rounded-full"></div>
                             </div>
                           </div>
-                          <div className="text-[14px] font-bold text-slate-800 text-center">
+                          <div className="text-[14px] font-bold text-primary text-center">
                             Dark
                           </div>
-                        </div>
+                        </button>
 
-                        <div className="flex-1 bg-white border-2 border-transparent rounded-[8px] p-4 cursor-pointer relative">
+                        <button
+                          onClick={() => setTheme("light")}
+                          className={`flex-1 bg-surface border-2 rounded-[8px] p-4 cursor-pointer relative transition-colors ${
+                            currentTheme === "light" ? "border-brand" : "border-transparent"
+                          }`}
+                        >
+                          {currentTheme === "light" && (
+                            <div className="absolute top-2 right-2 w-5 h-5 bg-brand rounded-full flex items-center justify-center">
+                              <div className="w-2 h-2 bg-white rounded-full"></div>
+                            </div>
+                          )}
                           <div className="w-full h-[60px] bg-[#f2f3f5] rounded-md mb-3 flex items-center px-3">
                             <div className="w-6 h-6 rounded-full bg-white shrink-0 mr-3 shadow-sm"></div>
                             <div className="flex-1 space-y-1.5">
@@ -2693,52 +2713,10 @@ export default function ChatPage() {
                               <div className="w-full h-2 bg-white shadow-sm rounded-full"></div>
                             </div>
                           </div>
-                          <div className="text-[14px] font-bold text-slate-600 text-center">
+                          <div className="text-[14px] font-bold text-primary text-center">
                             Light
                           </div>
-                        </div>
-
-                        <div className="flex-1 bg-gradient-to-br from-[#1e1f22] to-[#e3e5e8] border-2 border-transparent rounded-[8px] p-4 cursor-pointer relative">
-                          <div className="w-full h-[60px] flex rounded-md mb-3 overflow-hidden">
-                            <div className="flex-1 bg-white h-full flex items-center px-2">
-                              <div className="w-4 h-4 rounded-full bg-slate-50 border border-slate-200"></div>
-                            </div>
-                            <div className="flex-1 bg-[#f2f3f5] h-full flex items-center px-2">
-                              <div className="w-4 h-4 rounded-full bg-white shadow-sm"></div>
-                            </div>
-                          </div>
-                          <div className="text-[14px] font-bold text-slate-300 text-center">
-                            Sync
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <h3 className="text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-4">
-                        Message Display
-                      </h3>
-                      <div className="space-y-2">
-                        <label className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-slate-100 transition-colors">
-                          <div className="w-5 h-5 rounded-full border-2 border-[#5865f2] flex items-center justify-center shrink-0">
-                            <div className="w-2.5 h-2.5 bg-[#5865f2] rounded-full"></div>
-                          </div>
-                          <span className="text-[15px] font-medium text-slate-900">
-                            Cozy{" "}
-                            <span className="text-slate-500 font-normal text-[13px] ml-1">
-                              Modern, beautiful, and easy on your eyes.
-                            </span>
-                          </span>
-                        </label>
-                        <label className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-slate-100 transition-colors">
-                          <div className="w-5 h-5 rounded-full border-2 border-slate-300 shrink-0"></div>
-                          <span className="text-[15px] font-medium text-slate-900">
-                            Compact{" "}
-                            <span className="text-slate-500 font-normal text-[13px] ml-1">
-                              Fit as many messages on screen as possible.
-                            </span>
-                          </span>
-                        </label>
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -2746,26 +2724,26 @@ export default function ChatPage() {
 
                 {activeSettingsTab === "language" && (
                   <div className="max-w-[600px] pb-10">
-                    <h2 className="text-[20px] font-bold text-slate-900 mb-6">
+                    <h2 className="text-[20px] font-bold text-primary mb-6">
                       General Preferences
                     </h2>
 
                     {/* Language Card */}
-                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 mb-6">
-                      <h3 className="text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-4">
+                    <div className="bg-surface-alt border border-subtle rounded-xl p-5 mb-6">
+                      <h3 className="text-[12px] font-bold text-muted uppercase tracking-wider mb-4">
                         Language
                       </h3>
-                      <div className="text-[14px] text-slate-500 mb-6">
+                      <div className="text-[14px] text-muted mb-6">
                         Select the language you want to use Talk in.
                       </div>
 
                       <div className="space-y-1">
-                        <div className="flex items-center justify-between p-3 rounded bg-slate-200 cursor-pointer">
+                        <div className="flex items-center justify-between p-3 rounded bg-surface-muted cursor-pointer">
                           <div>
-                            <div className="text-[15px] font-medium text-slate-900">
+                            <div className="text-[15px] font-medium text-primary">
                               English (US)
                             </div>
-                            <div className="text-[13px] text-slate-500">
+                            <div className="text-[13px] text-muted">
                               English (US)
                             </div>
                           </div>
@@ -2774,105 +2752,105 @@ export default function ChatPage() {
                           </div>
                         </div>
 
-                        <div className="flex items-center justify-between p-3 rounded hover:bg-slate-100 cursor-pointer transition-colors">
+                        <div className="flex items-center justify-between p-3 rounded hover:bg-surface-alt cursor-pointer transition-colors">
                           <div>
-                            <div className="text-[15px] font-medium text-slate-900">
+                            <div className="text-[15px] font-medium text-primary">
                               English (UK)
                             </div>
-                            <div className="text-[13px] text-slate-500">
+                            <div className="text-[13px] text-muted">
                               English (UK)
                             </div>
                           </div>
-                          <div className="w-5 h-5 rounded-full border-2 border-slate-300 shrink-0"></div>
+                          <div className="w-5 h-5 rounded-full border-2 border-subtle shrink-0"></div>
                         </div>
 
-                        <div className="flex items-center justify-between p-3 rounded hover:bg-slate-100 cursor-pointer transition-colors">
+                        <div className="flex items-center justify-between p-3 rounded hover:bg-surface-alt cursor-pointer transition-colors">
                           <div>
-                            <div className="text-[15px] font-medium text-slate-900">
+                            <div className="text-[15px] font-medium text-primary">
                               Español
                             </div>
-                            <div className="text-[13px] text-slate-500">
+                            <div className="text-[13px] text-muted">
                               Spanish
                             </div>
                           </div>
-                          <div className="w-5 h-5 rounded-full border-2 border-slate-300 shrink-0"></div>
+                          <div className="w-5 h-5 rounded-full border-2 border-subtle shrink-0"></div>
                         </div>
                       </div>
                     </div>
 
                     {/* Other Preferences Card */}
-                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 mb-6">
-                      <h3 className="text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-4">
+                    <div className="bg-surface-alt border border-subtle rounded-xl p-5 mb-6">
+                      <h3 className="text-[12px] font-bold text-muted uppercase tracking-wider mb-4">
                         Other Preferences
                       </h3>
 
-                      <div className="flex items-center justify-between py-4 border-b border-slate-200 last:border-0 cursor-pointer group">
-                        <span className="text-[16px] font-medium text-slate-900">
+                      <div className="flex items-center justify-between py-4 border-b border-subtle last:border-0 cursor-pointer group">
+                        <span className="text-[16px] font-medium text-primary">
                           Autoplay videos
                         </span>
                         <div className="flex items-center gap-2">
-                          <span className="text-[15px] font-medium text-slate-500 group-hover:text-slate-800 transition-colors">
+                          <span className="text-[15px] font-medium text-muted group-hover:text-primary transition-colors">
                             On
                           </span>
                           <ArrowRight
                             size={18}
-                            className="text-slate-500 group-hover:text-slate-800 transition-colors"
+                            className="text-muted group-hover:text-primary transition-colors"
                           />
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between py-4 border-b border-slate-200 last:border-0 cursor-pointer group">
-                        <span className="text-[16px] font-medium text-slate-900">
+                      <div className="flex items-center justify-between py-4 border-b border-subtle last:border-0 cursor-pointer group">
+                        <span className="text-[16px] font-medium text-primary">
                           Sound effects
                         </span>
                         <div className="flex items-center gap-2">
-                          <span className="text-[15px] font-medium text-slate-500 group-hover:text-slate-800 transition-colors">
+                          <span className="text-[15px] font-medium text-muted group-hover:text-primary transition-colors">
                             On
                           </span>
                           <ArrowRight
                             size={18}
-                            className="text-slate-500 group-hover:text-slate-800 transition-colors"
+                            className="text-muted group-hover:text-primary transition-colors"
                           />
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between py-4 border-b border-slate-200 last:border-0 cursor-pointer group">
-                        <span className="text-[16px] font-medium text-slate-900">
+                      <div className="flex items-center justify-between py-4 border-b border-subtle last:border-0 cursor-pointer group">
+                        <span className="text-[16px] font-medium text-primary">
                           Showing profile photos
                         </span>
                         <div className="flex items-center gap-2">
-                          <span className="text-[15px] font-medium text-slate-500 group-hover:text-slate-800 transition-colors">
+                          <span className="text-[15px] font-medium text-muted group-hover:text-primary transition-colors">
                             All Talk members
                           </span>
                           <ArrowRight
                             size={18}
-                            className="text-slate-500 group-hover:text-slate-800 transition-colors"
+                            className="text-muted group-hover:text-primary transition-colors"
                           />
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between py-4 border-b border-slate-200 last:border-0 cursor-pointer group">
-                        <span className="text-[16px] font-medium text-slate-900">
+                      <div className="flex items-center justify-between py-4 border-b border-subtle last:border-0 cursor-pointer group">
+                        <span className="text-[16px] font-medium text-primary">
                           Preferred feed view
                         </span>
                         <div className="flex items-center gap-2">
-                          <span className="text-[15px] font-medium text-slate-500 group-hover:text-slate-800 transition-colors">
+                          <span className="text-[15px] font-medium text-muted group-hover:text-primary transition-colors">
                             Most relevant posts (Recommended)
                           </span>
                           <ArrowRight
                             size={18}
-                            className="text-slate-500 group-hover:text-slate-800 transition-colors"
+                            className="text-muted group-hover:text-primary transition-colors"
                           />
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between py-4 border-b border-slate-200 last:border-0 cursor-pointer group">
-                        <span className="text-[16px] font-medium text-slate-900">
+                      <div className="flex items-center justify-between py-4 border-b border-subtle last:border-0 cursor-pointer group">
+                        <span className="text-[16px] font-medium text-primary">
                           People you unfollowed
                         </span>
                         <ArrowRight
                           size={18}
-                          className="text-slate-500 group-hover:text-slate-800 transition-colors"
+                          className="text-muted group-hover:text-primary transition-colors"
                         />
                       </div>
                     </div>
@@ -2887,27 +2865,27 @@ export default function ChatPage() {
       {/* Lodge Modal (Discover & Create) */}
       {isLodgeModalOpen && (
         <div className="fixed inset-0 bg-[#1e2532]/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-[24px] w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200 flex flex-col max-h-[85vh]">
-            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
-              <h2 className="text-lg font-extrabold text-slate-900">Lodges</h2>
+          <div className="bg-surface rounded-[24px] w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200 flex flex-col max-h-[85vh]">
+            <div className="px-6 py-4 border-b border-subtle flex items-center justify-between shrink-0">
+              <h2 className="text-lg font-extrabold text-primary">Lodges</h2>
               <button
                 onClick={() => setIsLodgeModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 transition-colors"
+                className="text-muted hover:text-secondary transition-colors"
               >
                 <X size={24} />
               </button>
             </div>
 
-            <div className="flex border-b border-slate-100 shrink-0">
+            <div className="flex border-b border-subtle shrink-0">
               <button
                 onClick={() => setLodgeModalTab("discover")}
-                className={`flex-1 py-3 text-sm font-bold transition-colors ${lodgeModalTab === "discover" ? "text-[#3B82F6] border-b-2 border-blue-500" : "text-slate-500 hover:text-slate-700"}`}
+                className={`flex-1 py-3 text-sm font-bold transition-colors ${lodgeModalTab === "discover" ? "text-brand border-b-2 border-brand" : "text-secondary hover:text-primary"}`}
               >
                 Discover
               </button>
               <button
                 onClick={() => setLodgeModalTab("create")}
-                className={`flex-1 py-3 text-sm font-bold transition-colors ${lodgeModalTab === "create" ? "text-[#3B82F6] border-b-2 border-blue-500" : "text-slate-500 hover:text-slate-700"}`}
+                className={`flex-1 py-3 text-sm font-bold transition-colors ${lodgeModalTab === "create" ? "text-brand border-b-2 border-brand" : "text-secondary hover:text-primary"}`}
               >
                 Create Lodge
               </button>
@@ -2920,7 +2898,7 @@ export default function ChatPage() {
                     {/* Avatar Upload */}
                     <div className="flex justify-center">
                       <div
-                        className="h-24 w-24 rounded-[20px] border-2 border-dashed border-slate-200 bg-slate-50 flex flex-col items-center justify-center overflow-hidden cursor-pointer hover:bg-slate-100 transition-colors relative"
+                        className="h-24 w-24 rounded-[20px] border-2 border-dashed border-subtle bg-surface-muted flex flex-col items-center justify-center overflow-hidden cursor-pointer hover:bg-surface-alt transition-colors relative"
                         onClick={() => lodgeFileInputRef.current?.click()}
                       >
                         {lodgeAvatar ? (
@@ -2930,7 +2908,7 @@ export default function ChatPage() {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <Building2 size={32} className="text-[#3B82F6]" />
+                          <Building2 size={32} className="text-brand" />
                         )}
                         <input
                           type="file"
@@ -2947,7 +2925,7 @@ export default function ChatPage() {
 
                     {/* Name */}
                     <div>
-                      <label className="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">
+                      <label className="block text-[11px] font-extrabold text-secondary uppercase tracking-wider mb-2">
                         Lodge Name
                       </label>
                       <input
@@ -2955,29 +2933,29 @@ export default function ChatPage() {
                         value={lodgeName}
                         onChange={(e) => setLodgeName(e.target.value)}
                         placeholder="e.g. CS101 Study Group"
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 focus:outline-none focus:ring-2 focus:ring-[#0099B3] text-sm font-medium"
+                        className="w-full bg-surface-muted border border-subtle rounded-xl p-3.5 focus:outline-none focus:ring-2 focus:ring-[#0099B3] text-sm font-medium"
                       />
                     </div>
 
                     {/* Description */}
                     <div>
-                      <label className="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">
+                      <label className="block text-[11px] font-extrabold text-secondary uppercase tracking-wider mb-2">
                         Description (Optional)
                       </label>
                       <textarea
                         value={lodgeDescription}
                         onChange={(e) => setLodgeDescription(e.target.value)}
                         placeholder="What is this lodge about?"
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 h-24 resize-none focus:outline-none focus:ring-2 focus:ring-[#0099B3] text-sm font-medium"
+                        className="w-full bg-surface-muted border border-subtle rounded-xl p-3.5 h-24 resize-none focus:outline-none focus:ring-2 focus:ring-[#0099B3] text-sm font-medium"
                       />
                     </div>
                   </div>
 
-                  <div className="p-5 bg-slate-50 border-t border-slate-100 flex justify-end shrink-0">
+                  <div className="p-5 bg-surface-muted border-t border-subtle flex justify-end shrink-0">
                     <button
                       onClick={handleCreateLodge}
                       disabled={isCreating || !lodgeName}
-                      className="px-6 py-3 bg-[#3B82F6] hover:bg-[#10239E] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-bold transition-all shadow-md flex items-center gap-2"
+                      className="px-6 py-3 bg-brand hover:bg-brand-hover disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-bold transition-all shadow-md flex items-center gap-2"
                     >
                       {isCreating ? (
                         <Loader2 size={18} className="animate-spin" />
@@ -2993,13 +2971,13 @@ export default function ChatPage() {
                     (pl) => !myLodges.find((ml) => ml._id === pl._id),
                   ).length === 0 ? (
                     <div className="text-center py-10">
-                      <div className="h-16 w-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Compass size={24} className="text-slate-300" />
+                      <div className="h-16 w-16 bg-surface-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Compass size={24} className="text-muted" />
                       </div>
-                      <p className="text-sm font-bold text-slate-600">
+                      <p className="text-sm font-bold text-secondary">
                         No new lodges to discover.
                       </p>
-                      <p className="text-xs text-slate-400 mt-1">
+                      <p className="text-xs text-muted mt-1">
                         Check back later or create your own!
                       </p>
                     </div>
@@ -3009,10 +2987,10 @@ export default function ChatPage() {
                       .map((lodge) => (
                         <div
                           key={lodge._id}
-                          className="bg-white p-4 rounded-[20px] border border-slate-100 shadow-sm flex flex-col gap-3"
+                          className="bg-surface p-4 rounded-[20px] border border-subtle shadow-sm flex flex-col gap-3"
                         >
                           <div className="flex items-center gap-3">
-                            <div className="h-12 w-12 rounded-[14px] bg-slate-100 text-slate-400 flex items-center justify-center font-bold text-lg overflow-hidden shrink-0">
+                            <div className="h-12 w-12 rounded-[14px] bg-surface-muted text-muted flex items-center justify-center font-bold text-lg overflow-hidden shrink-0">
                               {lodge.avatar ? (
                                 <img
                                   src={lodge.avatar}
@@ -3024,10 +3002,10 @@ export default function ChatPage() {
                               )}
                             </div>
                             <div className="min-w-0">
-                              <p className="text-sm font-bold text-slate-900 truncate">
+                              <p className="text-sm font-bold text-primary truncate">
                                 {lodge.name}
                               </p>
-                              <p className="text-xs font-medium text-slate-500 flex items-center gap-1 mt-0.5 truncate">
+                              <p className="text-xs font-medium text-secondary flex items-center gap-1 mt-0.5 truncate">
                                 <Users size={12} /> Public
                               </p>
                             </div>
@@ -3038,7 +3016,7 @@ export default function ChatPage() {
                               setIsLodgeModalOpen(false);
                             }}
                             disabled={isJoining}
-                            className="w-full py-2 bg-slate-50 hover:bg-[#EFF6FF] text-[#3B82F6] rounded-xl text-xs font-bold transition-colors border border-slate-100 hover:border-blue-200"
+                            className="w-full py-2 bg-surface-muted hover:bg-brand-tint text-brand rounded-xl text-xs font-bold transition-colors border border-subtle hover:border-brand/30"
                           >
                             Join Lodge
                           </button>
@@ -3055,14 +3033,14 @@ export default function ChatPage() {
       {/* Story Creation Modal */}
       {isStoryModalOpen && (
         <div className="fixed inset-0 bg-[#1e2532]/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-[24px] w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
-            <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
-              <h2 className="text-lg font-extrabold text-slate-900">
+          <div className="bg-surface rounded-[24px] w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
+            <div className="px-6 py-5 border-b border-subtle flex items-center justify-between">
+              <h2 className="text-lg font-extrabold text-primary">
                 Create Status
               </h2>
               <button
                 onClick={() => setIsStoryModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 transition-colors"
+                className="text-muted hover:text-secondary transition-colors"
               >
                 <X size={24} />
               </button>
@@ -3071,7 +3049,7 @@ export default function ChatPage() {
             <div className="p-6 space-y-6">
               {/* Media Preview / Upload Area */}
               <div
-                className="h-48 rounded-[20px] border-2 border-dashed border-slate-200 bg-slate-50 flex flex-col items-center justify-center overflow-hidden cursor-pointer hover:bg-slate-100 transition-colors relative"
+                className="h-48 rounded-[20px] border-2 border-dashed border-subtle bg-surface-muted flex flex-col items-center justify-center overflow-hidden cursor-pointer hover:bg-surface-alt transition-colors relative"
                 onClick={() => fileInputRef.current?.click()}
               >
                 {storyPreview ? (
@@ -3082,11 +3060,11 @@ export default function ChatPage() {
                   />
                 ) : (
                   <>
-                    <Plus size={36} className="text-[#3B82F6] mb-3" />
-                    <p className="text-sm font-bold text-slate-700">
+                    <Plus size={36} className="text-brand mb-3" />
+                    <p className="text-sm font-bold text-secondary">
                       Add Image or Video
                     </p>
-                    <p className="text-[11px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
+                    <p className="text-[11px] font-bold text-muted mt-1 uppercase tracking-wider">
                       Optional
                     </p>
                   </>
@@ -3102,23 +3080,23 @@ export default function ChatPage() {
 
               {/* Text Content */}
               <div>
-                <label className="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">
+                <label className="block text-[11px] font-extrabold text-secondary uppercase tracking-wider mb-2">
                   Caption / Status
                 </label>
                 <textarea
                   value={storyText}
                   onChange={(e) => setStoryText(e.target.value)}
                   placeholder="What's on your mind? Share an update or thought..."
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 h-24 resize-none focus:outline-none focus:ring-2 focus:ring-[#0099B3] text-sm font-medium"
+                  className="w-full bg-surface-muted border border-subtle rounded-xl p-3.5 h-24 resize-none focus:outline-none focus:ring-2 focus:ring-[#0099B3] text-sm font-medium"
                 />
               </div>
             </div>
 
-            <div className="p-5 bg-slate-50 border-t border-slate-100 flex justify-end">
+            <div className="p-5 bg-surface-muted border-t border-subtle flex justify-end">
               <button
                 onClick={handlePostStory}
                 disabled={isCreatingStatus || (!storyText && !storyFile)}
-                className="px-6 py-3 bg-[#3B82F6] hover:bg-[#10239E] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-bold transition-all shadow-md flex items-center gap-2"
+                className="px-6 py-3 bg-brand hover:bg-brand-hover disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-bold transition-all shadow-md flex items-center gap-2"
               >
                 {isCreatingStatus ? (
                   <Loader2 size={18} className="animate-spin" />

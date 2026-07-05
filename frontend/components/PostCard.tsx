@@ -13,9 +13,9 @@ export default function PostCard({ post, authUser, toggleLike }: PostCardProps) 
   const hasLiked = post.likes.includes(authUser?._id || "");
 
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+    <div className="bg-surface rounded-2xl p-6 shadow-sm border border-subtle">
       <div className="flex items-center gap-3 mb-4">
-        <div className="h-10 w-10 rounded-full bg-slate-200 overflow-hidden shrink-0">
+        <div className="h-10 w-10 rounded-full bg-surface-muted overflow-hidden shrink-0">
           {post.author?.avatar ? (
             <img
               src={post.author.avatar}
@@ -23,14 +23,14 @@ export default function PostCard({ post, authUser, toggleLike }: PostCardProps) 
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full bg-[#3B82F6] flex items-center justify-center text-white font-bold">
+            <div className="w-full h-full bg-brand flex items-center justify-center text-white font-bold">
               {post.author?.displayName?.charAt(0).toUpperCase()}
             </div>
           )}
         </div>
         <div className="flex-1">
-          <p className="font-bold text-slate-900">{post.author?.displayName}</p>
-          <p className="text-xs text-slate-500">
+          <p className="font-bold text-primary">{post.author?.displayName}</p>
+          <p className="text-xs text-secondary">
             {new Date(post.createdAt).toLocaleDateString()} at{" "}
             {new Date(post.createdAt).toLocaleTimeString([], {
               hour: "2-digit",
@@ -40,10 +40,10 @@ export default function PostCard({ post, authUser, toggleLike }: PostCardProps) 
         </div>
       </div>
 
-      <p className="text-slate-800 mb-4 whitespace-pre-wrap">{post.content}</p>
+      <p className="text-primary mb-4 whitespace-pre-wrap">{post.content}</p>
 
       {post.image && (
-        <div className="mb-4 rounded-xl overflow-hidden border border-slate-100">
+        <div className="mb-4 rounded-xl overflow-hidden border border-subtle">
           <img
             src={post.image}
             alt="Post attachment"
@@ -57,7 +57,7 @@ export default function PostCard({ post, authUser, toggleLike }: PostCardProps) 
           {post.tags.map((tag, idx) => (
             <span
               key={idx}
-              className="px-2 py-1 bg-slate-100 text-slate-600 text-xs font-medium rounded-md"
+              className="px-2 py-1 bg-surface-muted text-secondary text-xs font-medium rounded-md"
             >
               #{tag}
             </span>
@@ -65,11 +65,11 @@ export default function PostCard({ post, authUser, toggleLike }: PostCardProps) 
         </div>
       )}
 
-      <div className="flex items-center gap-6 pt-4 border-t border-slate-100">
+      <div className="flex items-center gap-6 pt-4 border-t border-subtle">
         <button
           onClick={() => toggleLike(post._id)}
           className={`flex items-center gap-2 text-sm font-bold transition-colors ${
-            hasLiked ? "text-red-500" : "text-slate-500 hover:text-red-500"
+            hasLiked ? "text-red-500" : "text-secondary hover:text-red-500"
           }`}
         >
           <Heart size={18} className={hasLiked ? "fill-red-500" : ""} />
