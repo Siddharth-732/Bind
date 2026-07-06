@@ -5,7 +5,7 @@
 ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
 ![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white)
 
-Talk8iv is a production-ready, full-stack real-time chat application. It features a robust decoupled architecture using a RESTful API for persistent data storage and a Socket.io WebSocket server for instantaneous message broadcasting.
+Bind is a production-ready, full-stack real-time chat application. It features a robust decoupled architecture using a RESTful API for persistent data storage and a Socket.io WebSocket server for instantaneous message broadcasting.
 
 ## Features
 
