@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import AppInitializer from "../components/AppInitializer";
+import GoogleAuthProvider from "../components/GoogleAuthProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -42,9 +43,11 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeBootstrapScript }} />
       </head>
       <body className={inter.className}>
-        <AppInitializer />
-        {children}
-        <Toaster position="top-center" reverseOrder={false} />
+        <GoogleAuthProvider>
+          <AppInitializer />
+          {children}
+          <Toaster position="top-center" reverseOrder={false} />
+        </GoogleAuthProvider>
       </body>
     </html>
   );
