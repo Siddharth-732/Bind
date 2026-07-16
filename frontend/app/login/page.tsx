@@ -1,11 +1,13 @@
 "use client";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { useGoogleLogin } from "@react-oauth/google";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "../../store/useAuthStore";
 import { Eye, EyeOff, Building2 } from "lucide-react";
 import { Loader2 } from "lucide-react";
 import InteractiveIllustration from "../../components/InteractiveIllustration";
+import toast from "react-hot-toast";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -18,8 +20,20 @@ export default function LoginPage() {
   );
   const [hasError, setHasError] = useState(false);
 
-  const { login, authUser, isLoggingIn } = useAuthStore();
+  const { login, authUser, isLoggingIn, googleAuth } = useAuthStore();
   const router = useRouter();
+
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      const success = await googleAuth(tokenResponse.access_token);
+      if (success) {
+        router.push("/");
+      }
+    },
+    onError: () => {
+      toast.error("Google authentication failed or was cancelled.");
+    }
+  });
 
   useEffect(() => {
     if (authUser) {
@@ -161,7 +175,11 @@ export default function LoginPage() {
           </form>
 
           {/* Social Login */}
-          <button className="mt-4 flex w-full items-center justify-center gap-3 rounded-full bg-surface-muted py-3.5 text-[15px] font-bold text-secondary transition-colors hover:bg-[#E5E7EB]">
+          <button 
+            type="button"
+            onClick={() => googleLogin()}
+            className="mt-4 flex w-full items-center justify-center gap-3 rounded-full bg-surface-muted py-3.5 text-[15px] font-bold text-secondary transition-colors hover:bg-[#E5E7EB]"
+          >
             <img
               src="https://www.google.com/favicon.ico"
               alt="Google"
