@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useGoogleLogin } from "@react-oauth/google";
 import { useAuthStore } from "../../store/useAuthStore";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -19,8 +20,20 @@ import InteractiveIllustration from "../../components/InteractiveIllustration";
 import AvatarSelectionModal from "../../components/AvatarSelectionModal";
 
 export default function RegisterPage() {
-  const { register, isRegistering } = useAuthStore();
+  const { register, isRegistering, googleAuth } = useAuthStore();
   const router = useRouter();
+
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      const success = await googleAuth(tokenResponse.access_token);
+      if (success) {
+        router.push("/");
+      }
+    },
+    onError: () => {
+      toast.error("Google authentication failed or was cancelled.");
+    }
+  });
 
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -298,6 +311,7 @@ export default function RegisterPage() {
               {/* Social Registration */}
               <button
                 type="button"
+                onClick={() => googleLogin()}
                 className="mt-4 flex w-full items-center justify-center gap-3 rounded-full bg-surface-muted py-3.5 text-[15px] font-bold text-secondary transition-colors hover:bg-[#E5E7EB]"
               >
                 <img

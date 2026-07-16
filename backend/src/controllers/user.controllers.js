@@ -803,12 +803,15 @@ export const googleAuth = async (req, res) => {
       return res.status(400).json({ error: "No credential provided" });
     }
 
-    const ticket = await client.verifyIdToken({
-      idToken: credential,
-      audience: process.env.GOOGLE_CLIENT_ID,
+    const response = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+      headers: { Authorization: `Bearer ${credential}` },
     });
     
-    const payload = ticket.getPayload();
+    if (!response.ok) {
+      return res.status(401).json({ error: "Invalid Google token" });
+    }
+
+    const payload = await response.json();
     const { sub: googleId, email, name: displayName, picture: avatar } = payload;
     
     let user = await User.findOne({ email });

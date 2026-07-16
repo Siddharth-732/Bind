@@ -36,6 +36,7 @@ interface AuthState {
   socket: Socket | null;
   onlineUsers: string[];
   login: (data: Record<string, unknown> | FormData) => Promise<boolean>;
+  googleAuth: (credential: string) => Promise<boolean>;
   register: (data: Record<string, unknown> | FormData) => Promise<void>;
   logout: () => Promise<void>;
   connectSocket: () => void;
@@ -94,6 +95,26 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       );
     } finally {
       set({ isRegistering: false });
+    }
+  },
+
+  googleAuth: async (credential: string) => {
+    set({ isLoggingIn: true });
+    try {
+      const res = await axiosInstance.post("/users/google-auth", { credential });
+      set({ authUser: res.data.user });
+      toast.success(res.data.message || "Logged in successfully!");
+      get().connectSocket();
+      return true;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data?.error || "Google authentication failed.");
+      } else {
+        toast.error("An unexpected error occurred.");
+      }
+      return false;
+    } finally {
+      set({ isLoggingIn: false });
     }
   },
 
