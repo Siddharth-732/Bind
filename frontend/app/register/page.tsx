@@ -327,11 +327,14 @@ export default function RegisterPage() {
               className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-500"
             >
               <div className="text-center mb-6">
-                <p className="text-sm text-secondary">
+                <p className="text-sm text-secondary mb-2">
                   We sent a 6-digit code to <br />
                   <span className="font-bold text-primary">
                     {formData.email}
                   </span>
+                </p>
+                <p className="text-xs text-secondary/70">
+                  (Please check your spam folder for the verification code)
                 </p>
               </div>
 
