@@ -19,6 +19,7 @@ import {
   getPeers,
   getPeerRequests,
   getUserProfile,
+  googleAuth,
 } from "../controllers/user.controllers.js";
 import { upload } from "../middleware/multer.middleware.js";
 import { verifyJWT } from "../middleware/auth.middleware.js";
@@ -26,6 +27,7 @@ const router = Router();
 router.route("/send-otp").post(sendOTP);
 router.route("/verify-otp").post(verifyOTP);
 router.route("/check-username").get(checkUsername);
+router.route("/google-auth").post(googleAuth);
 router.route("/register").post(
   upload.fields([
     {

@@ -6,6 +6,9 @@ import {
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { emailQueue, redisClient } from "../utils/emailQueue.js";
+import { OAuth2Client } from "google-auth-library";
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export const sendOTP = async (req, res) => {
   try {
@@ -790,5 +793,79 @@ export const getUserProfile = async (req, res) => {
   } catch (error) {
     console.error("Error in getUserProfile:", error);
     return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const googleAuth = async (req, res) => {
+  try {
+    const { credential } = req.body;
+    if (!credential) {
+      return res.status(400).json({ error: "No credential provided" });
+    }
+
+    const ticket = await client.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    
+    const payload = ticket.getPayload();
+    const { sub: googleId, email, name: displayName, picture: avatar } = payload;
+    
+    let user = await User.findOne({ email });
+    
+    if (user) {
+      // User exists, just log them in (add googleId if they didn't have it)
+      if (!user.googleId) {
+        user.googleId = googleId;
+        await user.save({ validateBeforeSave: false });
+      }
+    } else {
+      // User doesn't exist, create them
+      // Generate a unique username based on their display name
+      const baseUsername = displayName.toLowerCase().replace(/[^a-z0-9]/g, "");
+      const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+      let username = `${baseUsername}_${randomSuffix}`;
+      
+      // Ensure it's unique (basic check, extremely rare to collide with random suffix)
+      const existingUser = await User.findOne({ username });
+      if (existingUser) {
+        username = `${baseUsername}_${Math.floor(10000 + Math.random() * 90000)}`;
+      }
+
+      user = await User.create({
+        googleId,
+        email,
+        displayName,
+        username,
+        avatar,
+        bio: "",
+        institute: "Independent Researcher",
+        specialization: "General Scholar",
+      });
+    }
+
+    const accessToken = user.generateAccessToken();
+    const refreshToken = user.generateRefreshToken();
+
+    user.refreshToken = refreshToken;
+    await user.save({ validateBeforeSave: false });
+
+    const options = {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    };
+
+    return res
+      .status(200)
+      .cookie("accessToken", accessToken, options)
+      .cookie("refreshToken", refreshToken, options)
+      .json({
+        message: "Google login successful",
+        user,
+      });
+  } catch (error) {
+    console.error("Error in googleAuth:", error);
+    return res.status(500).json({ error: "Google authentication failed" });
   }
 };
